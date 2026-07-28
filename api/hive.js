@@ -45,6 +45,9 @@ function flattenProp(prop) {
       return prop.date ? prop.date.start : null;
     case "people":
       return (prop.people || []).map((p) => p.name || p.id);
+    case "relation":
+      // Dash-stripped so it compares cleanly against page ids from either API.
+      return (prop.relation || []).map((r) => String(r.id).replace(/-/g, ""));
     case "formula":
       return prop.formula ? (prop.formula.string ?? prop.formula.number ?? prop.formula.boolean) : null;
     default:

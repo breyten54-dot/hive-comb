@@ -230,8 +230,8 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
   </div>
 
   <div class="card" id="south">
-    <h2>Completion by area <span class="hint">% done</span></h2>
-    <div class="sub">Tasks carry Area tags — this is done ÷ total per area.</div>
+    <h2><span id="southTitle">Completion by project</span> <span class="hint">% done</span></h2>
+    <div class="sub" id="southSub">Done ÷ total per project.</div>
     <div id="areaBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 </div>
@@ -472,18 +472,47 @@ function renderTasks(tasks){
     leg+='<span><i style="background:'+STATUS[s]+'"></i>'+esc(s)+' <b>'+n+'</b></span>';});
   $("pipeBody").innerHTML='<div class="seg">'+segs+'</div><div class="seglegend">'+leg+'</div>';
 
-  var areas={};
-  tasks.forEach(function(t){
-    var L=Array.isArray(t.Area)?t.Area:[];
-    if(!L.length)L=["Untagged"];
-    L.forEach(function(a){if(!areas[a])areas[a]={d:0,n:0};areas[a].n++;if(t.Status==="Done")areas[a].d++;});
-  });
-  var ks=Object.keys(areas).sort(function(a,b){return (areas[b].d/areas[b].n)-(areas[a].d/areas[a].n);});
+  /* Completion per PROJECT — real, via the Project relation on each task.
+     Falls back to Area tags only if the relation isn't populated yet. */
+  var useProjects = !!(state.projects && tasks.some(function(t){
+    return Array.isArray(t.Project) && t.Project.length; }));
+  var groups={}, label;
+  if(useProjects){
+    label="project";
+    var byId={};
+    state.projects.forEach(function(p){ byId[String(p.id).replace(/-/g,"")] = p.Project; });
+    tasks.forEach(function(t){
+      var L=Array.isArray(t.Project)?t.Project:[];
+      if(!L.length) return;                    /* untagged: counts toward no project */
+      L.forEach(function(pid){
+        var name=byId[String(pid).replace(/-/g,"")]; if(!name) return;
+        if(!groups[name])groups[name]={d:0,n:0};
+        groups[name].n++; if(t.Status==="Done")groups[name].d++;
+      });
+    });
+  } else {
+    label="area";
+    tasks.forEach(function(t){
+      var L=Array.isArray(t.Area)?t.Area:[];
+      if(!L.length)L=["Untagged"];
+      L.forEach(function(a){if(!groups[a])groups[a]={d:0,n:0};groups[a].n++;if(t.Status==="Done")groups[a].d++;});
+    });
+  }
+  var untagged = useProjects ? tasks.filter(function(t){
+    return !(Array.isArray(t.Project)&&t.Project.length); }).length : 0;
+  var ks=Object.keys(groups).sort(function(a,b){
+    var pa=groups[a].d/groups[a].n, pb=groups[b].d/groups[b].n;
+    return pb-pa || groups[b].n-groups[a].n; });
+  $("southTitle").textContent="Completion by "+label;
+  $("southSub").textContent = useProjects
+    ? "Done ÷ total per project, from the Project link on each task."
+    : "Tasks carry Area tags — this is done ÷ total per area.";
   $("areaBody").innerHTML='<div class="bars">'+ks.map(function(k){
-    var a=areas[k],p=Math.round(a.d/a.n*100);
-    return '<div class="bar" title="'+esc(k)+': '+a.d+' of '+a.n+' done"><span class="lab">'+esc(k)+
+    var a=groups[k],p=Math.round(a.d/a.n*100);
+    return '<div class="bar" title="'+esc(k)+': '+a.d+' of '+a.n+' done"><span class="lab" title="'+esc(k)+'">'+esc(k)+
       '</span><span class="track"><span class="fill" style="width:'+p+'%"></span></span><span class="num">'+p+'%</span></div>';
-  }).join("")+'</div>';
+  }).join("")+'</div>'+(untagged?'<div class="sub" style="margin-top:9px">'+untagged+
+    ' task'+(untagged>1?'s':'')+' not linked to a project (cross-cutting work).</div>':'');
 
   var attn=tasks.filter(function(t){return t.Status==="Blocked"||t.Status==="Pending Review"||
     (t.Owner==="User"&&t.Status!=="Done");});
