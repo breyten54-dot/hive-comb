@@ -1,0 +1,14 @@
+{
+  "name": "hive-comb",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HIVE — The Comb. Standalone command view of the HIVE workspace, reading live from Notion.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  }
+}

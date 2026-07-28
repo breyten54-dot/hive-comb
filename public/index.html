@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0806">
+<meta name="description" content="HIVE — the comb. Live command view of the HIVE workspace.">
+<title>HIVE — The Comb</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 20 6.5V17.5L12 22 4 17.5V6.5L12 2Z' fill='%23f4c430'/></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{
+  --bg:#0a0806; --surface:#12100c; --surface-2:#181410;
+  --line:#2e2618; --line-soft:#241d12;
+  --gold:#d4a72c; --gold-br:#f4c430; --gold-deep:#8a6414;
+  --ink:#f2e7d0; --ink-2:#b5a687; --ink-3:#7d735f;
+  --st-todo:#8f8a7d; --st-prog:#5aa9e6; --st-rev:#f4c430;
+  --st-block:#e0555f; --st-done:#5fc98a;
+  --r:10px;
+}
+:root[data-theme="light"]{
+  --bg:#f7efdd; --surface:#fffaef; --surface-2:#f3e8cd;
+  --line:#ddc79a; --line-soft:#ece0c2;
+  --gold:#a87c14; --gold-br:#8a6414; --gold-deep:#c9a227;
+  --ink:#2f2411; --ink-2:#6b5730; --ink-3:#8d7a4e;
+  --st-todo:#6d6858; --st-prog:#1f6fa8; --st-rev:#9a7508;
+  --st-block:#a8323c; --st-done:#2c7d4e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse 80% 50% at 50% 42%, rgba(212,167,44,.09), transparent 62%),var(--bg);
+  min-height:100vh;min-height:100dvh;padding-bottom:40px}
+h1,h2{font-family:Georgia,"Iowan Old Style",serif;margin:0;text-wrap:balance}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--gold-br);outline-offset:2px;border-radius:4px}
+button{font:inherit}
+
+.top{max-width:1380px;margin:0 auto;padding:20px 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.top .mark{width:28px;height:28px;flex:none}
+.top h1{font-size:1.28rem;color:var(--gold-br)}
+.top .tag{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.live{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:.71rem;color:var(--ink-2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--st-done);box-shadow:0 0 8px currentColor;color:var(--st-done)}
+.dot.stale{background:var(--st-rev);color:var(--st-rev)}
+.dot.off{background:var(--ink-3);color:var(--ink-3);box-shadow:none}
+.iconbtn{background:none;border:1px solid var(--line);color:var(--ink-3);border-radius:6px;
+  width:26px;height:26px;cursor:pointer;line-height:1;display:grid;place-items:center;font-size:.8rem}
+.iconbtn:hover{color:var(--gold-br);border-color:var(--gold-deep)}
+
+.orbit{max-width:1380px;margin:14px auto 0;padding:0 20px;display:grid;gap:12px;
+  grid-template-columns:minmax(150px,.8fr) minmax(330px,1.35fr) minmax(150px,.8fr);
+  grid-template-areas:"nw north ne" "west comb east" "sw south se";align-items:stretch}
+#nw{grid-area:nw}#ne{grid-area:ne}#sw{grid-area:sw}#se{grid-area:se}
+#north{grid-area:north}#south{grid-area:south}#west{grid-area:west}#east{grid-area:east}
+#combcard{grid-area:comb}
+@media(max-width:1040px){.orbit{grid-template-columns:repeat(2,1fr);
+  grid-template-areas:"comb comb" "nw ne" "sw se" "north north" "west west" "east east" "south south"}}
+@media(max-width:520px){.orbit{grid-template-columns:1fr;
+  grid-template-areas:"comb" "nw" "ne" "sw" "se" "north" "west" "east" "south"}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
+.card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px}
+.card h2 .hint{font-size:.61rem;font-family:-apple-system,sans-serif;color:var(--ink-3);
+  letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400;white-space:nowrap}
+.card .sub{font-size:.7rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
+
+.stat{display:flex;flex-direction:column;justify-content:center;text-align:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px}
+.stat .k{font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font-size:2rem;font-weight:700;line-height:1.1;margin-top:4px;color:var(--gold-br);font-variant-numeric:tabular-nums}
+.stat .v small{font-size:.85rem;color:var(--ink-3);font-weight:400}
+.stat .n{font-size:.63rem;color:var(--ink-3);margin-top:4px}
+.stat.attn .v{color:var(--st-block)}.stat.ok .v{color:var(--st-done)}
+
+#combcard{display:flex;flex-direction:column;align-items:center;
+  background:linear-gradient(180deg,var(--surface),var(--surface-2));
+  border:1px solid var(--line);border-radius:var(--r);padding:12px 10px 14px}
+.combhd{width:100%;display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.combhd h2{font-size:.9rem}
+.combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
+.combwrap{position:relative;width:100%;display:flex;justify-content:center;flex:1;align-items:center}
+svg.comb{width:100%;max-width:440px;height:auto;overflow:visible}
+.cell{cursor:pointer}
+.cell polygon{fill:var(--surface-2);stroke:var(--line);stroke-width:1.4;
+  transition:fill .2s,stroke .2s,filter .2s;transform-origin:center;transform-box:fill-box}
+.cell:hover polygon,.cell:focus-visible polygon{fill:#241a0a;stroke:var(--gold);
+  filter:drop-shadow(0 0 8px rgba(212,167,44,.45))}
+:root[data-theme="light"] .cell:hover polygon{fill:#f0dfb4}
+.cell.sel polygon{fill:#2c2009;stroke:var(--gold-br);filter:drop-shadow(0 0 12px rgba(244,196,48,.6))}
+:root[data-theme="light"] .cell.sel polygon{fill:#eed9a4}
+.cell text{fill:var(--ink);font-size:8.5px;text-anchor:middle;dominant-baseline:middle;
+  pointer-events:none;font-family:-apple-system,"Segoe UI",sans-serif}
+.cell.hub polygon{fill:#1e1609;stroke:var(--gold);stroke-width:2}
+:root[data-theme="light"] .cell.hub polygon{fill:#f0e2bb}
+.cell.hub text{fill:var(--gold-br);font-weight:700;font-size:11px}
+#bee{position:absolute;width:26px;height:26px;pointer-events:none;opacity:0;z-index:5;
+  filter:drop-shadow(0 0 6px rgba(244,196,48,.9));
+  transition:left .55s cubic-bezier(.3,.6,.3,1),top .55s cubic-bezier(.3,.6,.3,1),opacity .35s}
+#bee.awake{opacity:1}
+#bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
+@keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
+@media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
+.comblegend{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:.66rem;color:var(--ink-3)}
+.comblegend span{display:flex;align-items:center;gap:5px}
+.comblegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.comblegend b{color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+.bars{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:84px 1fr 40px;align-items:center;gap:8px;font-size:.74rem}
+.bar .lab{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .track{height:9px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+.bar .fill{height:100%;background:var(--gold);border-radius:5px;transition:width .5s cubic-bezier(.3,.8,.3,1)}
+.bar:hover .fill{background:var(--gold-br)}
+.bar .num{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums;font-size:.71rem}
+
+.seg{display:flex;height:24px;border-radius:6px;overflow:hidden;margin-top:11px;gap:2px}
+.seg div{transition:flex-grow .5s cubic-bezier(.3,.8,.3,1);min-width:2px}
+.seglegend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:.68rem;color:var(--ink-2)}
+.seglegend span{display:flex;align-items:center;gap:5px}
+.seglegend i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none}
+.seglegend b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+.list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:264px;overflow-y:auto}
+.item{border-left:2px solid var(--line);padding:6px 0 6px 9px}
+.item.b{border-left-color:var(--st-block)}.item.r{border-left-color:var(--st-rev)}.item.u{border-left-color:var(--st-prog)}
+.item .t{font-size:.77rem;line-height:1.35;color:var(--ink)}
+.item .m{font-size:.66rem;color:var(--ink-3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:.59rem;padding:1px 6px;border-radius:20px;border:1px solid var(--line);color:var(--ink-2)}
+.chip.p0{border-color:var(--st-block);color:var(--st-block)}
+.chip.p1{border-color:var(--st-rev);color:var(--st-rev)}
+.empty{font-size:.74rem;color:var(--ink-3);padding:12px 0;text-align:center;font-style:italic}
+
+.sk{background:linear-gradient(90deg,var(--line-soft),var(--surface-2),var(--line-soft));
+  background-size:200% 100%;animation:sh 1.4s infinite;border-radius:5px;height:9px;margin-top:8px}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.err{margin-top:9px;font-size:.73rem;line-height:1.5;color:var(--ink-2);
+  border-left:2px solid var(--st-block);padding-left:9px}
+.err b{color:var(--st-block);display:block;margin-bottom:2px;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+.err code{background:var(--surface-2);padding:1px 5px;border-radius:3px}
+/* one page-level banner beats the same error repeated in every panel */
+#banner{max-width:1380px;margin:12px auto 0;padding:12px 16px;background:var(--surface);
+  border:1px solid var(--st-block);border-left-width:3px;border-radius:var(--r);
+  font-size:.78rem;line-height:1.55;color:var(--ink-2)}
+#banner[hidden]{display:none}
+#banner b{color:var(--st-block);display:block;font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:3px}
+#banner code{background:var(--surface-2);padding:1px 5px;border-radius:3px;font-family:ui-monospace,monospace}
+#banner .rt{margin-top:7px;background:none;border:1px solid var(--line);color:var(--ink-2);
+  border-radius:5px;padding:4px 12px;cursor:pointer;font-size:.72rem}
+#banner .rt:hover{color:var(--gold-br);border-color:var(--gold-deep)}
+
+.back{position:fixed;inset:0;background:rgba(4,3,1,.6);backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity .22s;z-index:20}
+.back.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%) scale(.97);
+  width:min(520px,92vw);max-height:82vh;overflow-y:auto;background:var(--surface);
+  border:1px solid var(--gold-deep);border-radius:12px;padding:24px 26px;opacity:0;pointer-events:none;
+  transition:all .26s cubic-bezier(.2,.8,.2,1);z-index:21;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.panel.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.panel .eb{font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.panel h2{font-size:1.22rem;color:var(--gold-br);margin-top:5px}
+.panel .row{margin-top:12px;font-size:.84rem;line-height:1.55}
+.panel .row .k{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:2px}
+.panel .row a{color:var(--gold-br);word-break:break-all}
+.panel .x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-3);
+  font-size:1.4rem;cursor:pointer;line-height:1;padding:4px}
+.panel .x:hover{color:var(--gold-br)}
+footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 2 20 6.5V17.5L12 22 4 17.5V6.5L12 2Z" stroke="var(--gold)" stroke-width="1.4"/>
+    <path d="M12 7 16 9.2v4.6L12 16 8 13.8V9.2L12 7Z" fill="var(--gold-deep)"/>
+  </svg>
+  <div>
+    <h1>HIVE — The Comb</h1>
+    <div class="tag">Claude · queen &nbsp;|&nbsp; Kimi · worker</div>
+  </div>
+  <div class="live">
+    <span class="dot off" id="ldot"></span><span id="ltxt">loading…</span>
+    <button class="iconbtn" id="refresh" title="Refresh now" aria-label="Refresh now">&#8635;</button>
+    <button class="iconbtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">&#9681;</button>
+  </div>
+</div>
+
+<div id="banner" hidden></div>
+
+<div class="orbit">
+  <div class="stat" id="nw"><div class="k">Completion</div><div class="v">—</div><div class="n"></div></div>
+  <div class="stat" id="ne"><div class="k">Open work</div><div class="v">—</div><div class="n"></div></div>
+  <div class="stat" id="sw"><div class="k">Awaiting review</div><div class="v">—</div><div class="n"></div></div>
+  <div class="stat" id="se"><div class="k">Blocked</div><div class="v">—</div><div class="n"></div></div>
+
+  <div class="card" id="north">
+    <h2>Pipeline <span class="hint">every task</span></h2>
+    <div class="sub">Where all tracked work currently sits.</div>
+    <div id="pipeBody"><div class="sk" style="height:24px"></div></div>
+  </div>
+
+  <div class="card" id="west">
+    <h2>Needs attention <span class="hint" id="attnHint"></span></h2>
+    <div class="sub">Blocked, awaiting review, or waiting on you.</div>
+    <div id="attnBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+
+  <div id="combcard">
+    <div class="combhd"><h2>The comb</h2><span class="hint">direct access</span></div>
+    <div class="combwrap">
+      <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE projects"></svg>
+      <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
+        <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
+        <path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/>
+        <circle cx="20" cy="13" r="5" fill="#2a1d0c"/>
+        <path class="wing" d="M14 15Q6 6 12 4q2 6 2 11Z" fill="#f5e6c8" opacity=".9"/>
+        <path class="wing" d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".9"/>
+      </svg>
+    </div>
+    <div class="comblegend" id="combLegend"></div>
+  </div>
+
+  <div class="card" id="east">
+    <h2>What to do next <span class="hint" id="nextHint"></span></h2>
+    <div class="sub">Open work, highest priority first.</div>
+    <div id="nextBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+
+  <div class="card" id="south">
+    <h2>Completion by area <span class="hint">% done</span></h2>
+    <div class="sub">Tasks carry Area tags — this is done ÷ total per area.</div>
+    <div id="areaBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+</div>
+
+<footer id="foot">The comb is your folder structure; the ring around it reads live from Notion.</footer>
+
+<div class="back" id="back"></div>
+<div class="panel" id="panel" role="dialog" aria-modal="true">
+  <button class="x" id="px" aria-label="Close">&times;</button>
+  <div id="pbody"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var API="/api/hive", POLL=60000;
+var $=function(i){return document.getElementById(i);};
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+
+/* Comb skeleton = HIVE folder structure. The comb is NAVIGATION: it renders
+   before any network call and never disappears if a fetch fails. */
+var SKELETON=[
+ {Project:"Praeto Compliance Club"},{Project:"Praeto Balance"},{Project:"Project Tech"},
+ {Project:"Stella Indoor"},{Project:"Stella Glenwood"},{Project:"Digital Brain"},
+ {Project:"Anialah"},{Project:"Tiespro PWA"},{Project:"Video-Inbox"},
+ {Project:"AI-Benchmark"},{Project:"Football"},{Project:"Backend Checklist"},
+ {Project:"Padel eBook"},{Project:"Personal"},{Project:"Praeto Marketing"},
+ {Project:"fable-mode source"},{Project:"Unethical"},{Project:"ETA Work"}
+];
+var STATUS={"Todo":"var(--st-todo)","In Progress":"var(--st-prog)",
+  "Pending Review":"var(--st-rev)","Blocked":"var(--st-block)","Done":"var(--st-done)"};
+var ORDER=["Todo","In Progress","Pending Review","Blocked","Done"];
+var state={tasks:null,projects:null,at:null,live:false};
+
+/* ---------- theme ---------- */
+/* Dark is the brand, not a preference — black comb, gold cells. The OS setting
+   does NOT flip it; only an explicit toggle here does, and that choice sticks. */
+var saved=null;
+try{saved=localStorage.getItem("comb-theme");}catch(e){}
+document.documentElement.setAttribute("data-theme", saved==="light" ? "light" : "dark");
+$("themeBtn").addEventListener("click",function(){
+  var cur=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+  document.documentElement.setAttribute("data-theme",cur);
+  try{localStorage.setItem("comb-theme",cur);}catch(e){}
+});
+
+/* ---------- errors ---------- */
+function errHtml(kind,detail){
+  var m={
+    config:["Notion not configured","The server has no <code>NOTION_TOKEN</code>, or the databases aren’t shared with the integration. See the app README."],
+    auth:["Notion rejected the token","The integration token is wrong, revoked, or lacks access to these databases."],
+    notfound:["Database not found","A database ID is wrong, or the integration hasn’t been invited to it in Notion."],
+    net:["Can’t reach the server","You may be offline. The comb still works; panels refresh when the connection returns."],
+    rate:["Notion is rate-limiting","Too many requests. This will clear on its own shortly."],
+    server:["Server error",detail?esc(detail):"The API route failed. Check the Vercel function logs."]
+  }[kind]||["Something went wrong",detail?esc(detail):"Unexpected failure."];
+  return '<div class="err"><b>'+m[0]+'</b>'+m[1]+'</div>';
+}
+/* Whole-page failure = ONE banner. Repeating the identical message in four
+   panels is noise, and buries the single action that actually fixes it. */
+function showBanner(kind,detail){
+  var m={
+    config:["Notion not configured","This deployment has no <code>NOTION_TOKEN</code> set, or the two HIVE databases haven’t been shared with the integration. Setup steps are in the app README."],
+    auth:["Notion rejected the token","The integration token is wrong, revoked, or has no access to these databases. Regenerate it and update the Vercel environment variable."],
+    notfound:["Database not shared","Notion can’t see one of the databases. Open it → ••• → Connections → add the HIVE Comb integration."],
+    net:["Can’t reach the server","You may be offline. The comb below still works; the ring refreshes as soon as the connection returns."],
+    rate:["Notion is rate-limiting","Too many requests in a short window. This clears itself shortly."],
+    server:["Server error",detail?esc(detail):"The API route failed. Check the Vercel function logs for this deployment."]
+  }[kind]||["Something went wrong",detail?esc(detail):"Unexpected failure."];
+  var b=$("banner");
+  b.innerHTML='<b>'+m[0]+'</b>'+m[1]+'<br><button class="rt" id="retry">Try again</button>';
+  b.hidden=false;
+  var r=$("retry"); if(r) r.addEventListener("click",function(){ b.hidden=true; load(); });
+}
+function clearBanner(){ var b=$("banner"); if(b) b.hidden=true; }
+function setErr(ids,kind,detail){ids.forEach(function(i){var el=$(i);if(el)el.innerHTML=errHtml(kind,detail);});}
+function setStat(id,val,note,cls){
+  var el=$(id); if(!el)return;
+  el.className="stat"+(cls?" "+cls:"");
+  el.querySelector(".v").innerHTML=val; el.querySelector(".n").textContent=note||"";
+}
+
+/* ---------- hex ---------- */
+var SIZE=38,CX=300,CY=300,S3=Math.sqrt(3);
+var DIRS=[[1,0,-1],[1,-1,0],[0,-1,1],[-1,0,1],[-1,1,0],[0,1,-1]];
+function ring(rad){
+  if(rad===0)return[[0,0,0]];
+  var out=[],h=[DIRS[4][0]*rad,DIRS[4][1]*rad,DIRS[4][2]*rad];
+  for(var i=0;i<6;i++)for(var j=0;j<rad;j++){out.push(h.slice());
+    h=[h[0]+DIRS[i][0],h[1]+DIRS[i][1],h[2]+DIRS[i][2]];}
+  return out;
+}
+function px(q,r){return{x:CX+SIZE*1.5*q,y:CY+SIZE*(S3/2*q+S3*r)};}
+function hexPts(cx,cy,s){var p=[];for(var i=0;i<6;i++){var a=Math.PI/180*(60*i);
+  p.push((cx+s*Math.cos(a)).toFixed(1)+","+(cy+s*Math.sin(a)).toFixed(1));}return p.join(" ");}
+function dotFor(s){return s==="Active"?"var(--st-done)":(s==="Personal"?"var(--st-prog)":"var(--st-todo)");}
+function wrapName(n){var w=String(n||"").split(/[\s\/]+/),L=[],c="";
+  w.forEach(function(x){if((c+" "+x).trim().length>11){if(c)L.push(c);c=x;}else c=(c?c+" ":"")+x;});
+  if(c)L.push(c);return L.slice(0,3);}
+
+var selEl=null;
+function renderComb(projects,isLive){
+  var svg=$("comb"); if(!svg)return; svg.innerHTML="";
+  var NS="http://www.w3.org/2000/svg";
+  var cells=[{hub:true,q:0,r:0}],i=0,rad=1;
+  while(i<projects.length&&rad<=4){
+    var rg=ring(rad);
+    for(var k=0;k<rg.length&&i<projects.length;k++)
+      cells.push({hub:false,q:rg[k][0],r:rg[k][2],p:projects[i++]});
+    rad++;
+  }
+  var xs=[],ys=[];
+  cells.forEach(function(c){
+    var p=px(c.q,c.r); xs.push(p.x); ys.push(p.y);
+    var g=document.createElementNS(NS,"g");
+    g.setAttribute("class","cell"+(c.hub?" hub":""));
+    g.setAttribute("tabindex","0"); g.setAttribute("role","button");
+    g.setAttribute("aria-label",c.hub?"HIVE pipeline summary":(c.p.Project||"project"));
+    var poly=document.createElementNS(NS,"polygon");
+    poly.setAttribute("points",hexPts(p.x,p.y,SIZE-3)); g.appendChild(poly);
+    var lines=c.hub?["HIVE"]:wrapName(c.p.Project);
+    lines.forEach(function(ln,li){
+      var t=document.createElementNS(NS,"text");
+      t.setAttribute("x",p.x);
+      t.setAttribute("y",p.y-((lines.length-1)*5)+li*10.5-(c.hub?0:3));
+      t.textContent=ln; g.appendChild(t);
+    });
+    if(!c.hub&&isLive){
+      var d=document.createElementNS(NS,"circle");
+      d.setAttribute("cx",p.x); d.setAttribute("cy",p.y+SIZE*0.5);
+      d.setAttribute("r","2.6"); d.setAttribute("fill",dotFor(c.p.Status)); g.appendChild(d);
+    }
+    g.__c=c; g.__p=p; svg.appendChild(g);
+  });
+  var pad=SIZE+12;
+  svg.setAttribute("viewBox",(Math.min.apply(null,xs)-pad)+" "+(Math.min.apply(null,ys)-pad)+" "+
+    (Math.max.apply(null,xs)-Math.min.apply(null,xs)+pad*2)+" "+
+    (Math.max.apply(null,ys)-Math.min.apply(null,ys)+pad*2));
+  var lg=$("combLegend");
+  if(isLive){
+    var by={}; projects.forEach(function(p){var s=p.Status||"Unset";by[s]=(by[s]||0)+1;});
+    lg.innerHTML=Object.keys(by).sort(function(a,b){return by[b]-by[a];}).map(function(k){
+      return '<span><i style="background:'+dotFor(k)+'"></i>'+esc(k)+' <b>'+by[k]+'</b></span>';}).join("");
+  } else {
+    lg.innerHTML='<span style="font-style:italic">'+projects.length+' projects · folder view</span>';
+  }
+  /* seat the bee once the comb has real geometry */
+  requestAnimationFrame(function(){ if(!selEl) parkBee(); });
+}
+
+/* The bee LIVES in the comb — it rests on the hub and flies to whatever you
+   pick. It is never invisible; earlier versions only showed it mid-flight,
+   which read as "the bee vanished". */
+function beeSeat(cellEl){
+  var svg=$("comb"),w=document.querySelector(".combwrap");
+  if(!svg||!w||!cellEl)return null;
+  var vb=svg.viewBox.baseVal,r=svg.getBoundingClientRect(),wr=w.getBoundingClientRect();
+  if(!vb||!vb.width||!r.width)return null;
+  return {x:(r.left-wr.left)+(cellEl.__p.x-vb.x)*(r.width/vb.width)-13,
+          y:(r.top-wr.top)+(cellEl.__p.y-vb.y)*(r.height/vb.height)-30};
+}
+function parkBee(){
+  var hub=$("comb").querySelector(".cell.hub"); if(!hub)return;
+  var s=beeSeat(hub); if(!s)return;
+  var bee=$("bee");
+  bee.style.transition="none";
+  bee.style.left=s.x+"px"; bee.style.top=s.y+"px";
+  void bee.offsetWidth;
+  bee.style.transition="";
+  bee.classList.add("awake");
+}
+function flyTo(g,done){
+  var bee=$("bee"), s=beeSeat(g);
+  if(!s){ done&&done(); return; }
+  bee.classList.add("awake");
+  bee.style.left=s.x+"px"; bee.style.top=s.y+"px";
+  var quick=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  setTimeout(function(){done&&done();}, quick?0:430);
+}
+window.addEventListener("resize",function(){
+  if(selEl){var s=beeSeat(selEl); if(s){$("bee").style.left=s.x+"px";$("bee").style.top=s.y+"px";}}
+  else parkBee();
+});
+
+function openPanel(h){$("pbody").innerHTML=h;$("back").classList.add("on");$("panel").classList.add("on");}
+function closePanel(){$("back").classList.remove("on");$("panel").classList.remove("on");
+  if(selEl){selEl.classList.remove("sel");selEl=null;}}
+$("back").addEventListener("click",closePanel);
+$("px").addEventListener("click",closePanel);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
+function row(k,v){return '<div class="row"><span class="k">'+esc(k)+'</span>'+v+'</div>';}
+
+function hubPanel(){
+  var h='<div class="eb">Queen’s chamber</div><h2>HIVE pipeline</h2>';
+  if(!state.tasks) return h+row("Live data","Not loaded yet — the ring panels will say why.");
+  var t=state.tasks,by={}; ORDER.forEach(function(s){by[s]=0;});
+  t.forEach(function(x){if(by[x.Status]!==undefined)by[x.Status]++;});
+  var kimi=t.filter(function(x){return x.Owner==="Kimi"&&x.Status!=="Done";}).length;
+  h+=row("Kimi — open build work",kimi===0?"Idle — nothing claimed":kimi+" task"+(kimi>1?"s":""));
+  h+=row("Awaiting Claude’s review",by["Pending Review"]===0?"Nothing pending":by["Pending Review"]+" task(s)");
+  h+=row("Blocked",by["Blocked"]===0?"None":by["Blocked"]+" — see Needs attention");
+  h+=row("Total tracked",t.length+" tasks · "+(state.projects?state.projects.length:SKELETON.length)+" projects");
+  return h;
+}
+function projPanel(p){
+  var h='<div class="eb">HIVE project</div><h2>'+esc(p.Project)+'</h2>';
+  if(p.Folder)h+=row("Folder",'<span class="mono" style="font-size:.78rem">'+esc(p.Folder)+'</span>');
+  if(p["Live URL"])h+=row("Live","<a href='"+esc(p["Live URL"])+"' target='_blank' rel='noopener'>"+esc(p["Live URL"])+"</a>");
+  if(p.Status)h+=row("Status",esc(p.Status));
+  if(p.Notes)h+=row("Notes",esc(p.Notes));
+  if(!state.live)h+=row("Live data","Showing folder name only — Notion data not loaded.");
+  return h;
+}
+function select(g){
+  if(selEl)selEl.classList.remove("sel");
+  selEl=g; g.classList.add("sel");
+  flyTo(g,function(){openPanel(g.__c.hub?hubPanel():projPanel(g.__c.p));});
+}
+$("comb").addEventListener("click",function(e){var g=e.target.closest(".cell");if(g)select(g);});
+$("comb").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  var g=e.target.closest(".cell"); if(g){e.preventDefault();select(g);}});
+
+function renderTasks(tasks){
+  state.tasks=tasks;
+  var by={}; ORDER.forEach(function(s){by[s]=0;});
+  tasks.forEach(function(t){if(by[t.Status]!==undefined)by[t.Status]++;});
+  var total=tasks.length,done=by["Done"],pct=total?Math.round(done/total*100):0,open=total-done;
+  setStat("nw",pct+'<small>%</small>',done+" of "+total+" done",pct>=70?"ok":"");
+  setStat("ne",open,"tasks still open","");
+  setStat("sw",by["Pending Review"],by["Pending Review"]?"waiting on Claude":"queue clear",by["Pending Review"]?"":"ok");
+  setStat("se",by["Blocked"],by["Blocked"]?"need a decision":"nothing stuck",by["Blocked"]?"attn":"ok");
+
+  var segs="",leg="";
+  ORDER.forEach(function(s){var n=by[s]; if(!n)return;
+    segs+='<div title="'+esc(s)+': '+n+'" style="flex-grow:'+n+';background:'+STATUS[s]+'"></div>';
+    leg+='<span><i style="background:'+STATUS[s]+'"></i>'+esc(s)+' <b>'+n+'</b></span>';});
+  $("pipeBody").innerHTML='<div class="seg">'+segs+'</div><div class="seglegend">'+leg+'</div>';
+
+  var areas={};
+  tasks.forEach(function(t){
+    var L=Array.isArray(t.Area)?t.Area:[];
+    if(!L.length)L=["Untagged"];
+    L.forEach(function(a){if(!areas[a])areas[a]={d:0,n:0};areas[a].n++;if(t.Status==="Done")areas[a].d++;});
+  });
+  var ks=Object.keys(areas).sort(function(a,b){return (areas[b].d/areas[b].n)-(areas[a].d/areas[a].n);});
+  $("areaBody").innerHTML='<div class="bars">'+ks.map(function(k){
+    var a=areas[k],p=Math.round(a.d/a.n*100);
+    return '<div class="bar" title="'+esc(k)+': '+a.d+' of '+a.n+' done"><span class="lab">'+esc(k)+
+      '</span><span class="track"><span class="fill" style="width:'+p+'%"></span></span><span class="num">'+p+'%</span></div>';
+  }).join("")+'</div>';
+
+  var attn=tasks.filter(function(t){return t.Status==="Blocked"||t.Status==="Pending Review"||
+    (t.Owner==="User"&&t.Status!=="Done");});
+  $("attnHint").textContent=attn.length?attn.length+" item"+(attn.length>1?"s":""):"clear";
+  $("attnBody").innerHTML=attn.length?'<div class="list">'+attn.map(function(t){
+    var c=t.Status==="Blocked"?"b":(t.Status==="Pending Review"?"r":"u");
+    return '<div class="item '+c+'"><div class="t">'+esc(t.Task)+'</div><div class="m"><span class="chip">'+
+      esc(t.Status)+'</span>'+(t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+
+      (t.Ref?'<span class="mono">'+esc(t.Ref)+'</span>':'')+'</div></div>';
+  }).join("")+'</div>':'<div class="empty">Nothing blocked, nothing waiting.</div>';
+
+  var rank={"P0 Critical":0,"P1 High":1,"P2 Medium":2,"P3 Low":3};
+  var nx=tasks.filter(function(t){return t.Status==="Todo"||t.Status==="In Progress";})
+    .sort(function(a,b){return (rank[a.Priority]==null?9:rank[a.Priority])-(rank[b.Priority]==null?9:rank[b.Priority]);});
+  $("nextHint").textContent=nx.length?nx.length+" open":"none";
+  $("nextBody").innerHTML=nx.length?'<div class="list">'+nx.slice(0,8).map(function(t){
+    var pc=t.Priority==="P0 Critical"?"p0":(t.Priority==="P1 High"?"p1":"");
+    return '<div class="item"><div class="t">'+esc(t.Task)+'</div><div class="m">'+
+      (t.Priority?'<span class="chip '+pc+'">'+esc(t.Priority)+'</span>':'')+
+      (t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+'</div></div>';
+  }).join("")+'</div>':'<div class="empty">No open tasks.</div>';
+}
+
+function freshness(){
+  if(!state.at)return;
+  var age=Date.now()-state.at;
+  $("ldot").className="dot"+(age>240000?" stale":"");
+  $("ltxt").textContent=age<60000?"live · just now":"live · "+Math.round(age/60000)+"m ago";
+}
+setInterval(freshness,30000);
+
+/* ---------- data ---------- */
+var PANELS=["pipeBody","attnBody","nextBody","areaBody"];
+function load(){
+  return fetch(API,{headers:{"accept":"application/json"}}).then(function(r){
+    return r.json().catch(function(){return {};}).then(function(body){
+      if(!r.ok){
+        var kind = r.status===401||r.status===403 ? "auth"
+                 : r.status===404 ? "notfound"
+                 : r.status===429 ? "rate"
+                 : (body && body.error==="missing_token") ? "config" : "server";
+        throw {kind:kind, detail:body && body.message};
+      }
+      return body;
+    });
+  }).then(function(d){
+    state.at = d.fetchedAt ? new Date(d.fetchedAt).getTime() : Date.now();
+    state.live=true; clearBanner();
+    if(Array.isArray(d.projects)&&d.projects.length){state.projects=d.projects;renderComb(d.projects,true);}
+    if(Array.isArray(d.tasks)) renderTasks(d.tasks);
+    /* one database failed but the other didn't — annotate only what's affected */
+    if(d.partial&&d.partial.tasks) setErr(PANELS,"server",d.partial.tasks);
+    freshness();
+  }).catch(function(e){
+    var kind = e && e.kind ? e.kind : "net";
+    showBanner(kind, e&&e.detail);
+    if(!state.tasks){
+      PANELS.forEach(function(i){var el=$(i);if(el)el.innerHTML='<div class="empty">—</div>';});
+      ["nw","ne","sw","se"].forEach(function(i){
+        var el=$(i); if(el) el.querySelector(".n").textContent="awaiting Notion";});
+    }
+    $("ldot").className="dot off";
+    $("ltxt").textContent = kind==="net" ? "offline" : "not connected";
+  });
+}
+$("refresh").addEventListener("click",function(){
+  $("ltxt").textContent="refreshing…"; load();
+});
+document.addEventListener("visibilitychange",function(){ if(!document.hidden) load(); });
+
+renderComb(SKELETON,false);          /* comb exists before any network call */
+load();
+setInterval(function(){ if(!document.hidden) load(); },POLL);
+})();
+</script>
+</body>
+</html>
