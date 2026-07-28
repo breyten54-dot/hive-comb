@@ -59,8 +59,19 @@ Vercel → this project → **Settings → Environment Variables**:
 | Name | Value | Environments |
 |---|---|---|
 | `NOTION_TOKEN` | the `ntn_…` secret | Production, Preview, Development |
+| `COMB_USER` | app-gate username (K-28) | Production, Preview, Development |
+| `COMB_PASSWORD` | app-gate password — strong | Production, Preview, Development |
 
-Redeploy after adding it — env vars are read at build/run time.
+Redeploy after adding them — env vars are read at build/run time.
+
+**The app gate (K-28):** `middleware.js` enforces HTTP Basic auth on **every** path —
+the static page AND `/api/*`. If either `COMB_*` var is unset the whole app fails
+**closed** (401, no data). The browser holds the credentials (Basic-over-HTTPS), so
+the phone only asks once per browser/profile.
+
+**Rotating the gate password:** change `COMB_PASSWORD` in Vercel settings and redeploy.
+Old sessions simply get a fresh Basic prompt on next load. Rotate on any suspicion of
+leak — there is exactly one shared credential by design (single-operator dashboard).
 
 > **Never** put the token in this repo, in `.env` (only `.env.local`, which is
 > gitignored), or anywhere under `HIVE\` — that folder is OneDrive-synced.
