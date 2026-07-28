@@ -83,8 +83,16 @@ leak — there is exactly one shared credential by design (single-operator dashb
 ```bash
 npm i -g vercel      # once
 cp .env.example .env.local && edit it   # add the real token
-vercel dev           # http://localhost:3000
+npm run serve        # = vercel dev → http://localhost:3000
 ```
+
+## Repo state
+
+This repository is **local-only** — it has no git remote configured. Branches cannot
+be pushed; every merge happens on this machine, and deploys run from here with
+`vercel --prod`. Ref verification (BUILD-STANDARDS #26) must therefore compare the
+local branch against local `master` (`git log master..<branch>`), never `origin/*`.
+Whether it gets a remote is the owner's open decision (2026-07-28, K-28b).
 
 ## Deploy
 

@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "vercel dev",
+    "serve": "vercel dev",
     "deploy": "vercel --prod"
   }
 }
