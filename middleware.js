@@ -39,11 +39,19 @@ export default function middleware(request) {
   // Not configured → fail closed (never open).
   if (!expectedUser || !expectedPass) return unauthorized();
 
-  const header = request.headers.get("authorization") || "";
-  if (header.startsWith("Basic ")) {
+  const header = (request.headers.get("authorization") || "").trim();
+  // RFC 7235 §2.1: auth-scheme is case-INsensitive ("basic"/"BASIC"/"Basic" are all
+  // valid). Split on the first whitespace run — a base64 blob never contains spaces,
+  // so collapsing runs ("Basic  <b64>") is unambiguous and avoids a needless 401 on
+  // tolerant-but-real clients (whitespace decision: ACCEPT normalized runs; the blob
+  // cannot legally contain a space, so nothing valid is rejected and nothing invalid
+  // is admitted that wasn't already a credential-shaped value).
+  const firstSpace = header.search(/\s/);
+  if (firstSpace > 0 && header.slice(0, firstSpace).toLowerCase() === "basic") {
+    const blob = header.slice(firstSpace).trim();
     let decoded = "";
     try {
-      decoded = atob(header.slice(6));
+      decoded = atob(blob);
     } catch {
       return unauthorized();
     }
