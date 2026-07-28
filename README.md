@@ -6,6 +6,13 @@ live pipeline, attention, priority and completion data read from Notion.
 Independent of Claude — its own repo, its own Vercel deployment, its own URL.
 Works on a phone home screen (installable PWA).
 
+**Live:** <https://hive-comb-iota.vercel.app>
+Vercel project `hive-comb` (team LetsBuild).
+
+> ⚠️ `hive-comb.vercel.app` is **not us** — that subdomain is already taken by an
+> unrelated account ("Hive Comb | Hivedec"). Vercel's `.vercel.app` namespace is
+> global. Always use the `-iota` URL above, or attach a custom domain.
+
 ---
 
 ## Architecture
