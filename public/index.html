@@ -531,7 +531,7 @@ function renderTasks(tasks){
   var total=tasks.length,done=by["Done"],pct=total?Math.round(done/total*100):0,open=total-done;
   setStat("nw",pct+'<small>%</small>',done+" of "+total+" done",pct>=70?"ok":"");
   setStat("ne",open,"tasks still open","");
-  setStat("sw",by["Pending Review"],by["Pending Review"]?"waiting on Claude":"queue clear",by["Pending Review"]?"":"ok");
+  var swN=(by["Pending Review"]||0)+(by["In Review"]||0); setStat("sw",swN,swN?"awaiting mark":"queue clear",swN?"":"ok");
   setStat("se",by["Blocked"],by["Blocked"]?"need a decision":"nothing stuck",by["Blocked"]?"attn":"ok");
 
   var segs="",leg="";
