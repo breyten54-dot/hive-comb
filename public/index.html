@@ -7,6 +7,9 @@
 <meta name="description" content="HIVE — the comb. Live command view of the HIVE workspace.">
 <title>HIVE — The Comb</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 20 6.5V17.5L12 22 4 17.5V6.5L12 2Z' fill='%23f4c430'/></svg>">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{
@@ -30,13 +33,14 @@
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
   font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 body{background:radial-gradient(ellipse 80% 50% at 50% 42%, rgba(212,167,44,.09), transparent 62%),var(--bg);
-  min-height:100vh;min-height:100dvh;padding-bottom:40px}
+  min-height:100vh;min-height:100dvh;padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 h1,h2{font-family:Georgia,"Iowan Old Style",serif;margin:0;text-wrap:balance}
 .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
 :focus-visible{outline:2px solid var(--gold-br);outline-offset:2px;border-radius:4px}
 button{font:inherit}
 
-.top{max-width:1380px;margin:0 auto;padding:20px 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.top{max-width:1380px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
 .top .mark{width:28px;height:28px;flex:none}
 .top h1{font-size:1.28rem;color:var(--gold-br)}
 .top .tag{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
@@ -92,12 +96,21 @@ svg.comb{width:100%;max-width:440px;height:auto;overflow:visible}
 .cell text{fill:var(--ink);font-size:8.5px;text-anchor:middle;dominant-baseline:middle;
   pointer-events:none;font-family:-apple-system,"Segoe UI",sans-serif}
 .cell.hub polygon{fill:#1e1609;stroke:var(--gold);stroke-width:2}
+@keyframes hubpulse{0%,100%{filter:drop-shadow(0 0 5px rgba(212,167,44,.35))}50%{filter:drop-shadow(0 0 11px rgba(212,167,44,.55))}}
+.cell.hub polygon{animation:hubpulse 3.6s ease-in-out infinite}
+.cell.attn-blocked{color:var(--st-block)}
+.cell.attn-review{color:var(--st-rev)}
+.cell.attn-blocked polygon,.cell.attn-review polygon{stroke:currentColor}
+.cell.attn-blocked,.cell.attn-review{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{filter:drop-shadow(0 0 3px currentColor)}50%{filter:drop-shadow(0 0 10px currentColor)}}
 :root[data-theme="light"] .cell.hub polygon{fill:#f0e2bb}
 .cell.hub text{fill:var(--gold-br);font-weight:700;font-size:11px}
 #bee{position:absolute;width:26px;height:26px;pointer-events:none;opacity:0;z-index:5;
   filter:drop-shadow(0 0 6px rgba(244,196,48,.9));
   transition:left .55s cubic-bezier(.3,.6,.3,1),top .55s cubic-bezier(.3,.6,.3,1),opacity .35s}
 #bee.awake{opacity:1}
+@keyframes idlebob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+#bee.awake{animation:idlebob 3.4s ease-in-out infinite}
 #bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
@@ -126,6 +139,8 @@ svg.comb{width:100%;max-width:440px;height:auto;overflow:visible}
 
 .list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:264px;overflow-y:auto}
 .item{border-left:2px solid var(--line);padding:6px 0 6px 9px}
+.itemlink{display:block;text-decoration:none;color:inherit}
+.itemlink:hover .item{border-left-color:var(--gold-br)}
 .item.b{border-left-color:var(--st-block)}.item.r{border-left-color:var(--st-rev)}.item.u{border-left-color:var(--st-prog)}
 .item .t{font-size:.77rem;line-height:1.35;color:var(--ink)}
 .item .m{font-size:.66rem;color:var(--ink-3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -182,9 +197,10 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
   </svg>
   <div>
     <h1>HIVE — The Comb</h1>
-    <div class="tag">Claude · queen &nbsp;|&nbsp; Kimi · worker</div>
+    <div class="tag">Orchestrator (Auto) &nbsp;|&nbsp; specialists (hive-*)</div>
   </div>
   <div class="live">
+    <span class="chip" id="inboxBadge" title="Video-Inbox unviewed count" style="display:none"></span>
     <span class="dot off" id="ldot"></span><span id="ltxt">loading…</span>
     <button class="iconbtn" id="refresh" title="Refresh now" aria-label="Refresh now">&#8635;</button>
     <button class="iconbtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">&#9681;</button>
@@ -265,9 +281,24 @@ var SKELETON=[
  {Project:"Padel eBook"},{Project:"Personal"},{Project:"Praeto Marketing"},
  {Project:"fable-mode source"},{Project:"Unethical"},{Project:"ETA Work"}
 ];
-var STATUS={"Todo":"var(--st-todo)","In Progress":"var(--st-prog)",
-  "Pending Review":"var(--st-rev)","Blocked":"var(--st-block)","Done":"var(--st-done)"};
-var ORDER=["Todo","In Progress","Pending Review","Blocked","Done"];
+/* Legacy (pre-2026-07-30) + Cursor-sole Notion status strings both map to a color, so the ring
+   never blanks a cell mid-migration while the user applies the Notion schema update (see
+   comb-video-takeaways handover, Notion checklist C5-C7). Each task only ever HAS one Status value
+   at a time, so listing both eras here never double-counts anything. */
+var STATUS={
+  "Todo":"var(--st-todo)",
+  "In Progress":"var(--st-prog)","Building":"var(--st-prog)",
+  "Pending Review":"var(--st-rev)","In Review":"var(--st-rev)",
+  "Blocked":"var(--st-block)",
+  "Done":"var(--st-done)",
+  "Parked":"var(--ink-3)"
+};
+var ORDER=["Todo","In Progress","Building","Pending Review","In Review","Blocked","Done","Parked"];
+/* New "Phase" property (PLAN/BUILD/MARK/LAUNCH) — rendered as a chip on task items. */
+var PHASE={"PLAN":"var(--st-todo)","BUILD":"var(--st-prog)","MARK":"var(--st-rev)","LAUNCH":"var(--st-done)"};
+/* Legacy "Kimi"/"Claude" + Cursor-sole hive-* names both count toward the same role bucket. */
+var BUILDER_OWNERS=["Kimi","hive-builder","hive-builder-long","hive-fast-build","hive-hard-build"];
+var REVIEWER_OWNERS=["Claude","hive-marker","hive-security"];
 var state={tasks:null,projects:null,at:null,live:false};
 
 /* ---------- theme ---------- */
@@ -384,6 +415,20 @@ function renderComb(projects,isLive){
   }
   /* seat the bee once the comb has real geometry */
   requestAnimationFrame(function(){ if(!selEl) parkBee(); });
+  markAttnCells();
+}
+/* Re-marks cells whose linked project has a Blocked (red) or Review (gold) task.
+   No-ops until renderTasks() has populated state.attn. */
+function markAttnCells(){
+  if(!state.attn) return;
+  document.querySelectorAll("#comb .cell").forEach(function(g){
+    g.classList.remove("attn-blocked","attn-review");
+    if(g.__c && !g.__c.hub && g.__c.p){
+      var flag=state.attn[g.__c.p.Project];
+      if(flag==="blocked") g.classList.add("attn-blocked");
+      else if(flag==="review") g.classList.add("attn-review");
+    }
+  });
 }
 
 /* The bee LIVES in the comb — it rests on the hub and flies to whatever you
@@ -426,6 +471,19 @@ function closePanel(){$("back").classList.remove("on");$("panel").classList.remo
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
+$("pbody").addEventListener("click",function(e){
+  if(e.target && e.target.id==="pcopy"){
+    var el=$("ppath"); if(!el) return;
+    var text=el.textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        var btn=$("pcopy"); if(!btn) return;
+        btn.innerHTML="&#10003;";
+        setTimeout(function(){ var b2=$("pcopy"); if(b2) b2.innerHTML="&#128203;"; },1200);
+      });
+    }
+  }
+});
 function row(k,v){return '<div class="row"><span class="k">'+esc(k)+'</span>'+v+'</div>';}
 
 function hubPanel(){
@@ -433,19 +491,26 @@ function hubPanel(){
   if(!state.tasks) return h+row("Live data","Not loaded yet — the ring panels will say why.");
   var t=state.tasks,by={}; ORDER.forEach(function(s){by[s]=0;});
   t.forEach(function(x){if(by[x.Status]!==undefined)by[x.Status]++;});
-  var kimi=t.filter(function(x){return x.Owner==="Kimi"&&x.Status!=="Done";}).length;
-  h+=row("Kimi — open build work",kimi===0?"Idle — nothing claimed":kimi+" task"+(kimi>1?"s":""));
-  h+=row("Awaiting Claude’s review",by["Pending Review"]===0?"Nothing pending":by["Pending Review"]+" task(s)");
+  var building=t.filter(function(x){return BUILDER_OWNERS.indexOf(x.Owner)>-1&&x.Status!=="Done";}).length;
+  h+=row("Build — open work",building===0?"Idle — nothing claimed":building+" task"+(building>1?"s":""));
+  var review=(by["Pending Review"]||0)+(by["In Review"]||0);
+  h+=row("Awaiting mark",review===0?"Nothing pending":review+" task(s)");
   h+=row("Blocked",by["Blocked"]===0?"None":by["Blocked"]+" — see Needs attention");
   h+=row("Total tracked",t.length+" tasks · "+(state.projects?state.projects.length:SKELETON.length)+" projects");
   return h;
 }
 function projPanel(p){
   var h='<div class="eb">HIVE project</div><h2>'+esc(p.Project)+'</h2>';
-  if(p.Folder)h+=row("Folder",'<span class="mono" style="font-size:.78rem">'+esc(p.Folder)+'</span>');
+  /* "HIVE path" is the new Notion property name (see checklist); "Folder" is the pre-existing one
+     — prefer HIVE path if the user has added it, fall back to Folder so nothing breaks mid-migration. */
+  var path=p["HIVE path"]||p.Folder;
+  if(path)h+=row("Folder",'<span class="mono" id="ppath" style="font-size:.78rem">'+esc(path)+
+    '</span> <button class="iconbtn" id="pcopy" title="Copy path" aria-label="Copy path" style="margin-left:6px;width:22px;height:22px;vertical-align:middle">&#128203;</button>');
   if(p["Live URL"])h+=row("Live","<a href='"+esc(p["Live URL"])+"' target='_blank' rel='noopener'>"+esc(p["Live URL"])+"</a>");
+  if(p.GitHub)h+=row("GitHub","<a href='"+esc(p.GitHub)+"' target='_blank' rel='noopener'>"+esc(p.GitHub)+"</a>");
   if(p.Status)h+=row("Status",esc(p.Status));
   if(p.Notes)h+=row("Notes",esc(p.Notes));
+  if(p.url)h+=row("Notion","<a href='"+esc(p.url)+"' target='_blank' rel='noopener'>Open in Notion &#8599;</a>");
   if(!state.live)h+=row("Live data","Showing folder name only — Notion data not loaded.");
   return h;
 }
@@ -501,6 +566,20 @@ function renderTasks(tasks){
       L.forEach(function(a){if(!groups[a])groups[a]={d:0,n:0};groups[a].n++;if(t.Status==="Done")groups[a].d++;});
     });
   }
+  var attnMap={};
+  if(useProjects){
+    tasks.forEach(function(t){
+      if(t.Status!=="Blocked"&&t.Status!=="Pending Review"&&t.Status!=="In Review") return;
+      var L=Array.isArray(t.Project)?t.Project:[];
+      L.forEach(function(pid){
+        var name=byId[String(pid).replace(/-/g,"")]; if(!name) return;
+        if(t.Status==="Blocked") attnMap[name]="blocked";
+        else if(!attnMap[name]) attnMap[name]="review";
+      });
+    });
+  }
+  state.attn=attnMap;
+  markAttnCells();
   var untagged = useProjects ? tasks.filter(function(t){
     return !(Array.isArray(t.Project)&&t.Project.length); }).length : 0;
   var ks=Object.keys(groups).sort(function(a,b){
@@ -517,25 +596,30 @@ function renderTasks(tasks){
   }).join("")+'</div>'+(untagged?'<div class="sub" style="margin-top:9px">'+untagged+
     ' task'+(untagged>1?'s':'')+' not linked to a project (cross-cutting work).</div>':'');
 
-  var attn=tasks.filter(function(t){return t.Status==="Blocked"||t.Status==="Pending Review"||
+  var attn=tasks.filter(function(t){return t.Status==="Blocked"||t.Status==="Pending Review"||t.Status==="In Review"||
     (t.Owner==="User"&&t.Status!=="Done");});
   $("attnHint").textContent=attn.length?attn.length+" item"+(attn.length>1?"s":""):"clear";
   $("attnBody").innerHTML=attn.length?'<div class="list">'+attn.map(function(t){
-    var c=t.Status==="Blocked"?"b":(t.Status==="Pending Review"?"r":"u");
-    return '<div class="item '+c+'"><div class="t">'+esc(t.Task)+'</div><div class="m"><span class="chip">'+
+    var c=t.Status==="Blocked"?"b":((t.Status==="Pending Review"||t.Status==="In Review")?"r":"u");
+    var open=t.url?'<a class="itemlink" href="'+esc(t.url)+'" target="_blank" rel="noopener">':'<div>';
+    var close=t.url?'</a>':'</div>';
+    return open+'<div class="item '+c+'"><div class="t">'+esc(t.Task)+'</div><div class="m"><span class="chip">'+
       esc(t.Status)+'</span>'+(t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+
-      (t.Ref?'<span class="mono">'+esc(t.Ref)+'</span>':'')+'</div></div>';
+      (t.Ref?'<span class="mono">'+esc(t.Ref)+'</span>':'')+
+      (t.Phase?'<span class="chip" style="border-color:'+(PHASE[t.Phase]||"var(--line)")+';color:'+(PHASE[t.Phase]||"var(--ink-2)")+'">'+esc(t.Phase)+'</span>':'')+
+      '</div></div>'+close;
   }).join("")+'</div>':'<div class="empty">Nothing blocked, nothing waiting.</div>';
 
   var rank={"P0 Critical":0,"P1 High":1,"P2 Medium":2,"P3 Low":3};
-  var nx=tasks.filter(function(t){return t.Status==="Todo"||t.Status==="In Progress";})
+  var nx=tasks.filter(function(t){return t.Status==="Todo"||t.Status==="In Progress"||t.Status==="Building";})
     .sort(function(a,b){return (rank[a.Priority]==null?9:rank[a.Priority])-(rank[b.Priority]==null?9:rank[b.Priority]);});
   $("nextHint").textContent=nx.length?nx.length+" open":"none";
   $("nextBody").innerHTML=nx.length?'<div class="list">'+nx.slice(0,8).map(function(t){
     var pc=t.Priority==="P0 Critical"?"p0":(t.Priority==="P1 High"?"p1":"");
     return '<div class="item"><div class="t">'+esc(t.Task)+'</div><div class="m">'+
       (t.Priority?'<span class="chip '+pc+'">'+esc(t.Priority)+'</span>':'')+
-      (t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+'</div></div>';
+      (t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+
+      (t.Phase?'<span class="chip" style="border-color:'+(PHASE[t.Phase]||"var(--line)")+';color:'+(PHASE[t.Phase]||"var(--ink-2)")+'">'+esc(t.Phase)+'</span>':'')+'</div></div>';
   }).join("")+'</div>':'<div class="empty">No open tasks.</div>';
 }
 
@@ -585,6 +669,33 @@ $("refresh").addEventListener("click",function(){
   $("ltxt").textContent="refreshing…"; load();
 });
 document.addEventListener("visibilitychange",function(){ if(!document.hidden) load(); });
+
+function loadInboxStatus(){
+  fetch("/inbox-status.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
+    .then(function(d){
+      var b=$("inboxBadge"); if(!b||!d) return;
+      if(d.unviewedCount>0){ b.textContent="Inbox "+d.unviewedCount; b.style.display=""; }
+      else { b.style.display="none"; }
+    }).catch(function(){});
+}
+loadInboxStatus();
+setInterval(loadInboxStatus,300000);
+
+function loadStateBlurb(){
+  fetch("/state-blurb.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
+    .then(function(d){
+      if(!d||!d.summary) return;
+      $("foot").innerHTML='<b style="color:var(--gold-br)">'+esc(d.headline||"Status")+'</b> — '+esc(d.summary)+
+        (d.nextAction?' <span style="color:var(--ink-3)">Next: '+esc(d.nextAction)+'</span>':'');
+    }).catch(function(){});
+}
+loadStateBlurb();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("/sw.js").catch(function(){});
+  });
+}
 
 renderComb(SKELETON,false);          /* comb exists before any network call */
 load();
