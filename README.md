@@ -6,6 +6,19 @@ live pipeline, attention, priority and completion data read from Notion.
 Independent of Claude — its own repo, its own Vercel deployment, its own URL.
 Works on a phone home screen (installable PWA).
 
+## Layer roles (why three surfaces exist, not one)
+
+| Layer | Role | Flair |
+|-------|------|-------|
+| **The Comb** (this app) | Phone-installable **command view** — honeycomb, motion, status orbit | High — the "not a plain dashboard" surface |
+| **Notion Command Center** | **Source of truth for editing** tasks/projects (⚡ HIVE Command Center) | Medium — structured DBs, pages, filters; not hex UI |
+| **HIVE disk** (`_STATE.md`, sector, Digital Brain) | Pipeline truth for the Agent | Agent-facing |
+
+Comb reads Notion (never writes). Notion is where humans/Agent edit records. Disk (`_STATE.md` +
+`sector-kimi.js`) is what the Agent itself trusts for pipeline state. See
+`Digital Brain\Brain\reports\2026-07-30_comb-notion-video-plan.md` for the full reasoning (why
+scrapping Comb for pure Notion was rejected).
+
 **Live:** <https://hive-comb-iota.vercel.app>
 Vercel project `hive-comb` (team LetsBuild).
 
@@ -34,6 +47,8 @@ Live Notion data then upgrades it in place (status dots, real counts).
 ---
 
 ## Setup — one-time
+
+See also [`NOTION-SETUP.md`](NOTION-SETUP.md) for the Cursor-sole schema checklist.
 
 ### 1. Create a Notion integration (only you can do this)
 
@@ -93,6 +108,11 @@ be pushed; every merge happens on this machine, and deploys run from here with
 `vercel --prod`. Ref verification (BUILD-STANDARDS #26) must therefore compare the
 local branch against local `master` (`git log master..<branch>`), never `origin/*`.
 Whether it gets a remote is the owner's open decision (2026-07-28, K-28b).
+
+**LAUNCH-phase note (added 2026-07-30):** once a remote exists, the standard flow is: hive-marker
+verifies on `cursor/comb-video-takeaways`, the parent merges `--no-ff` into local `master`, then
+pushes `master` (and the branch, if keeping it) to `origin`. Until a remote exists, "launch" means
+the local `--no-ff` merge only — do not invent a remote or push anywhere from a build or mark pass.
 
 ## Deploy
 
