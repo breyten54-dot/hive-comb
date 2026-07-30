@@ -1,6 +1,6 @@
 {
-  "headline": "Cursor-sole seat + systems restore",
-  "summary": "Sector queue clear. Comb + Notion + Video-Inbox takeaways build in progress.",
-  "nextAction": "Say sector to re-check the queue.",
-  "updatedAt": "2026-07-30T00:00:00.000Z"
+  "headline": "Cursor-sole + Comb video takeaways",
+  "summary": "Comb D1–D7 merged to master. Memory pass named; interview crib + anti-slop/learn-from-docs skills live. Deploy needs vercel login (token invalid).",
+  "nextAction": "Apply Comb/NOTION-SETUP.md; rotate NOTION_TOKEN (C1); vercel login + redeploy.",
+  "updatedAt": "2026-07-30T14:52:00.000Z"
 }
