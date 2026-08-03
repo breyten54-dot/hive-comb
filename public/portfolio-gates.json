@@ -1,0 +1,75 @@
+{
+  "updatedAt": "2026-08-03T09:34:00.000Z",
+  "gates": [
+    {
+      "id": "U1",
+      "title": "Set OUTLOOK_EMAIL and OUTLOOK_APP_PASSWORD on Vercel",
+      "product": "TechCo",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U2",
+      "title": "vercel login, then redeploy Comb",
+      "product": "Comb",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U3",
+      "title": "Rotate NOTION_TOKEN and confirm Vercel env",
+      "product": "Comb",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U4",
+      "title": "Set PayFast, Anthropic and email secrets",
+      "product": "Compliance Club",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U5",
+      "title": "Partner Firebase deploy of the Club button fix",
+      "product": "praeto.co.za",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U6",
+      "title": "Legal opinion + EAS credentials",
+      "product": "Balance mobile",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U7",
+      "title": "Production hosting decision (Render vs Fly vs shared)",
+      "product": "Balance API + PABOS",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U8",
+      "title": "Name a Tiespro restore source",
+      "product": "Tiespro",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U9",
+      "title": "Move .env out of OneDrive",
+      "product": "Anialah",
+      "owner": "User",
+      "status": "open"
+    },
+    {
+      "id": "U10",
+      "title": "VAPID keys + Play verification",
+      "product": "Stella Indoor",
+      "owner": "User",
+      "status": "open"
+    }
+  ]
+}

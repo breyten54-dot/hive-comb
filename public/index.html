@@ -148,6 +148,10 @@ svg.comb{width:100%;max-width:440px;height:auto;overflow:visible}
 .chip.p0{border-color:var(--st-block);color:var(--st-block)}
 .chip.p1{border-color:var(--st-rev);color:var(--st-rev)}
 .empty{font-size:.74rem;color:var(--ink-3);padding:12px 0;text-align:center;font-style:italic}
+.user-gates{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.user-gates h3{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:0 0 8px}
+.user-gates .item{border-left-color:var(--st-block)}
+.user-gates .m .chip{border-color:var(--st-block);color:var(--st-block)}
 
 .sk{background:linear-gradient(90deg,var(--line-soft),var(--surface-2),var(--line-soft));
   background-size:200% 100%;animation:sh 1.4s infinite;border-radius:5px;height:9px;margin-top:8px}
@@ -224,7 +228,10 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
   <div class="card" id="west">
     <h2>Needs attention <span class="hint" id="attnHint"></span></h2>
     <div class="sub">Blocked, awaiting review, or waiting on you.</div>
-    <div id="attnBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+    <div id="attnBody">
+      <div id="attnNotion"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+      <div id="attnGates" class="user-gates" hidden></div>
+    </div>
   </div>
 
   <div id="combcard">
@@ -599,7 +606,7 @@ function renderTasks(tasks){
   var attn=tasks.filter(function(t){return t.Status==="Blocked"||t.Status==="Pending Review"||t.Status==="In Review"||
     (t.Owner==="User"&&t.Status!=="Done");});
   $("attnHint").textContent=attn.length?attn.length+" item"+(attn.length>1?"s":""):"clear";
-  $("attnBody").innerHTML=attn.length?'<div class="list">'+attn.map(function(t){
+  $("attnNotion").innerHTML=attn.length?'<div class="list">'+attn.map(function(t){
     var c=t.Status==="Blocked"?"b":((t.Status==="Pending Review"||t.Status==="In Review")?"r":"u");
     var open=t.url?'<a class="itemlink" href="'+esc(t.url)+'" target="_blank" rel="noopener">':'<div>';
     var close=t.url?'</a>':'</div>';
@@ -690,6 +697,23 @@ function loadStateBlurb(){
     }).catch(function(){});
 }
 loadStateBlurb();
+
+function renderPortfolioGates(gates){
+  var el=$("attnGates"); if(!el) return;
+  if(!gates || !gates.length){ el.hidden=true; el.innerHTML=""; return; }
+  el.innerHTML='<h3>User gates</h3><div class="list">'+gates.map(function(g){
+    return '<div class="item"><div class="t">'+esc(g.id)+' — '+esc(g.title)+'</div>'+
+      '<div class="m"><span class="chip">P0</span><span>'+esc(g.product)+'</span><span>'+esc(g.owner)+'</span></div></div>';
+  }).join("")+'</div>';
+  el.hidden=false;
+}
+
+function loadPortfolioGates(){
+  fetch("/portfolio-gates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
+    .then(function(d){ renderPortfolioGates(d && d.gates); })
+    .catch(function(){});
+}
+loadPortfolioGates();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
