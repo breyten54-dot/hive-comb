@@ -1,4 +1,23 @@
 {
-  "updatedAt": "2026-08-04T16:54:00.000Z",
-  "meetings": []
+  "updatedAt": "2026-08-04T17:42:00.000Z",
+  "meetings": [
+    {
+      "id": "sample-work-1",
+      "title": "Praeto weekly sync",
+      "start": "2026-08-05T09:00:00+02:00",
+      "end": "2026-08-05T09:30:00+02:00",
+      "source": "Work",
+      "url": null,
+      "notes": "Sample Work calendar item until Outlook sync (Breyten@praeto.co.za) is connected via scripts/sync-meetings.js."
+    },
+    {
+      "id": "sample-personal-1",
+      "title": "Personal planning block",
+      "start": "2026-08-06T18:00:00+02:00",
+      "end": "2026-08-06T19:00:00+02:00",
+      "source": "Personal",
+      "url": null,
+      "notes": "Sample Personal calendar item until Google sync (Breyten54@gmail.com) is connected."
+    }
+  ]
 }

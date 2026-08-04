@@ -79,10 +79,12 @@ function get(path) {
     const lanesBody = lanes.body || '';
 
     const checks = [
-      ['ETA panel present', r.body.includes('id="etaCard"')],
+      ['ETA tests panel present', r.body.includes('id="etaTestsCard"')],
       ['Open todos panel present', r.body.includes('id="openTodosCard"')],
-      ['Meetings strip present', r.body.includes('id="meetingsCard"')],
+      ['Assignments rail present', r.body.includes('id="assignRailSvg"')],
+      ['Meetings rail present', r.body.includes('id="meetRailSvg"')],
       ['Pipeline detail disclosure present', r.body.includes('id="pipelineDetails"')],
+      ['Bottom meetings strip retired', !r.body.includes('id="meetingsCard"')],
       ['ETA JSON lists PDF', etaBody.includes('/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf')],
       ['ETA JSON lists DOCX', etaBody.includes('/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx')],
       ['Open todos JSON has items', todosBody.includes('"todos"') && todosBody.includes('"name"')],

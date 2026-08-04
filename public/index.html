@@ -52,11 +52,12 @@ button{font:inherit}
   width:26px;height:26px;cursor:pointer;line-height:1;display:grid;place-items:center;font-size:.8rem}
 .iconbtn:hover{color:var(--gold-br);border-color:var(--gold-deep)}
 
-/* ---------- spine: open todos | comb | eta ---------- */
-.spine{max-width:1380px;margin:14px auto 0;padding:0 20px;display:grid;
-  grid-template-columns:minmax(260px,1fr) minmax(260px,1.15fr) minmax(260px,1fr);
+/* ---------- spine: open todos + tests | comb ---------- */
+.spine{max-width:1520px;margin:14px auto 0;padding:0 20px;display:grid;
+  grid-template-columns:minmax(280px,0.85fr) minmax(520px,1.6fr);
   gap:14px;align-items:start}
 .spine-col{min-width:0}
+.spine-col.left{display:flex;flex-direction:column;gap:14px}
 .spine-col.center{display:flex;justify-content:center}
 @media(max-width:1040px){.spine{grid-template-columns:1fr}.spine-col.center{order:-1}}
 
@@ -66,7 +67,7 @@ button{font:inherit}
   letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400;white-space:nowrap}
 .card .sub{font-size:.7rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
 
-.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:420px;overflow-y:auto}
+.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}
 .todo-list .item{border-left:2px solid var(--line);padding:6px 0 6px 9px}
 .todo-list .item.b{border-left-color:var(--st-block)}
 .todo-list .item.u{border-left-color:var(--st-prog)}
@@ -74,14 +75,52 @@ button{font:inherit}
 .todo-list .item .m{font-size:.66rem;color:var(--ink-3);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .todo-list .item .notes{font-size:.66rem;color:var(--ink-3);margin-top:4px;line-height:1.35}
 
-#combcard{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;
+#combcard{width:100%;max-width:none;display:flex;flex-direction:column;align-items:stretch;
   background:linear-gradient(180deg,var(--surface),var(--surface-2));
-  border:1px solid var(--line);border-radius:var(--r);padding:12px 10px 14px}
-.combhd{width:100%;display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+  border:1px solid var(--line);border-radius:var(--r);padding:12px 14px 14px;
+  position:relative;overflow:hidden}
+#combcard::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background:
+    radial-gradient(ellipse 55% 70% at 50% 45%, rgba(212,167,44,.12), transparent 70%),
+    linear-gradient(90deg, rgba(212,167,44,.06), transparent 18%, transparent 82%, rgba(212,167,44,.06))}
+.combhd{width:100%;display:flex;align-items:baseline;gap:8px;margin-bottom:2px;position:relative;z-index:1}
 .combhd h2{font-size:.9rem}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
-.combwrap{position:relative;width:100%;display:flex;justify-content:center;flex:1;align-items:center}
-svg.comb{width:100%;max-width:340px;height:auto;overflow:visible}
+.combwrap{position:relative;z-index:1;width:100%;display:grid;
+  grid-template-columns:minmax(160px,1.2fr) minmax(240px,340px) minmax(160px,1.2fr);
+  gap:12px;align-items:center;min-height:360px}
+.comb-rail{align-self:stretch;min-height:320px;max-height:520px;border-radius:10px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  border:1px solid rgba(212,167,44,.28);
+  background:
+    radial-gradient(circle at 30% 40%, rgba(212,167,44,.14), transparent 55%),
+    radial-gradient(circle at 70% 65%, rgba(244,196,48,.09), transparent 50%),
+    linear-gradient(180deg, rgba(30,22,10,.45), rgba(10,8,6,.75))}
+.comb-rail .rail-label{position:relative;z-index:2;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gold);padding:8px 8px 0;text-align:center;font-weight:600;flex-shrink:0}
+.comb-rail .rail-sub{position:relative;z-index:2;font-size:.55rem;color:var(--ink-3);text-align:center;padding:2px 6px 6px;flex-shrink:0}
+.comb-rail .rail-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 4px 8px;
+  scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
+.comb-rail .rail-scroll::-webkit-scrollbar{width:5px}
+.comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
+.comb-rail svg.rail-svg{display:block;width:100%;height:auto;opacity:1}
+.comb-rail.left{border-right:1px solid rgba(244,196,48,.35)}
+.comb-rail.right{border-left:1px solid rgba(244,196,48,.35)}
+.comb-core{position:relative;width:100%;max-width:340px;justify-self:center}
+svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
+.rail-cell{cursor:pointer}
+.rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
+  transition:fill .2s,stroke .2s,filter .2s}
+.rail-cell:hover polygon,.rail-cell:focus-visible polygon{fill:#2a1e0a;stroke:var(--gold-br);
+  filter:drop-shadow(0 0 7px rgba(244,196,48,.4))}
+.rail-cell.sel polygon{fill:#2c2009;stroke:var(--gold-br);filter:drop-shadow(0 0 10px rgba(244,196,48,.55))}
+.rail-cell text{fill:var(--ink);font-size:7px;text-anchor:middle;dominant-baseline:middle;
+  pointer-events:none;font-family:-apple-system,"Segoe UI",sans-serif}
+.rail-cell.empty{cursor:default;pointer-events:none}
+.rail-cell.empty polygon{fill:transparent;stroke:rgba(212,167,44,.22);stroke-width:1}
+.rail-cell.work polygon{stroke:var(--st-prog)}
+.rail-cell.personal polygon{stroke:var(--st-done)}
+.rail-cell.assign polygon{stroke:var(--gold)}
 .cell{cursor:pointer}
 .cell polygon{fill:var(--surface-2);stroke:var(--line);stroke-width:1.4;
   transition:fill .2s,stroke .2s,filter .2s;transform-origin:center;transform-box:fill-box}
@@ -111,6 +150,11 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible}
 #bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
+@media(max-width:420px){
+  .combwrap{grid-template-columns:1fr;min-height:0}
+  .comb-rail{display:none}
+  .comb-core{max-width:340px}
+}
 .comblegend{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:.66rem;color:var(--ink-3)}
 .comblegend span{display:flex;align-items:center;gap:5px}
 .comblegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -142,15 +186,8 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 .eta-link:hover{border-color:var(--gold-deep);background:var(--bg)}
 .eta-empty{font-size:.74rem;color:var(--ink-3);padding:12px 0;text-align:center;font-style:italic}
 
-/* ---------- meetings strip ---------- */
-.meetings{max-width:1380px;margin:14px auto 0;padding:0 20px}
-.meetings .inner{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
-.meetings h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px;margin:0 0 8px}
-.meetings .hint{font-size:.61rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400}
-.meetings-list{display:flex;gap:10px;flex-wrap:wrap}
-.meeting-item{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 12px;min-width:220px;max-width:320px}
-.meeting-item .mtitle{font-size:.78rem;color:var(--ink);font-weight:600;line-height:1.3}
-.meeting-item .mmeta{font-size:.66rem;color:var(--ink-3);margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+/* ---------- meetings strip (retired — meetings live on right rail) ---------- */
+.meetings{display:none}
 
 /* ---------- pipeline detail (demoted old orbit) ---------- */
 .pipeline-detail{max-width:1380px;margin:14px auto 0;padding:0 20px}
@@ -268,41 +305,48 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
 <div class="spine">
   <div class="spine-col left">
     <div class="card" id="openTodosCard">
-      <h2>Open todos <span class="hint">Open · Blocked</span></h2>
-      <div class="sub">Portfolio backlog + user gates. Same-tab links only.</div>
+      <h2>Open todos <span class="hint">Projects</span></h2>
+      <div class="sub">App/website backlog + user gates. Same-tab links only.</div>
       <div id="openTodosBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
       <div id="openTodosGates" class="user-gates" hidden></div>
+    </div>
+    <div class="card" id="etaTestsCard">
+      <h2>ETA tests <span class="hint">Study guides</span></h2>
+      <div class="sub">Tests only — study PDF. Assignments live on the left hex calendar.</div>
+      <div id="etaBody"><div class="sk" style="height:24px"></div></div>
     </div>
   </div>
   <div class="spine-col center">
     <div id="combcard">
       <div class="combhd"><h2>The comb</h2><span class="hint">direct access</span></div>
       <div class="combwrap">
-        <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE projects"></svg>
-        <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
-          <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
-          <path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/>
-          <circle cx="20" cy="13" r="5" fill="#2a1d0c"/>
-          <path class="wing" d="M14 15Q6 6 12 4q2 6 2 11Z" fill="#f5e6c8" opacity=".9"/>
-          <path class="wing" d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".9"/>
-        </svg>
+        <div class="comb-rail left" id="assignRail">
+          <div class="rail-label">Assignments</div>
+          <div class="rail-sub">by date → scroll</div>
+          <div class="rail-scroll">
+            <svg class="rail-svg" id="assignRailSvg" viewBox="0 0 210 420" role="group" aria-label="ETA assignments by date"></svg>
+          </div>
+        </div>
+        <div class="comb-core">
+          <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE projects"></svg>
+          <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
+            <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
+            <path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/>
+            <circle cx="20" cy="13" r="5" fill="#2a1d0c"/>
+            <path class="wing" d="M14 15Q6 6 12 4q2 6 2 11Z" fill="#f5e6c8" opacity=".9"/>
+            <path class="wing" d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".9"/>
+          </svg>
+        </div>
+        <div class="comb-rail right" id="meetRail">
+          <div class="rail-label">Meetings</div>
+          <div class="rail-sub">Work · Personal → scroll</div>
+          <div class="rail-scroll">
+            <svg class="rail-svg" id="meetRailSvg" viewBox="0 0 210 420" role="group" aria-label="Meetings by time"></svg>
+          </div>
+        </div>
       </div>
       <div class="comblegend" id="combLegend"></div>
     </div>
-  </div>
-  <div class="spine-col right">
-    <div class="card" id="etaCard">
-      <h2>ETA <span class="hint">deadlines</span></h2>
-      <div class="sub">Tests = study PDF. Assignments = Word handout.</div>
-      <div id="etaBody"><div class="sk" style="height:24px"></div></div>
-    </div>
-  </div>
-</div>
-
-<div class="meetings" id="meetingsCard">
-  <div class="inner">
-    <h2>Meetings <span class="hint">Work · Personal</span></h2>
-    <div id="meetingsBody"><div class="empty">Loading meetings…</div></div>
   </div>
 </div>
 
@@ -520,7 +564,7 @@ function markAttnCells(){
 }
 
 function beeSeat(cellEl){
-  var svg=$("comb"),w=document.querySelector(".combwrap");
+  var svg=$("comb"),w=document.querySelector(".comb-core");
   if(!svg||!w||!cellEl)return null;
   var vb=svg.viewBox.baseVal,r=svg.getBoundingClientRect(),wr=w.getBoundingClientRect();
   if(!vb||!vb.width||!r.width)return null;
@@ -552,7 +596,8 @@ window.addEventListener("resize",function(){
 
 function openPanel(h){$("pbody").innerHTML=h;$("back").classList.add("on");$("panel").classList.add("on");}
 function closePanel(){$("back").classList.remove("on");$("panel").classList.remove("on");
-  if(selEl){selEl.classList.remove("sel");selEl=null;}}
+  if(selEl){selEl.classList.remove("sel");selEl=null;}
+  clearRailSelection();}
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
@@ -606,6 +651,7 @@ function projPanel(p){
   return h;
 }
 function select(g){
+  clearRailSelection();
   if(selEl)selEl.classList.remove("sel");
   selEl=g; g.classList.add("sel");
   flyTo(g,function(){openPanel(g.__c.hub?hubPanel():projPanel(g.__c.p));});
@@ -835,27 +881,174 @@ function loadOpenTodos(){
 }
 loadOpenTodos();
 
-function renderEta(items){
+function renderTestsTable(tests){
   var el=$("etaBody"); if(!el) return;
-  if(!items || !items.length){
-    el.innerHTML='<div class="eta-empty">No ETA items loaded.</div>';
+  if(!tests || !tests.length){
+    el.innerHTML='<div class="eta-empty">No tests loaded.</div>';
     return;
   }
-  var rows=items.map(function(it){
-    var study='', file='';
-    if(it.type==="Test" && it.pdf){
-      study='<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>';
-      file='<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>';
-    } else if(it.type==="Assignment" && it.word){
-      file='<a class="eta-link" href="/preview/docx.html?file='+esc(it.word)+'">Word</a>';
-    }
-    if(!file && it.pdf) file='<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>';
-    return '<tr><td>'+esc(it.name)+'</td><td>'+esc(it.type)+'</td><td class="mono">'+esc(it.date)+'</td>'+
-      '<td>'+(study?study:'<span style="color:var(--ink-3)">—</span>')+'</td>'+
-      '<td>'+(file?file:'<span style="color:var(--ink-3)">—</span>')+'</td></tr>';
+  var rows=tests.map(function(it){
+    var study=it.pdf?'<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>':'<span style="color:var(--ink-3)">—</span>';
+    var file=it.pdf?'<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>':'<span style="color:var(--ink-3)">—</span>';
+    return '<tr><td>'+esc(it.name)+'</td><td class="mono">'+esc(it.date)+'</td>'+
+      '<td>'+study+'</td><td>'+file+'</td></tr>';
   }).join("");
-  el.innerHTML='<table class="eta-table"><thead><tr><th>Name</th><th>Type</th><th>Date</th><th>Study guide</th><th>PDF</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  el.innerHTML='<table class="eta-table"><thead><tr><th>Name</th><th>Date</th><th>Study guide</th><th>PDF</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
+
+function renderEta(items){
+  items=items||[];
+  var tests=items.filter(function(it){ return it.type==="Test"; });
+  var assigns=items.filter(function(it){ return it.type==="Assignment"; });
+  renderTestsTable(tests);
+  renderAssignmentRail(assigns);
+}
+
+/* Side rails: 3-across hex calendars. Left = assignments by date. Right = meetings by start.
+   Scrollable; selecting a hex opens the detail panel (same-tab links inside). */
+var RAIL_MIN_SLOTS=9, RAIL_COLS=3, RAIL_SIZE=34, RAIL_VB_W=210, selRailEl=null;
+function railSlotPoints(n){
+  var slots=[], i=0;
+  for(var row=0; i<n; row++){
+    for(var col=0; col<RAIL_COLS && i<n; col++){
+      slots.push({
+        x: 28 + col * (RAIL_SIZE * 1.72),
+        y: 30 + row * (RAIL_SIZE * 1.58)
+      });
+      i++;
+    }
+  }
+  var last=slots[slots.length-1];
+  var height=Math.max(300, (last?last.y:30)+RAIL_SIZE+22);
+  return {slots:slots, height:height};
+}
+function wrapRailLabel(n,maxLines){
+  var w=String(n||"").split(/[\s\/_\-]+/),L=[],c="";
+  w.forEach(function(x){
+    if(!x)return;
+    if((c+" "+x).trim().length>10){ if(c)L.push(c); c=x; }
+    else c=(c?c+" ":"")+x;
+  });
+  if(c)L.push(c);
+  return L.slice(0,maxLines||2);
+}
+function clearRailSelection(){
+  if(selRailEl){ selRailEl.classList.remove("sel"); selRailEl=null; }
+}
+function renderRail(svgId, items, kind){
+  var svg=$(svgId); if(!svg) return;
+  var NS="http://www.w3.org/2000/svg";
+  svg.innerHTML="";
+  items=items||[];
+  var slotCount=Math.max(RAIL_MIN_SLOTS, items.length);
+  var layout=railSlotPoints(slotCount);
+  svg.setAttribute("viewBox","0 0 "+RAIL_VB_W+" "+layout.height);
+  svg.style.height=layout.height+"px";
+  layout.slots.forEach(function(slot, idx){
+    var it=items[idx];
+    var g=document.createElementNS(NS,"g");
+    var cls="rail-cell"+(it?"":" empty");
+    if(it && kind==="assign") cls+=" assign";
+    if(it && kind==="meeting"){
+      if(it.source==="Work") cls+=" work";
+      else if(it.source==="Personal") cls+=" personal";
+    }
+    g.setAttribute("class",cls);
+    if(it){
+      g.setAttribute("tabindex","0");
+      g.setAttribute("role","button");
+      g.setAttribute("aria-label", kind==="assign"
+        ? ("Assignment "+(it.name||""))
+        : ("Meeting "+(it.title||"")));
+    }
+    var poly=document.createElementNS(NS,"polygon");
+    poly.setAttribute("points",hexPts(slot.x,slot.y,RAIL_SIZE-2));
+    g.appendChild(poly);
+    if(it){
+      var label;
+      if(kind==="assign"){
+        label=wrapRailLabel((it.date?String(it.date).slice(5)+" ":"")+(it.name||""),2);
+      } else {
+        var when="";
+        try{
+          var d=new Date(it.start);
+          if(!isNaN(d.getTime())) when=d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+        }catch(e){}
+        label=wrapRailLabel((when?when+" ":"")+(it.title||""),2);
+      }
+      label.forEach(function(ln,li){
+        var t=document.createElementNS(NS,"text");
+        t.setAttribute("x",slot.x);
+        t.setAttribute("y",slot.y-((label.length-1)*4.5)+li*9.5);
+        t.textContent=ln;
+        g.appendChild(t);
+      });
+      g.__rail=it; g.__kind=kind;
+      g.addEventListener("click",function(){ activateRailItem(g, g.__kind, g.__rail); });
+      g.addEventListener("keydown",function(e){
+        if(e.key==="Enter"||e.key===" "){ e.preventDefault(); activateRailItem(g, g.__kind, g.__rail); }
+      });
+    }
+    svg.appendChild(g);
+  });
+}
+function assignmentDetailHtml(it){
+  var h='<div class="eb">ETA assignment</div><h2>'+esc(it.name)+'</h2>';
+  h+=row("Type",esc(it.type||"Assignment"));
+  if(it.date) h+=row("Submit by",'<span class="mono">'+esc(it.date)+'</span>');
+  if(it.notes) h+=row("Notes",esc(it.notes));
+  var chips=[];
+  if(it.word) chips.push('<a class="chip" href="/preview/docx.html?file='+esc(it.word)+'">Word handout</a>');
+  if(it.pdf) chips.push('<a class="chip" href="'+esc(it.pdf)+'">PDF</a>');
+  if(chips.length) h+=row("Files",'<div class="chips">'+chips.join("")+'</div>');
+  h+=row("Websites",'<div class="chips"><a class="chip" href="https://etaconnect.etacollege.com/my/">etaConnect LMS</a></div>');
+  return h;
+}
+function meetingDetailHtml(it){
+  var h='<div class="eb">Meeting</div><h2>'+esc(it.title)+'</h2>';
+  if(it.source) h+=row("Calendar",'<span class="chip '+(it.source==="Work"?"work":"personal")+'">'+esc(it.source)+'</span>');
+  try{
+    var start=new Date(it.start), end=new Date(it.end);
+    if(!isNaN(start.getTime())){
+      var timeStr=start.toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+      if(!isNaN(end.getTime())) timeStr+=" – "+end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+      h+=row("When",esc(timeStr));
+    }
+  }catch(e){}
+  if(it.notes) h+=row("Notes",esc(it.notes));
+  if(it.url) h+=row("Link",'<a href="'+esc(it.url)+'">'+esc(it.url)+'</a>');
+  return h;
+}
+function activateRailItem(el, kind, it){
+  if(!it) return;
+  clearRailSelection();
+  if(selEl){ selEl.classList.remove("sel"); selEl=null; }
+  selRailEl=el;
+  if(el) el.classList.add("sel");
+  if(kind==="assign") openPanel(assignmentDetailHtml(it));
+  else openPanel(meetingDetailHtml(it));
+}
+function sortAssignmentsByDate(items){
+  return (items||[]).slice().sort(function(a,b){
+    var da=a.date||"9999", db=b.date||"9999";
+    if(da!==db) return da<db?-1:1;
+    return String(a.name||"").localeCompare(String(b.name||""));
+  });
+}
+function sortMeetingsByStart(meetings){
+  return (meetings||[]).slice().sort(function(a,b){
+    var da=a.start||"", db=b.start||"";
+    if(da!==db) return da<db?-1:1;
+    return String(a.title||"").localeCompare(String(b.title||""));
+  });
+}
+function renderAssignmentRail(items){
+  renderRail("assignRailSvg", sortAssignmentsByDate(items), "assign");
+}
+function renderMeetingRail(meetings){
+  renderRail("meetRailSvg", sortMeetingsByStart(meetings), "meeting");
+}
+
 function loadEta(){
   fetch("/eta.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){ renderEta(d && d.items); })
@@ -863,30 +1056,13 @@ function loadEta(){
 }
 loadEta();
 
-function renderMeetings(data){
-  var el=$("meetingsBody"); if(!el) return;
-  var meetings=data && data.meetings;
-  if(!meetings || !meetings.length){
-    el.innerHTML='<div class="empty">No meetings loaded. Connect Work Outlook (Breyten@praeto.co.za) and Personal Google (Breyten54@gmail.com) calendars.</div>';
-    return;
-  }
-  var html='<div class="meetings-list">';
-  meetings.forEach(function(m){
-    var start=new Date(m.start), end=new Date(m.end);
-    var timeStr=start.toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})+
-      " – "+end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
-    html+='<div class="meeting-item">'+
-      '<div class="mtitle">'+esc(m.title)+'</div>'+
-      '<div class="mmeta"><span class="chip '+(m.source==="Work"?"work":"personal")+'">'+esc(m.source)+'</span><span>'+esc(timeStr)+'</span></div>'+
-      '</div>';
-  });
-  html+='</div>';
-  el.innerHTML=html;
-}
 function loadMeetings(){
   fetch("/meetings.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
-    .then(function(d){ renderMeetings(d); })
-    .catch(function(){ renderMeetings(null); });
+    .then(function(d){
+      state.meetings = d && d.meetings;
+      renderMeetingRail(state.meetings);
+    })
+    .catch(function(){ renderMeetingRail(null); });
 }
 loadMeetings();
 
