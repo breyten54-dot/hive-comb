@@ -4,9 +4,38 @@ const BASE = 'http://127.0.0.1:8765';
 const CASES = [
   { path: '/', name: 'Comb home page', expectType: 'text/html' },
   { path: '/eta.json', name: 'ETA JSON', expectType: 'application/json' },
+  { path: '/open-todos.json', name: 'Open todos JSON', expectType: 'application/json' },
+  { path: '/product-lanes.json', name: 'Product lanes JSON', expectType: 'application/json' },
+  { path: '/meetings.json', name: 'Meetings JSON', expectType: 'application/json' },
   { path: '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'BMSR114 study PDF', expectType: 'application/pdf' },
   { path: '/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'Sample assignment DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
   { path: '/preview/docx.html?file=/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'DOCX preview page', expectType: 'text/html' },
+];
+
+const KEEP_CELLS = [
+  'Praeto Compliance Club',
+  'Praeto Balance',
+  'Project Tech',
+  'Stella Indoor',
+  'Stella Glenwood',
+  'Digital Brain',
+  'Video-Inbox',
+  'ETA Work',
+  'Football',
+  'Personal',
+  'Unethical',
+  'Anialah',
+  'PABOS',
+  'praeto.co.za',
+];
+
+const DROP_CELLS = [
+  'Padel eBook',
+  'Tiespro PWA',
+  'Backend Checklist',
+  'AI-Benchmark',
+  'Praeto Marketing',
+  'fable-mode source',
 ];
 
 function get(path) {
@@ -44,12 +73,24 @@ function get(path) {
     const r = await get('/');
     const eta = await get('/eta.json');
     const etaBody = eta.body || '';
+    const todos = await get('/open-todos.json');
+    const todosBody = todos.body || '';
+    const lanes = await get('/product-lanes.json');
+    const lanesBody = lanes.body || '';
+
     const checks = [
       ['ETA panel present', r.body.includes('id="etaCard"')],
+      ['Open todos panel present', r.body.includes('id="openTodosCard"')],
+      ['Meetings strip present', r.body.includes('id="meetingsCard"')],
+      ['Pipeline detail disclosure present', r.body.includes('id="pipelineDetails"')],
       ['ETA JSON lists PDF', etaBody.includes('/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf')],
       ['ETA JSON lists DOCX', etaBody.includes('/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx')],
+      ['Open todos JSON has items', todosBody.includes('"todos"') && todosBody.includes('"name"')],
+      ['Product lanes JSON has lanes', lanesBody.includes('"lanes"') && lanesBody.includes('https://compliance-club.vercel.app')],
       ['DOCX preview page linked', r.body.includes('/preview/docx.html?file=')],
       ['No target=_blank in index.html', !r.body.includes('target="_blank"')],
+      ...KEEP_CELLS.map(name => [`SKELETON keeps ${name}`, r.body.includes(`Project:"${name}"`)]),
+      ...DROP_CELLS.map(name => [`SKELETON drops ${name}`, !r.body.includes(`Project:"${name}"`)]),
     ];
     for (const [name, passed] of checks) {
       console.log(passed ? 'PASS' : 'FAIL', name);

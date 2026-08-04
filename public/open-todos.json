@@ -1,0 +1,203 @@
+{
+  "updatedAt": "2026-08-04T16:54:00.000Z",
+  "todos": [
+    {
+      "name": "OUTLOOK_* env for live send-brief",
+      "section": "TechCo",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://praeto-group-tech-co.vercel.app",
+      "blockedOn": "OUTLOOK_EMAIL + OUTLOOK_APP_PASSWORD on Vercel",
+      "notes": "Oldest open P0 (2026-07-28). Live user-facing feature broken.",
+      "hivePath": "Project Tech\\"
+    },
+    {
+      "name": "Rotate NOTION_TOKEN + confirm Comb Vercel env",
+      "section": "The Comb",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://hive-comb-iota.vercel.app",
+      "blockedOn": "User rotates Notion token; confirm COMB_USER/PASSWORD",
+      "notes": "C1/C2 — token may have been pasted in chat.",
+      "hivePath": "Comb\\"
+    },
+    {
+      "name": "Move Anialah .env out of OneDrive",
+      "section": "Anialah",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": null,
+      "blockedOn": "User moves secrets off OneDrive + rotate",
+      "notes": "Secrets in synced folder.",
+      "hivePath": "Anialah\\"
+    },
+    {
+      "name": "vercel login + redeploy Comb",
+      "section": "The Comb",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://hive-comb-iota.vercel.app",
+      "blockedOn": "vercel login on this machine",
+      "notes": "Local master ahead of live; deploy blocked without auth.",
+      "hivePath": "Comb\\"
+    },
+    {
+      "name": "Compliance Club Vercel secrets (PayFast/Anthropic/email)",
+      "section": "Compliance app",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://compliance-club.vercel.app",
+      "blockedOn": "User sets Vercel project secrets",
+      "notes": "Payments, AI chat, mail dead without secrets.",
+      "hivePath": "Million dollar 90 day plan\\Praeto-Web-Project\\vercel-compliance-club\\"
+    },
+    {
+      "name": "Club CTA button on marketing site (partner Firebase deploy)",
+      "section": "praeto.co.za",
+      "owner": "Partner",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": "https://praeto.co.za",
+      "blockedOn": "Partner Firebase deploy (main@4411c32)",
+      "notes": "Fix committed; awaiting partner.",
+      "hivePath": "Million dollar 90 day plan\\praeto-risk-and-insurance-git\\"
+    },
+    {
+      "name": "Legal opinion for Balance mobile",
+      "section": "Praeto Balance",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://praeto-balance-demo.vercel.app",
+      "blockedOn": "External counsel opinion",
+      "notes": "Launch-blocked — gambling-harm + financial data (ZA).",
+      "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\"
+    },
+    {
+      "name": "Hosting decision for PABOS + Balance API",
+      "section": "PABOS",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": null,
+      "blockedOn": "User picks Render vs Fly vs self-managed",
+      "notes": "Both products should not drift hosts without a reason.",
+      "hivePath": "Praeto Office AI Portal\\"
+    },
+    {
+      "name": "Name a Tiespro restore source",
+      "section": "Tiespro",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": null,
+      "blockedOn": "User confirms restore source or write-off",
+      "notes": "Agent can check GitHub; user owns search of archives.",
+      "hivePath": "Tiespro proj\\"
+    },
+    {
+      "name": "Real SMTP provider for PABOS",
+      "section": "PABOS",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": null,
+      "blockedOn": "User creates Postmark/SES/Resend account + credentials",
+      "notes": "Then Agent wires staging → prod.",
+      "hivePath": "Praeto Office AI Portal\\"
+    },
+    {
+      "name": "Put Balance mobile under git",
+      "section": "Praeto Balance",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": null,
+      "blockedOn": "User confirms whether remote exists",
+      "notes": "No local .git — unbacked working copy.",
+      "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\"
+    },
+    {
+      "name": "Push Comb to GitHub",
+      "section": "The Comb",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": null,
+      "blockedOn": "User creates GitHub remote",
+      "notes": "Then Agent can push master.",
+      "hivePath": "Comb\\"
+    },
+    {
+      "name": "Decide quote-endpoint destination (praeto.co.za)",
+      "section": "praeto.co.za",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": null,
+      "blockedOn": "User picks email / CRM / PABOS",
+      "notes": "Lead capture currently placeholder.",
+      "hivePath": "Million dollar 90 day plan\\praeto-risk-and-insurance-git\\"
+    },
+    {
+      "name": "Club auth-download verify (Foundation+ manual)",
+      "section": "Compliance app",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://compliance-club.vercel.app",
+      "blockedOn": "User login + download smoke after merge",
+      "notes": "Confirm 01_FSP_Compliance_Manual.docx after auth-download merge.",
+      "hivePath": "Million dollar 90 day plan\\Praeto-Web-Project\\vercel-compliance-club\\"
+    },
+    {
+      "name": "VAPID keys + Google Play verification (Stella Indoor)",
+      "section": "stella indoor",
+      "owner": "User",
+      "priority": "P1",
+      "status": "Open",
+      "url": "https://stella-indoor.web.app",
+      "blockedOn": "User VAPID + Play identity verification",
+      "notes": "Push + Android release blocked.",
+      "hivePath": "Stella Project\\"
+    },
+    {
+      "name": "Retry Balance folder rename off ugly path",
+      "section": "Praeto Balance",
+      "owner": "User",
+      "priority": "P1",
+      "status": "Open",
+      "url": null,
+      "blockedOn": "OneDrive Access denied — User closes locks + renames",
+      "notes": "praeto-balance-app_2 (1) → praeto-balance-app",
+      "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\"
+    },
+    {
+      "name": "EAS + store accounts (Balance mobile)",
+      "section": "Praeto Balance",
+      "owner": "User",
+      "priority": "P1",
+      "status": "Open",
+      "url": null,
+      "blockedOn": "User Expo/Apple/Google accounts",
+      "notes": "Store presence blocked.",
+      "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\"
+    },
+    {
+      "name": "Hermes webhook automation + config webhookUrl",
+      "section": "Hermes",
+      "owner": "User",
+      "priority": "P1",
+      "status": "Blocked",
+      "url": null,
+      "blockedOn": "User must create the Cursor Automation webhook trigger, copy its URL, and run Hermes-Bridge/setup-webhook.ps1",
+      "notes": "Code side ready. Agent cannot create/save the user webhook without the secret URL.",
+      "hivePath": "Hermes-Bridge\\"
+    }
+  ]
+}

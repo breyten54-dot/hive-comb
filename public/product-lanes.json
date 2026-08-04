@@ -1,0 +1,92 @@
+{
+  "updatedAt": "2026-08-04T16:54:00.000Z",
+  "lanes": {
+    "Praeto Compliance Club": {
+      "hivePath": "Million dollar 90 day plan\\Praeto-Web-Project\\vercel-compliance-club\\",
+      "websites": [
+        { "label": "Live site", "url": "https://compliance-club.vercel.app" }
+      ]
+    },
+    "Praeto Balance": {
+      "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
+      "websites": [
+        { "label": "Balance demo", "url": "https://praeto-balance-demo.vercel.app" },
+        { "label": "Balance API", "url": "https://praeto-balance-api.onrender.com/api/v1" }
+      ]
+    },
+    "Project Tech": {
+      "hivePath": "Project Tech\\",
+      "websites": [
+        { "label": "TechCo", "url": "https://praeto-group-tech-co.vercel.app" }
+      ]
+    },
+    "Stella Indoor": {
+      "hivePath": "Stella Project\\",
+      "websites": [
+        { "label": "Client app", "url": "https://stella-indoor.web.app" },
+        { "label": "Admin app", "url": "https://stella-indoor-admin.web.app" }
+      ]
+    },
+    "Stella Glenwood": {
+      "hivePath": "Stella Project\\",
+      "websites": [
+        { "label": "Glenwood live", "url": "https://stella-glenwood.vercel.app" }
+      ]
+    },
+    "Digital Brain": {
+      "hivePath": "Digital Brain\\",
+      "websites": [
+        { "label": "Vault (Obsidian)", "url": null }
+      ]
+    },
+    "Video-Inbox": {
+      "hivePath": "Digital Brain\\Brain\\reports\\",
+      "websites": [
+        { "label": "Inbox folder", "url": null }
+      ]
+    },
+    "ETA Work": {
+      "hivePath": "ETA Work\\",
+      "websites": [
+        { "label": "etaConnect LMS", "url": "https://etaconnect.etacollege.com/my/" },
+        { "label": "etaConnect login", "url": "https://etaconnect.etacollege.com/login/index.php" }
+      ]
+    },
+    "Football": {
+      "hivePath": null,
+      "websites": []
+    },
+    "Personal": {
+      "hivePath": null,
+      "websites": []
+    },
+    "Unethical": {
+      "hivePath": null,
+      "websites": []
+    },
+    "Anialah": {
+      "hivePath": "Anialah\\",
+      "websites": []
+    },
+    "PABOS": {
+      "hivePath": "Praeto Office AI Portal\\",
+      "websites": [
+        { "label": "Staging app", "url": "https://pabos-staging.onrender.com" },
+        { "label": "Staging API", "url": "https://pabos-staging-api.onrender.com/api/v1" }
+      ]
+    },
+    "praeto.co.za": {
+      "hivePath": "Million dollar 90 day plan\\praeto-risk-and-insurance-git\\",
+      "websites": [
+        { "label": "Live site", "url": "https://praeto.co.za" }
+      ]
+    },
+    "HIVE": {
+      "hivePath": null,
+      "websites": [
+        { "label": "Command Center", "url": "https://www.notion.so/3aaab30fe57181539be4f58c767debd3" },
+        { "label": "Boss Questionnaire", "url": "https://boss-questionnaire.vercel.app/index.html?k=tqEZbKXM9pYO" }
+      ]
+    }
+  }
+}
