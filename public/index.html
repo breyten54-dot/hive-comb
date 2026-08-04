@@ -189,6 +189,21 @@ svg.comb{width:100%;max-width:440px;height:auto;overflow:visible}
   font-size:1.4rem;cursor:pointer;line-height:1;padding:4px}
 .panel .x:hover{color:var(--gold-br)}
 footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
+
+/* ETA panel: clickable PDF + Word links, all same-tab */
+.eta-card{max-width:1380px;margin:14px auto 0;padding:0 20px}
+.eta-card .inner{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.eta-card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px;margin:0 0 8px}
+.eta-card .hint{font-size:.61rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400}
+.eta-table{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:8px}
+.eta-table th,.eta-table td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-soft)}
+.eta-table th{color:var(--ink-3);font-weight:600;font-size:.64rem;letter-spacing:.06em;text-transform:uppercase}
+.eta-table td{color:var(--ink)}
+.eta-table tr:last-child td{border-bottom:none}
+.eta-link{display:inline-flex;align-items:center;gap:5px;color:var(--gold-br);text-decoration:none;padding:3px 8px;border:1px solid var(--line);border-radius:5px;font-size:.68rem;background:var(--surface-2)}
+.eta-link:hover{border-color:var(--gold-deep);background:var(--bg)}
+.eta-empty{font-size:.74rem;color:var(--ink-3);padding:12px 0;text-align:center;font-style:italic}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -259,6 +274,13 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
     <h2><span id="southTitle">Completion by project</span> <span class="hint">% done</span></h2>
     <div class="sub" id="southSub">Done ÷ total per project.</div>
     <div id="areaBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+</div>
+
+<div class="eta-card" id="etaCard">
+  <div class="inner">
+    <h2>ETA <span class="hint">assignments & study guides</span></h2>
+    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
   </div>
 </div>
 
@@ -513,11 +535,11 @@ function projPanel(p){
   var path=p["HIVE path"]||p.Folder;
   if(path)h+=row("Folder",'<span class="mono" id="ppath" style="font-size:.78rem">'+esc(path)+
     '</span> <button class="iconbtn" id="pcopy" title="Copy path" aria-label="Copy path" style="margin-left:6px;width:22px;height:22px;vertical-align:middle">&#128203;</button>');
-  if(p["Live URL"])h+=row("Live","<a href='"+esc(p["Live URL"])+"' target='_blank' rel='noopener'>"+esc(p["Live URL"])+"</a>");
-  if(p.GitHub)h+=row("GitHub","<a href='"+esc(p.GitHub)+"' target='_blank' rel='noopener'>"+esc(p.GitHub)+"</a>");
+  if(p["Live URL"])h+=row("Live","<a href='"+esc(p["Live URL"])+"'>"+esc(p["Live URL"])+"</a>");
+  if(p.GitHub)h+=row("GitHub","<a href='"+esc(p.GitHub)+"'>"+esc(p.GitHub)+"</a>");
   if(p.Status)h+=row("Status",esc(p.Status));
   if(p.Notes)h+=row("Notes",esc(p.Notes));
-  if(p.url)h+=row("Notion","<a href='"+esc(p.url)+"' target='_blank' rel='noopener'>Open in Notion &#8599;</a>");
+  if(p.url)h+=row("Notion","<a href='"+esc(p.url)+"'>Open in Notion</a>");
   if(!state.live)h+=row("Live data","Showing folder name only — Notion data not loaded.");
   return h;
 }
@@ -608,7 +630,7 @@ function renderTasks(tasks){
   $("attnHint").textContent=attn.length?attn.length+" item"+(attn.length>1?"s":""):"clear";
   $("attnNotion").innerHTML=attn.length?'<div class="list">'+attn.map(function(t){
     var c=t.Status==="Blocked"?"b":((t.Status==="Pending Review"||t.Status==="In Review")?"r":"u");
-    var open=t.url?'<a class="itemlink" href="'+esc(t.url)+'" target="_blank" rel="noopener">':'<div>';
+    var open=t.url?'<a class="itemlink" href="'+esc(t.url)+'">':'<div>';
     var close=t.url?'</a>':'</div>';
     return open+'<div class="item '+c+'"><div class="t">'+esc(t.Task)+'</div><div class="m"><span class="chip">'+
       esc(t.Status)+'</span>'+(t.Owner?'<span>'+esc(t.Owner)+'</span>':'')+
@@ -714,6 +736,28 @@ function loadPortfolioGates(){
     .catch(function(){});
 }
 loadPortfolioGates();
+
+function renderEta(items){
+  var el=$("etaBody"); if(!el) return;
+  if(!items || !items.length){
+    el.innerHTML='<div class="eta-empty">No ETA items loaded.</div>';
+    return;
+  }
+  var rows=items.map(function(it){
+    var links=[];
+    if(it.pdf) links.push('<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>');
+    if(it.word) links.push('<a class="eta-link" href="/preview/docx.html?file='+esc(it.word)+'">Word</a>');
+    return '<tr><td>'+esc(it.name)+'</td><td>'+esc(it.type)+'</td><td class="mono">'+esc(it.date)+'</td>'+
+      '<td>'+(links.length?links.join(' '):'<span style="color:var(--ink-3)">—</span>')+'</td></tr>';
+  }).join("");
+  el.innerHTML='<table class="eta-table"><thead><tr><th>Name</th><th>Type</th><th>Date</th><th>File</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function loadEta(){
+  fetch("/eta.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
+    .then(function(d){ renderEta(d && d.items); })
+    .catch(function(){ renderEta(null); });
+}
+loadEta();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){

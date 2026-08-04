@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOCX preview — The Comb</title>
+<style>
+:root{
+  --bg:#0a0806; --surface:#12100c; --surface-2:#181410;
+  --line:#2e2618; --line-soft:#241d12;
+  --gold:#d4a72c; --gold-br:#f4c430; --gold-deep:#8a6414;
+  --ink:#f2e7d0; --ink-2:#b5a687; --ink-3:#7d735f;
+  --r:10px;
+}
+:root[data-theme="light"]{
+  --bg:#f7efdd; --surface:#fffaef; --surface-2:#f3e8cd;
+  --line:#ddc79a; --line-soft:#ece0c2;
+  --gold:#a87c14; --gold-br:#8a6414; --gold-deep:#c9a227;
+  --ink:#2f2411; --ink-2:#6b5730; --ink-3:#8d7a4e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{padding:20px}
+.top{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top h1{font-size:1.1rem;color:var(--gold-br);margin:0}
+.top .meta{margin-left:auto;font-size:.72rem;color:var(--ink-3)}
+.top a{color:var(--gold-br);text-decoration:none}
+.page{max-width:980px;margin:20px auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 28px;line-height:1.6;font-size:.95rem}
+.page h2{font-size:1.2rem;color:var(--gold-br);border-bottom:1px solid var(--line);padding-bottom:8px}
+.page h3{font-size:1rem;color:var(--ink)}
+.page p{margin:0 0 .8em 0}
+.page ul,.page ol{margin:.4em 0 .8em 0;padding-left:1.4em}
+.page li{margin:.25em 0}
+.page table{width:100%;border-collapse:collapse;margin:1em 0;font-size:.88rem}
+.page th,.page td{border:1px solid var(--line-soft);padding:6px 8px;text-align:left}
+.page th{background:var(--surface-2);color:var(--gold-br)}
+.loading{text-align:center;color:var(--ink-3);padding:40px 0;font-style:italic}
+.err{color:var(--st-block);border-left:3px solid var(--st-block);padding:12px 16px;background:var(--surface-2);border-radius:0 var(--r) var(--r) 0}
+.err b{display:block;margin-bottom:4px}
+.fallback{margin-top:16px;padding-top:16px;border-top:1px solid var(--line-soft);font-size:.8rem;color:var(--ink-3)}
+.fallback a{color:var(--gold-br)}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>DOCX preview</h1>
+  <div class="meta" id="meta"></div>
+</div>
+<div class="page" id="page">
+  <div class="loading">Loading document…</div>
+</div>
+
+<script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script>
+(function(){
+"use strict";
+var el=document.getElementById("page"), meta=document.getElementById("meta");
+var params=new URLSearchParams(location.search);
+var file=params.get("file");
+if(!file){
+  el.innerHTML='<div class="err"><b>Missing file</b>No ?file= URL was provided.</div>';
+  return;
+}
+meta.innerHTML='<a href="' + file.replace(/"/g, '&quot;') + '">Download .docx</a>';
+
+fetch(file)
+  .then(function(r){ if(!r.ok) throw new Error(r.status + " " + r.statusText); return r.arrayBuffer(); })
+  .then(function(buffer){
+    return mammoth.convertToHtml({arrayBuffer: buffer}, {
+      includeDefaultStyleMap: true,
+      ignoreEmptyParagraphs: false
+    });
+  })
+  .then(function(result){
+    el.innerHTML=result.value || '<p style="color:var(--ink-3);font-style:italic">Document is empty.</p>';
+    if(result.messages && result.messages.length){
+      console.log("mammoth messages", result.messages);
+    }
+  })
+  .catch(function(e){
+    el.innerHTML='<div class="err"><b>Could not preview document</b>' + String(e.message || e) +
+      '<div class="fallback">The raw file is still available: <a href="' + file.replace(/"/g, '&quot;') + '">download .docx</a></div></div>';
+  });
+})();
+</script>
+</body>
+</html>
