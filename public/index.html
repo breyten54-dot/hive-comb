@@ -87,8 +87,8 @@ button{font:inherit}
 .combhd h2{font-size:.9rem}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  grid-template-columns:minmax(160px,1.2fr) minmax(240px,340px) minmax(160px,1.2fr);
-  gap:12px;align-items:center;min-height:360px}
+  grid-template-columns:minmax(200px,1.35fr) minmax(220px,300px) minmax(200px,1.35fr);
+  gap:10px;align-items:center;min-height:360px}
 .comb-rail{align-self:stretch;min-height:320px;max-height:520px;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
   border:1px solid rgba(212,167,44,.28);
@@ -99,7 +99,7 @@ button{font:inherit}
 .comb-rail .rail-label{position:relative;z-index:2;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
   color:var(--gold);padding:8px 8px 0;text-align:center;font-weight:600;flex-shrink:0}
 .comb-rail .rail-sub{position:relative;z-index:2;font-size:.55rem;color:var(--ink-3);text-align:center;padding:2px 6px 6px;flex-shrink:0}
-.comb-rail .rail-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 4px 8px;
+.comb-rail .rail-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 2px 8px;
   scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
 .comb-rail .rail-scroll::-webkit-scrollbar{width:5px}
 .comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
@@ -114,7 +114,7 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 .rail-cell:hover polygon,.rail-cell:focus-visible polygon{fill:#2a1e0a;stroke:var(--gold-br);
   filter:drop-shadow(0 0 7px rgba(244,196,48,.4))}
 .rail-cell.sel polygon{fill:#2c2009;stroke:var(--gold-br);filter:drop-shadow(0 0 10px rgba(244,196,48,.55))}
-.rail-cell text{fill:var(--ink);font-size:7px;text-anchor:middle;dominant-baseline:middle;
+.rail-cell text{fill:var(--ink);font-size:8.2px;text-anchor:middle;dominant-baseline:middle;
   pointer-events:none;font-family:-apple-system,"Segoe UI",sans-serif}
 .rail-cell.empty{cursor:default;pointer-events:none}
 .rail-cell.empty polygon{fill:transparent;stroke:rgba(212,167,44,.22);stroke-width:1}
@@ -904,29 +904,35 @@ function renderEta(items){
   renderAssignmentRail(assigns);
 }
 
-/* Side rails: 3-across hex calendars. Left = assignments by date. Right = meetings by start.
-   Scrollable; selecting a hex opens the detail panel (same-tab links inside). */
-var RAIL_MIN_SLOTS=9, RAIL_COLS=3, RAIL_SIZE=34, RAIL_VB_W=210, selRailEl=null;
+/* Side rails: 3-across hex calendars sized to fill rail width snugly. */
+var RAIL_MIN_SLOTS=9, RAIL_COLS=3, RAIL_VB_W=100, selRailEl=null;
+function railMetrics(){
+  /* Flat-top hex radius chosen so 3 columns fill the viewBox with a thin gutter. */
+  var margin=2.2;
+  var pitchFactor=1.78; /* center-to-center as multiple of radius */
+  var size=(RAIL_VB_W - margin*2) / (2 + (RAIL_COLS-1)*pitchFactor);
+  var padX=margin + size;
+  var pitchX=size * pitchFactor;
+  var pitchY=size * 1.62;
+  return {size:size, padX:padX, pitchX:pitchX, pitchY:pitchY, padY:size+2};
+}
 function railSlotPoints(n){
-  var slots=[], i=0;
+  var m=railMetrics(), slots=[], i=0;
   for(var row=0; i<n; row++){
     for(var col=0; col<RAIL_COLS && i<n; col++){
-      slots.push({
-        x: 28 + col * (RAIL_SIZE * 1.72),
-        y: 30 + row * (RAIL_SIZE * 1.58)
-      });
+      slots.push({x: m.padX + col * m.pitchX, y: m.padY + row * m.pitchY});
       i++;
     }
   }
   var last=slots[slots.length-1];
-  var height=Math.max(300, (last?last.y:30)+RAIL_SIZE+22);
-  return {slots:slots, height:height};
+  var height=Math.max(m.padY*2 + m.size, (last?last.y:m.padY)+m.size+4);
+  return {slots:slots, height:height, size:m.size};
 }
 function wrapRailLabel(n,maxLines){
   var w=String(n||"").split(/[\s\/_\-]+/),L=[],c="";
   w.forEach(function(x){
     if(!x)return;
-    if((c+" "+x).trim().length>10){ if(c)L.push(c); c=x; }
+    if((c+" "+x).trim().length>11){ if(c)L.push(c); c=x; }
     else c=(c?c+" ":"")+x;
   });
   if(c)L.push(c);
@@ -942,8 +948,12 @@ function renderRail(svgId, items, kind){
   items=items||[];
   var slotCount=Math.max(RAIL_MIN_SLOTS, items.length);
   var layout=railSlotPoints(slotCount);
+  var size=layout.size;
   svg.setAttribute("viewBox","0 0 "+RAIL_VB_W+" "+layout.height);
-  svg.style.height=layout.height+"px";
+  svg.setAttribute("preserveAspectRatio","xMidYMin meet");
+  svg.style.width="100%";
+  svg.style.height="auto";
+  svg.style.aspectRatio=RAIL_VB_W+" / "+layout.height;
   layout.slots.forEach(function(slot, idx){
     var it=items[idx];
     var g=document.createElementNS(NS,"g");
@@ -962,7 +972,7 @@ function renderRail(svgId, items, kind){
         : ("Meeting "+(it.title||"")));
     }
     var poly=document.createElementNS(NS,"polygon");
-    poly.setAttribute("points",hexPts(slot.x,slot.y,RAIL_SIZE-2));
+    poly.setAttribute("points",hexPts(slot.x,slot.y,size-1.2));
     g.appendChild(poly);
     if(it){
       var label;
@@ -979,7 +989,7 @@ function renderRail(svgId, items, kind){
       label.forEach(function(ln,li){
         var t=document.createElementNS(NS,"text");
         t.setAttribute("x",slot.x);
-        t.setAttribute("y",slot.y-((label.length-1)*4.5)+li*9.5);
+        t.setAttribute("y",slot.y-((label.length-1)*5)+li*11);
         t.textContent=ln;
         g.appendChild(t);
       });
