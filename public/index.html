@@ -54,12 +54,12 @@ button{font:inherit}
 
 /* ---------- spine: open todos + tests | comb ---------- */
 .spine{max-width:1520px;margin:14px auto 0;padding:0 20px;display:grid;
-  grid-template-columns:minmax(280px,0.85fr) minmax(520px,1.6fr);
+  grid-template-columns:minmax(260px,0.8fr) minmax(520px,1.91fr);
   gap:14px;align-items:start}
 .spine-col{min-width:0}
 .spine-col.left{display:flex;flex-direction:column;gap:14px}
 .spine-col.center{display:flex;justify-content:center}
-@media(max-width:1040px){.spine{grid-template-columns:1fr}.spine-col.center{order:-1}}
+@media(max-width:1500px){.spine{grid-template-columns:1fr}.spine-col.center{order:-1}}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
 .card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px}
@@ -87,9 +87,9 @@ button{font:inherit}
 .combhd h2{font-size:.9rem}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  grid-template-columns:minmax(200px,1.35fr) minmax(220px,300px) minmax(200px,1.35fr);
-  gap:10px;align-items:center;min-height:360px}
-.comb-rail{align-self:center;min-height:320px;max-height:520px;border-radius:10px;position:relative;overflow:hidden;
+  grid-template-columns:minmax(350px,1fr) minmax(280px,300px) minmax(350px,1fr);
+  gap:10px;align-items:stretch;min-height:420px}
+.comb-rail{min-height:380px;max-height:620px;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
   border:1px solid rgba(212,167,44,.28);
   background:
@@ -150,8 +150,10 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 #bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
-@media(max-width:420px){
+@media(max-width:1040px){
   .combwrap{grid-template-columns:1fr;min-height:0}
+}
+@media(max-width:420px){
   .comb-rail{display:none}
   .comb-core{max-width:340px}
 }
@@ -896,10 +898,21 @@ function renderTestsTable(tests){
   el.innerHTML='<table class="eta-table"><thead><tr><th>Name</th><th>Date</th><th>Study guide</th><th>PDF</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
+function isEtaTest(it){
+  if(!it) return false;
+  if(it.type==="Test") return true;
+  /* Defensive: never let a written-test title land in the assignments rail. */
+  return /written\s*test/i.test(it.name||"");
+}
+function isEtaAssignment(it){
+  if(!it) return false;
+  if(it.type!=="Assignment") return false;
+  return !isEtaTest(it);
+}
 function renderEta(items){
   items=items||[];
-  var tests=items.filter(function(it){ return it.type==="Test"; });
-  var assigns=items.filter(function(it){ return it.type==="Assignment"; });
+  var tests=items.filter(isEtaTest);
+  var assigns=items.filter(isEtaAssignment);
   renderTestsTable(tests);
   renderAssignmentRail(assigns);
 }
@@ -925,20 +938,23 @@ function renderRail(svgId, items, kind){
   var NS="http://www.w3.org/2000/svg";
   items=items||[];
   var rail=svg.closest(".comb-rail");
-  var pxW=Math.max(200, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 240);
-  /* Aggressive pack: 3 hexes span full rail width (slight honeycomb overlap). */
-  var sizeFromW=pxW / (RAIL_COLS * 1.62);
-  /* If the rail is tall, also fit exactly 3 rows in the available scroll height. */
-  var railH=rail ? rail.clientHeight : 360;
+  var pxW=Math.max(320, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 350);
+  /* Rectangular flat-top grid: 3 columns with a full 2*size horizontal pitch so
+     adjacent hexes never overlap. Vertical pitch matches the center comb. */
+  var RAIL_WIDTH_FACTOR=6; /* 3 cols * 2*size + 2*size end caps */
+  var sizeFromW=pxW / RAIL_WIDTH_FACTOR;
+  /* Fit 3 rows in the available scroll height while leaving a clear gap. */
+  var railH=rail ? rail.clientHeight : 420;
   var labelH=rail ? rail.querySelector(".rail-label").offsetHeight : 0;
   var subH=rail ? rail.querySelector(".rail-sub").offsetHeight : 0;
-  var availH=Math.max(180, railH - labelH - subH - 14);
+  var availH=Math.max(220, railH - labelH - subH - 14);
   var visibleRows=3;
   var sizeFromH=availH / (0.95 + (visibleRows - 1) * Math.sqrt(3) + Math.sqrt(3) / 2);
-  var size=Math.max(44, Math.min(sizeFromW, sizeFromH));
-  var padX=size * 0.92;
-  var pitchX=size * 1.62;
+  var MAX_RAIL_SIZE=56; /* keep rail hexes at the same visual scale as before */
+  var size=Math.max(44, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
+  var pitchX=size * 2;
   var pitchY=size * Math.sqrt(3);
+  var padX=Math.max(size, (pxW - 4 * size) / 2); /* center the 3-col grid in the rail */
   var padY=size * 0.95;
   var font=Math.max(8, size * 0.24);
   var maxChars=Math.max(8, Math.floor((size * 1.55) / (font * 0.55)));
@@ -952,7 +968,7 @@ function renderRail(svgId, items, kind){
   }
   var last=slots[slots.length-1];
   var vbW=pxW;
-  var height=Math.max(padY + size, (last?last.y:padY) + size * 1.1);
+  var height=Math.max(padY + size, (last?last.y:padY) + size * Math.sqrt(3) / 2 + 2);
   var visibleH=padY + (visibleRows - 1) * pitchY + size * Math.sqrt(3) / 2;
   var scroll=svg.closest(".rail-scroll");
   if(scroll){

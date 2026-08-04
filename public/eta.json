@@ -1,6 +1,22 @@
 {
-  "updatedAt": "2026-08-04T20:11:00.000Z",
+  "updatedAt": "2026-08-04T20:40:00.000Z",
   "items": [
+    {
+      "name": "Learning Activity 1: Role-Play Scenarios",
+      "type": "Assignment",
+      "date": "2026-07-31",
+      "pdf": null,
+      "word": null,
+      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-07-31 (real due 2026-08-04). Source: Notion ETA + etaConnect forum."
+    },
+    {
+      "name": "Key Functions - The Interview",
+      "type": "Assignment",
+      "date": "2026-08-06",
+      "pdf": null,
+      "word": "/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx",
+      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-08-06 (real due 2026-08-10). Consent form handout on disk."
+    },
     {
       "name": "BMSR 114 Written Test",
       "type": "Test",

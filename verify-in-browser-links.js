@@ -8,8 +8,9 @@ const CASES = [
   { path: '/product-lanes.json', name: 'Product lanes JSON', expectType: 'application/json' },
   { path: '/meetings.json', name: 'Meetings JSON', expectType: 'application/json' },
   { path: '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'BMSR114 study PDF', expectType: 'application/pdf' },
-  { path: '/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'Sample assignment DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-  { path: '/preview/docx.html?file=/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'DOCX preview page', expectType: 'text/html' },
+  { path: '/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'Sample test brief DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+  { path: '/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'Interview assignment DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+  { path: '/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'DOCX preview page', expectType: 'text/html' },
 ];
 
 const KEEP_CELLS = [
@@ -73,6 +74,10 @@ function get(path) {
     const r = await get('/');
     const eta = await get('/eta.json');
     const etaBody = eta.body || '';
+    const etaJson = JSON.parse(etaBody);
+    const etaItems = Array.isArray(etaJson.items) ? etaJson.items : [];
+    const assigns = etaItems.filter((it) => it.type === 'Assignment' && !/written\s*test/i.test(it.name || ''));
+    const tests = etaItems.filter((it) => it.type === 'Test' || /written\s*test/i.test(it.name || ''));
     const todos = await get('/open-todos.json');
     const todosBody = todos.body || '';
     const lanes = await get('/product-lanes.json');
@@ -86,8 +91,13 @@ function get(path) {
       ['Pipeline detail disclosure present', r.body.includes('id="pipelineDetails"')],
       ['Bottom meetings strip retired', !r.body.includes('id="meetingsCard"')],
       ['ETA JSON lists PDF', etaBody.includes('/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf')],
-      ['ETA JSON has no Assignment entries', !etaBody.includes('"type": "Assignment"')],
-      ['ETA JSON keeps BMSR114 Written Test', etaBody.includes('BMSR 114 Written Test')],
+      ['ETA JSON has Assignment entries', assigns.length >= 2],
+      ['ETA JSON lists Role-Play assignment', assigns.some((it) => it.name === 'Learning Activity 1: Role-Play Scenarios')],
+      ['ETA JSON lists Interview assignment', assigns.some((it) => it.name === 'Key Functions - The Interview')],
+      ['ETA JSON keeps BMSR114 Written Test', tests.some((it) => /BMSR 114 Written Test/i.test(it.name || ''))],
+      ['BMSR114 Written Test is typed Test', tests.some((it) => it.type === 'Test' && /BMSR 114 Written Test/i.test(it.name || ''))],
+      ['No written-test titles in Assignment type', !etaItems.some((it) => it.type === 'Assignment' && /written\s*test/i.test(it.name || ''))],
+      ['Filter helpers present in shell', r.body.includes('function isEtaAssignment') && r.body.includes('function isEtaTest')],
       ['Open todos JSON has items', todosBody.includes('"todos"') && todosBody.includes('"name"')],
       ['Product lanes JSON has lanes', lanesBody.includes('"lanes"') && lanesBody.includes('https://compliance-club.vercel.app')],
       ['DOCX preview page linked', r.body.includes('/preview/docx.html?file=')],
