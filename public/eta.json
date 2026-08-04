@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-04T16:10:00.000Z",
+  "updatedAt": "2026-08-04T20:11:00.000Z",
   "items": [
     {
       "name": "BMSR 114 Written Test",
@@ -8,14 +8,6 @@
       "pdf": "/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf",
       "word": null,
       "notes": "Study guide PDF generated from ETA Work pack"
-    },
-    {
-      "name": "BMSR 114 Written Test brief",
-      "type": "Assignment",
-      "date": "2026-08-14",
-      "pdf": null,
-      "word": "/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx",
-      "notes": "Sample DOCX for in-browser preview testing"
     }
   ]
 }
