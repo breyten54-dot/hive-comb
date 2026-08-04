@@ -1,41 +1,33 @@
-// Re-derive Comb side-rail hex geometry and prove no overlap + 3-row fit.
-// Mirrors the constants in public/index.html renderRail() and the center comb px() formula.
+// Verify Comb side-rail hex geometry: 3-row band, non-overlapping pitch,
+// horizontal strip (extra columns). Mirrors public/index.html renderRail().
 
-const RAIL_COLS = 3;
-const VISIBLE_ROWS = 3;
+const RAIL_ROWS = 3;
+const RAIL_VISIBLE_COLS = 3;
 const S3 = Math.sqrt(3);
-const MAX_RAIL_SIZE = 56;
+const MAX_RAIL_SIZE = 48;
 
-// Expanded rail dimensions after the layout fix.
-const railWidth = 350;      // comb-rail min-width
-const pxW = Math.max(320, railWidth - 10);
-const railH = 420;
-const labelH = 18;
-const subH = 14;
-const availH = Math.max(220, railH - labelH - subH - 14);
-
-const RAIL_WIDTH_FACTOR = 6; // 3 rectangular cols * 2*size + 2*size end caps
-const sizeFromW = pxW / RAIL_WIDTH_FACTOR;
-const sizeFromH = availH / (0.95 + (VISIBLE_ROWS - 1) * S3 + S3 / 2);
-const size = Math.max(44, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
+const pxW = 220; // typical flexible rail column after compact layout
+const sizeFromW = pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
+const bandBudget = Math.max(160, Math.min(280, pxW * 1.35));
+const sizeFromH = bandBudget / (0.95 + (RAIL_ROWS - 1) * S3 + S3 / 2);
+const size = Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
 
 const pitchX = size * 2;
 const pitchY = size * S3;
-const padX = Math.max(size, (pxW - 4 * size) / 2);
+const padX = size;
 const padY = size * 0.95;
 
 const hexDrawRadius = size - 2;
 const hexFlatToFlat = hexDrawRadius * S3;
-const hexVertexToVertex = hexDrawRadius * 2;
 const strokeWidth = 1.35;
 
-const visibleH = padY + (VISIBLE_ROWS - 1) * pitchY + size * S3 / 2;
-
-// Build rectangular slot centers.
+const cols = 5; // more than 3 → horizontal scroll content
 const slots = [];
 let i = 0;
-for (let row = 0; i < 9; row++) {
-  for (let col = 0; col < RAIL_COLS && i < 9; col++) {
+const slotCount = cols * RAIL_ROWS;
+for (let col = 0; col < cols; col++) {
+  for (let row = 0; row < RAIL_ROWS; row++) {
+    if (i >= slotCount) break;
     slots.push({
       row,
       col,
@@ -46,7 +38,9 @@ for (let row = 0; i < 9; row++) {
   }
 }
 
-// Check pairwise overlaps using axis-aligned bounding boxes of the drawn hexes.
+const contentW = padX + (cols - 1) * pitchX + size;
+const visibleH = padY + (RAIL_ROWS - 1) * pitchY + size * S3 / 2;
+
 function hexBox(cx, cy) {
   return {
     left: cx - hexDrawRadius,
@@ -57,7 +51,7 @@ function hexBox(cx, cy) {
 }
 
 let overlap = false;
-let overlapPairs = [];
+const overlapPairs = [];
 for (let a = 0; a < slots.length; a++) {
   for (let b = a + 1; b < slots.length; b++) {
     const boxA = hexBox(slots[a].cx, slots[a].cy);
@@ -71,60 +65,42 @@ for (let a = 0; a < slots.length; a++) {
   }
 }
 
-// Row-gap check (vertical gap between adjacent row polygons, including stroke).
 const rowGaps = [];
-for (let r = 0; r < VISIBLE_ROWS - 1; r++) {
+for (let r = 0; r < RAIL_ROWS - 1; r++) {
   const topOfLower = padY + (r + 1) * pitchY - hexFlatToFlat / 2;
   const bottomOfUpper = padY + r * pitchY + hexFlatToFlat / 2;
-  const gap = topOfLower - bottomOfUpper;
-  rowGaps.push({ row: r, gap, visualGap: gap - strokeWidth });
+  rowGaps.push({ row: r, gap: topOfLower - bottomOfUpper });
 }
 
-// Center comb vertical pitch for the same size.
-const centerCombPitchY = size * S3;
-
-console.log("Rail geometry verification");
-console.log("==========================");
-console.log(`rail width (railWidth)  : ${railWidth}px`);
-console.log(`drawable width (pxW)    : ${pxW}px`);
-console.log(`available height        : ${availH}px`);
-console.log(`sizeFromW               : ${sizeFromW.toFixed(2)}`);
-console.log(`sizeFromH               : ${sizeFromH.toFixed(2)}`);
-console.log(`chosen size             : ${size.toFixed(2)}`);
-console.log(`pitchX                  : ${pitchX.toFixed(2)}px`);
-console.log(`pitchY                  : ${pitchY.toFixed(2)}px`);
-console.log(`padX                    : ${padX.toFixed(2)}px`);
-console.log(`padY                    : ${padY.toFixed(2)}px`);
-console.log(`visibleH                : ${visibleH.toFixed(2)}px`);
-console.log(`hex draw radius         : ${hexDrawRadius.toFixed(2)}px`);
-console.log(`hex flat-to-flat height : ${hexFlatToFlat.toFixed(2)}px`);
-console.log(`hex vertex-to-vertex    : ${hexVertexToVertex.toFixed(2)}px`);
-console.log(`stroke width            : ${strokeWidth}px`);
-console.log("");
-console.log("Slot centers (first 9)");
-slots.forEach((s) => {
-  console.log(`row ${s.row} col ${s.col}: cx ${s.cx.toFixed(2)}, cy ${s.cy.toFixed(2)}`);
-});
-console.log("");
-console.log("Row gaps (polygon edge to edge, then visual incl. stroke)");
-rowGaps.forEach((g) => {
-  console.log(`row ${g.row} -> ${g.row + 1}: gap ${g.gap.toFixed(2)}px, visual gap ${g.visualGap.toFixed(2)}px`);
-});
-console.log("");
-console.log(`Any polygon overlap                     : ${overlap ? "YES — FAIL" : "NO — PASS"}`);
-if (overlap) {
-  console.log("Overlap pairs:");
-  overlapPairs.forEach((p) => {
-    console.log(`  row ${p.a.row} col ${p.a.col} <-> row ${p.b.row} col ${p.b.col}: h-gap ${p.horizontalGap.toFixed(2)}px, v-gap ${p.verticalGap.toFixed(2)}px`);
-  });
+const colGaps = [];
+for (let c = 0; c < cols - 1; c++) {
+  const leftOfRight = padX + (c + 1) * pitchX - hexDrawRadius;
+  const rightOfLeft = padX + c * pitchX + hexDrawRadius;
+  colGaps.push({ col: c, gap: leftOfRight - rightOfLeft });
 }
-console.log(`3-row visible height fits in availH     : ${visibleH <= availH + 0.001 ? "YES — PASS" : "NO — FAIL"}`);
-console.log(`Rail pitchY matches center comb pitchY  : ${Math.abs(pitchY - centerCombPitchY) < 0.001 ? "YES — PASS" : "NO — FAIL"}`);
-console.log(`PitchY/hexHeight ratio (should be > 1)  : ${(pitchY / hexFlatToFlat).toFixed(3)}`);
-console.log(`Hex size unchanged (≈56)                : ${Math.abs(size - 56) <= 1 ? "YES — PASS" : "NO — FAIL"}`);
-console.log(`Rail width expanded (>= 350px)          : ${railWidth >= 350 ? "YES — PASS" : "NO — FAIL"}`);
-console.log(`Rail height expanded (>= 380px)         : ${railH >= 380 ? "YES — PASS" : "NO — FAIL"}`);
 
-if (overlap || visibleH > availH + 0.001) {
-  process.exit(1);
-}
+const needsHScroll = contentW > pxW;
+const pass =
+  !overlap &&
+  rowGaps.every((g) => g.gap > 0) &&
+  colGaps.every((g) => g.gap > 0) &&
+  needsHScroll &&
+  Math.abs(pitchY - size * S3) < 1e-9 &&
+  Math.abs(pitchX - size * 2) < 1e-9;
+
+console.log(JSON.stringify({
+  size,
+  pitchX,
+  pitchY,
+  pxW,
+  contentW,
+  visibleH,
+  needsHScroll,
+  rowGaps,
+  colGaps,
+  overlap,
+  overlapPairs: overlapPairs.slice(0, 3),
+  pass,
+}, null, 2));
+
+if (!pass) process.exit(1);
