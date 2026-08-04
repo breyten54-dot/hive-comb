@@ -114,7 +114,7 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 .rail-cell:hover polygon,.rail-cell:focus-visible polygon{fill:#2a1e0a;stroke:var(--gold-br);
   filter:drop-shadow(0 0 7px rgba(244,196,48,.4))}
 .rail-cell.sel polygon{fill:#2c2009;stroke:var(--gold-br);filter:drop-shadow(0 0 10px rgba(244,196,48,.55))}
-.rail-cell text{fill:var(--ink);font-size:8.2px;text-anchor:middle;dominant-baseline:middle;
+.rail-cell text{fill:var(--ink);text-anchor:middle;dominant-baseline:middle;
   pointer-events:none;font-family:-apple-system,"Segoe UI",sans-serif}
 .rail-cell.empty{cursor:default;pointer-events:none}
 .rail-cell.empty polygon{fill:transparent;stroke:rgba(212,167,44,.22);stroke-width:1}
@@ -905,34 +905,13 @@ function renderEta(items){
 }
 
 /* Side rails: 3-across hex calendars sized to fill rail width snugly. */
-var RAIL_MIN_SLOTS=9, RAIL_COLS=3, RAIL_VB_W=100, selRailEl=null;
-function railMetrics(){
-  /* Flat-top hex radius chosen so 3 columns fill the viewBox with a thin gutter. */
-  var margin=2.2;
-  var pitchFactor=1.78; /* center-to-center as multiple of radius */
-  var size=(RAIL_VB_W - margin*2) / (2 + (RAIL_COLS-1)*pitchFactor);
-  var padX=margin + size;
-  var pitchX=size * pitchFactor;
-  var pitchY=size * 1.62;
-  return {size:size, padX:padX, pitchX:pitchX, pitchY:pitchY, padY:size+2};
-}
-function railSlotPoints(n){
-  var m=railMetrics(), slots=[], i=0;
-  for(var row=0; i<n; row++){
-    for(var col=0; col<RAIL_COLS && i<n; col++){
-      slots.push({x: m.padX + col * m.pitchX, y: m.padY + row * m.pitchY});
-      i++;
-    }
-  }
-  var last=slots[slots.length-1];
-  var height=Math.max(m.padY*2 + m.size, (last?last.y:m.padY)+m.size+4);
-  return {slots:slots, height:height, size:m.size};
-}
-function wrapRailLabel(n,maxLines){
+var RAIL_MIN_SLOTS=9, RAIL_COLS=3, selRailEl=null;
+function wrapRailLabel(n,maxLines,maxChars){
+  maxChars=maxChars||10;
   var w=String(n||"").split(/[\s\/_\-]+/),L=[],c="";
   w.forEach(function(x){
     if(!x)return;
-    if((c+" "+x).trim().length>11){ if(c)L.push(c); c=x; }
+    if((c+" "+x).trim().length>maxChars){ if(c)L.push(c); c=x; }
     else c=(c?c+" ":"")+x;
   });
   if(c)L.push(c);
@@ -944,17 +923,36 @@ function clearRailSelection(){
 function renderRail(svgId, items, kind){
   var svg=$(svgId); if(!svg) return;
   var NS="http://www.w3.org/2000/svg";
-  svg.innerHTML="";
   items=items||[];
+  var rail=svg.closest(".comb-rail");
+  var pxW=Math.max(200, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 240);
+  /* Aggressive pack: 3 hexes span full rail width (slight honeycomb overlap). */
+  var size=pxW / (RAIL_COLS * 1.62);
+  var padX=size * 0.92;
+  var pitchX=size * 1.62;
+  var pitchY=size * 1.48;
+  var padY=size * 0.95;
+  var font=Math.max(8, size * 0.22);
+  var maxChars=Math.max(9, Math.floor(size * 0.38));
   var slotCount=Math.max(RAIL_MIN_SLOTS, items.length);
-  var layout=railSlotPoints(slotCount);
-  var size=layout.size;
-  svg.setAttribute("viewBox","0 0 "+RAIL_VB_W+" "+layout.height);
+  var slots=[], i=0;
+  for(var row=0; i<slotCount; row++){
+    for(var col=0; col<RAIL_COLS && i<slotCount; col++){
+      slots.push({x: padX + col * pitchX, y: padY + row * pitchY});
+      i++;
+    }
+  }
+  var last=slots[slots.length-1];
+  var vbW=pxW;
+  var height=Math.max(padY + size, (last?last.y:padY) + size * 1.1);
+  svg.innerHTML="";
+  svg.setAttribute("viewBox","0 0 "+vbW+" "+height);
   svg.setAttribute("preserveAspectRatio","xMidYMin meet");
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
   svg.style.width="100%";
-  svg.style.height="auto";
-  svg.style.aspectRatio=RAIL_VB_W+" / "+layout.height;
-  layout.slots.forEach(function(slot, idx){
+  svg.style.height=(height)+"px";
+  slots.forEach(function(slot, idx){
     var it=items[idx];
     var g=document.createElementNS(NS,"g");
     var cls="rail-cell"+(it?"":" empty");
@@ -972,24 +970,25 @@ function renderRail(svgId, items, kind){
         : ("Meeting "+(it.title||"")));
     }
     var poly=document.createElementNS(NS,"polygon");
-    poly.setAttribute("points",hexPts(slot.x,slot.y,size-1.2));
+    poly.setAttribute("points",hexPts(slot.x,slot.y,size-2));
     g.appendChild(poly);
     if(it){
       var label;
       if(kind==="assign"){
-        label=wrapRailLabel((it.date?String(it.date).slice(5)+" ":"")+(it.name||""),2);
+        label=wrapRailLabel((it.date?String(it.date).slice(5)+" ":"")+(it.name||""),2,maxChars);
       } else {
         var when="";
         try{
           var d=new Date(it.start);
           if(!isNaN(d.getTime())) when=d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
         }catch(e){}
-        label=wrapRailLabel((when?when+" ":"")+(it.title||""),2);
+        label=wrapRailLabel((when?when+" ":"")+(it.title||""),2,maxChars);
       }
       label.forEach(function(ln,li){
         var t=document.createElementNS(NS,"text");
         t.setAttribute("x",slot.x);
-        t.setAttribute("y",slot.y-((label.length-1)*5)+li*11);
+        t.setAttribute("y",slot.y-((label.length-1)*(font*0.55))+li*(font*1.2));
+        t.setAttribute("font-size", font.toFixed(1));
         t.textContent=ln;
         g.appendChild(t);
       });
@@ -1002,6 +1001,14 @@ function renderRail(svgId, items, kind){
     svg.appendChild(g);
   });
 }
+function rerenderRails(){
+  if(state._assigns) renderAssignmentRail(state._assigns);
+  if(state._meetings!==undefined) renderMeetingRail(state._meetings);
+}
+window.addEventListener("resize",function(){
+  clearTimeout(rerenderRails._t);
+  rerenderRails._t=setTimeout(rerenderRails,120);
+});
 function assignmentDetailHtml(it){
   var h='<div class="eb">ETA assignment</div><h2>'+esc(it.name)+'</h2>';
   h+=row("Type",esc(it.type||"Assignment"));
@@ -1053,10 +1060,16 @@ function sortMeetingsByStart(meetings){
   });
 }
 function renderAssignmentRail(items){
-  renderRail("assignRailSvg", sortAssignmentsByDate(items), "assign");
+  state._assigns=items||[];
+  requestAnimationFrame(function(){
+    renderRail("assignRailSvg", sortAssignmentsByDate(state._assigns), "assign");
+  });
 }
 function renderMeetingRail(meetings){
-  renderRail("meetRailSvg", sortMeetingsByStart(meetings), "meeting");
+  state._meetings=meetings||[];
+  requestAnimationFrame(function(){
+    renderRail("meetRailSvg", sortMeetingsByStart(state._meetings), "meeting");
+  });
 }
 
 function loadEta(){
