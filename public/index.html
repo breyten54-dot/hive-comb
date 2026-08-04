@@ -89,7 +89,7 @@ button{font:inherit}
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
   grid-template-columns:minmax(200px,1.35fr) minmax(220px,300px) minmax(200px,1.35fr);
   gap:10px;align-items:center;min-height:360px}
-.comb-rail{align-self:stretch;min-height:320px;max-height:520px;border-radius:10px;position:relative;overflow:hidden;
+.comb-rail{align-self:center;min-height:320px;max-height:520px;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
   border:1px solid rgba(212,167,44,.28);
   background:
@@ -904,7 +904,7 @@ function renderEta(items){
   renderAssignmentRail(assigns);
 }
 
-/* Side rails: 3-across hex calendars sized to fill rail width snugly. */
+/* Side rails: 3×3 hex calendars that fill the rail viewport; scroll for overflow. */
 var RAIL_MIN_SLOTS=9, RAIL_COLS=3, selRailEl=null;
 function wrapRailLabel(n,maxLines,maxChars){
   maxChars=maxChars||10;
@@ -927,13 +927,21 @@ function renderRail(svgId, items, kind){
   var rail=svg.closest(".comb-rail");
   var pxW=Math.max(200, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 240);
   /* Aggressive pack: 3 hexes span full rail width (slight honeycomb overlap). */
-  var size=pxW / (RAIL_COLS * 1.62);
+  var sizeFromW=pxW / (RAIL_COLS * 1.62);
+  /* If the rail is tall, also fit exactly 3 rows in the available scroll height. */
+  var railH=rail ? rail.clientHeight : 360;
+  var labelH=rail ? rail.querySelector(".rail-label").offsetHeight : 0;
+  var subH=rail ? rail.querySelector(".rail-sub").offsetHeight : 0;
+  var availH=Math.max(180, railH - labelH - subH - 14);
+  var visibleRows=3;
+  var sizeFromH=availH / (0.95 + (visibleRows - 1) * 1.48 + 1.1);
+  var size=Math.max(44, Math.min(sizeFromW, sizeFromH));
   var padX=size * 0.92;
   var pitchX=size * 1.62;
   var pitchY=size * 1.48;
   var padY=size * 0.95;
-  var font=Math.max(8, size * 0.22);
-  var maxChars=Math.max(9, Math.floor(size * 0.38));
+  var font=Math.max(8, size * 0.24);
+  var maxChars=Math.max(8, Math.floor((size * 1.55) / (font * 0.55)));
   var slotCount=Math.max(RAIL_MIN_SLOTS, items.length);
   var slots=[], i=0;
   for(var row=0; i<slotCount; row++){
@@ -945,6 +953,12 @@ function renderRail(svgId, items, kind){
   var last=slots[slots.length-1];
   var vbW=pxW;
   var height=Math.max(padY + size, (last?last.y:padY) + size * 1.1);
+  var visibleH=padY + (visibleRows - 1) * pitchY + size * 1.1;
+  var scroll=svg.closest(".rail-scroll");
+  if(scroll){
+    scroll.style.height=Math.round(visibleH)+"px";
+    scroll.style.flex="0 0 auto";
+  }
   svg.innerHTML="";
   svg.setAttribute("viewBox","0 0 "+vbW+" "+height);
   svg.setAttribute("preserveAspectRatio","xMidYMin meet");
