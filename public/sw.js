@@ -2,7 +2,7 @@
 // (BUILD-STANDARDS #6: a stale-while-revalidate SW on Stella kept serving the PREVIOUS bundle
 // after a deploy; this SW versions its cache name so a redeploy can bust it — bump CACHE below
 // on any future shell change.)
-const CACHE = "comb-shell-v1";
+const CACHE = "comb-shell-v2";
 const SHELL = ["/", "/manifest.webmanifest", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
