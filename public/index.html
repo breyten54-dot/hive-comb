@@ -86,9 +86,11 @@ button{font:inherit}
 .combhd{width:100%;display:flex;align-items:baseline;gap:8px;margin-bottom:2px;position:relative;z-index:1}
 .combhd h2{font-size:.9rem}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
+/* Three columns must stay left | comb | right. Never stack rails above/below
+   the honeycomb as the primary layout — overflow-x scrolls if the row is tight. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
   grid-template-columns:minmax(350px,1fr) minmax(280px,300px) minmax(350px,1fr);
-  gap:10px;align-items:stretch;min-height:420px}
+  gap:10px;align-items:stretch;min-height:420px;overflow-x:auto}
 .comb-rail{min-height:380px;max-height:620px;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
   border:1px solid rgba(212,167,44,.28);
@@ -150,12 +152,10 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 #bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
-@media(max-width:1040px){
-  .combwrap{grid-template-columns:1fr;min-height:0}
-}
 @media(max-width:420px){
   .comb-rail{display:none}
   .comb-core{max-width:340px}
+  .combwrap{grid-template-columns:1fr;min-height:0;overflow-x:visible}
 }
 .comblegend{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:.66rem;color:var(--ink-3)}
 .comblegend span{display:flex;align-items:center;gap:5px}
