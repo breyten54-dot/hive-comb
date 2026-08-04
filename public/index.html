@@ -934,11 +934,11 @@ function renderRail(svgId, items, kind){
   var subH=rail ? rail.querySelector(".rail-sub").offsetHeight : 0;
   var availH=Math.max(180, railH - labelH - subH - 14);
   var visibleRows=3;
-  var sizeFromH=availH / (0.95 + (visibleRows - 1) * 1.48 + 1.1);
+  var sizeFromH=availH / (0.95 + (visibleRows - 1) * Math.sqrt(3) + Math.sqrt(3) / 2);
   var size=Math.max(44, Math.min(sizeFromW, sizeFromH));
   var padX=size * 0.92;
   var pitchX=size * 1.62;
-  var pitchY=size * 1.48;
+  var pitchY=size * Math.sqrt(3);
   var padY=size * 0.95;
   var font=Math.max(8, size * 0.24);
   var maxChars=Math.max(8, Math.floor((size * 1.55) / (font * 0.55)));
@@ -953,7 +953,7 @@ function renderRail(svgId, items, kind){
   var last=slots[slots.length-1];
   var vbW=pxW;
   var height=Math.max(padY + size, (last?last.y:padY) + size * 1.1);
-  var visibleH=padY + (visibleRows - 1) * pitchY + size * 1.1;
+  var visibleH=padY + (visibleRows - 1) * pitchY + size * Math.sqrt(3) / 2;
   var scroll=svg.closest(".rail-scroll");
   if(scroll){
     scroll.style.height=Math.round(visibleH)+"px";
