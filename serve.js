@@ -92,6 +92,16 @@ const server = http.createServer((req, res) => {
   notFound(res, 'Not found: ' + pathname);
 });
 
+// The logon task re-runs this every 15 minutes as a self-heal; an already
+// running server is not an error, so exit quietly instead of crashing.
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log('Comb server already running on port ' + PORT);
+    process.exit(0);
+  }
+  throw err;
+});
+
 server.listen(PORT, () => {
   console.log('Comb local server running at http://127.0.0.1:' + PORT);
   console.log('Public root: ' + PUBLIC);

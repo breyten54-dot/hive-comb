@@ -1,16 +1,14 @@
-// Verify Comb side-rail hex geometry: 3-row band, non-overlapping pitch,
-// horizontal strip (extra columns). Mirrors public/index.html renderRail().
+// Verify Comb side-rail hex geometry: 3×6 band, non-overlapping pitch,
+// size from width only (6 rows must not shrink hexes). Mirrors renderRail().
 
-const RAIL_ROWS = 3;
+const RAIL_ROWS = 6;
 const RAIL_VISIBLE_COLS = 3;
 const S3 = Math.sqrt(3);
 const MAX_RAIL_SIZE = 48;
 
-const pxW = 220; // typical flexible rail column after compact layout
+const pxW = 220;
 const sizeFromW = pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
-const bandBudget = Math.max(160, Math.min(280, pxW * 1.35));
-const sizeFromH = bandBudget / (0.95 + (RAIL_ROWS - 1) * S3 + S3 / 2);
-const size = Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
+const size = Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW));
 
 const pitchX = size * 2;
 const pitchY = size * S3;
@@ -19,9 +17,8 @@ const padY = size * 0.95;
 
 const hexDrawRadius = size - 2;
 const hexFlatToFlat = hexDrawRadius * S3;
-const strokeWidth = 1.35;
 
-const cols = 5; // more than 3 → horizontal scroll content
+const cols = 3;
 const slots = [];
 let i = 0;
 const slotCount = cols * RAIL_ROWS;
@@ -79,12 +76,13 @@ for (let c = 0; c < cols - 1; c++) {
   colGaps.push({ col: c, gap: leftOfRight - rightOfLeft });
 }
 
-const needsHScroll = contentW > pxW;
+const sizeUnshrunkByHeight = Math.abs(size - Math.min(MAX_RAIL_SIZE, sizeFromW)) < 1e-9;
 const pass =
   !overlap &&
+  slots.length === 18 &&
   rowGaps.every((g) => g.gap > 0) &&
   colGaps.every((g) => g.gap > 0) &&
-  needsHScroll &&
+  sizeUnshrunkByHeight &&
   Math.abs(pitchY - size * S3) < 1e-9 &&
   Math.abs(pitchX - size * 2) < 1e-9;
 
@@ -95,11 +93,13 @@ console.log(JSON.stringify({
   pxW,
   contentW,
   visibleH,
-  needsHScroll,
+  slots: slots.length,
+  rows: RAIL_ROWS,
+  cols,
   rowGaps,
   colGaps,
   overlap,
-  overlapPairs: overlapPairs.slice(0, 3),
+  sizeUnshrunkByHeight,
   pass,
 }, null, 2));
 

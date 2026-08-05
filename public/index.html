@@ -916,8 +916,8 @@ function renderEta(items){
   renderAssignmentRail(assigns);
 }
 
-/* Side rails: 3-row hex band; extra columns scroll left↔right (no page slide). */
-var RAIL_ROWS=3, RAIL_VISIBLE_COLS=3, RAIL_MIN_SLOTS=9, selRailEl=null;
+/* Side rails: 3 across × 6 down at fixed hex size; extra columns scroll →. */
+var RAIL_ROWS=6, RAIL_VISIBLE_COLS=3, RAIL_MIN_SLOTS=18, selRailEl=null;
 function wrapRailLabel(n,maxLines,maxChars){
   maxChars=maxChars||10;
   var w=String(n||"").split(/[\s\/_\-]+/),L=[],c="";
@@ -938,13 +938,10 @@ function renderRail(svgId, items, kind){
   items=items||[];
   var rail=svg.closest(".comb-rail");
   var pxW=Math.max(120, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 200);
-  /* Fit ~3 visible columns in the rail width; 3 rows in a fixed band height.
-     Non-overlapping flat-top pitch matches the center comb (pitchY = size√3). */
-  var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2); /* pad + 3 cols at pitch 2*size */
-  var bandBudget=Math.max(160, Math.min(280, pxW * 1.35));
-  var sizeFromH=bandBudget / (0.95 + (RAIL_ROWS - 1) * Math.sqrt(3) + Math.sqrt(3) / 2);
+  /* Size from width only so 6 rows do not shrink the hexes. Pitch matches center comb. */
+  var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
   var MAX_RAIL_SIZE=48;
-  var size=Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
+  var size=Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW));
   var pitchX=size * 2;
   var pitchY=size * Math.sqrt(3);
   var padX=size;
