@@ -7,10 +7,11 @@ const CASES = [
   { path: '/open-todos.json', name: 'Open todos JSON', expectType: 'application/json' },
   { path: '/product-lanes.json', name: 'Product lanes JSON', expectType: 'application/json' },
   { path: '/meetings.json', name: 'Meetings JSON', expectType: 'application/json' },
-  { path: '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'BMSR114 study PDF', expectType: 'application/pdf' },
+  { path: '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'BMSR114 study PDF (raw)', expectType: 'application/pdf' },
   { path: '/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'Sample test brief DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
   { path: '/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'Interview assignment DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
   { path: '/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'DOCX preview page', expectType: 'text/html' },
+  { path: '/preview/pdf.html?file=/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'PDF preview wrapper', expectType: 'text/html' },
 ];
 
 const KEEP_CELLS = [
@@ -82,6 +83,10 @@ function get(path) {
     const todosBody = todos.body || '';
     const lanes = await get('/product-lanes.json');
     const lanesBody = lanes.body || '';
+    const sw = await get('/sw.js');
+    const docx = await get('/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx');
+    const pdfWrap = await get('/preview/pdf.html?file=/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf');
+    const rolePlay = assigns.find((it) => it.name === 'Learning Activity 1: Role-Play Scenarios');
 
     const checks = [
       ['ETA tests panel present', r.body.includes('id="etaTestsCard"')],
@@ -92,7 +97,8 @@ function get(path) {
       ['Bottom meetings strip retired', !r.body.includes('id="meetingsCard"')],
       ['ETA JSON lists PDF', etaBody.includes('/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf')],
       ['ETA JSON has Assignment entries', assigns.length >= 2],
-      ['ETA JSON lists Role-Play assignment', assigns.some((it) => it.name === 'Learning Activity 1: Role-Play Scenarios')],
+      ['ETA JSON lists Role-Play assignment', !!rolePlay],
+      ['Role-Play PDF/word stay null', !!rolePlay && rolePlay.pdf == null && rolePlay.word == null],
       ['ETA JSON lists Interview assignment', assigns.some((it) => it.name === 'Key Functions - The Interview')],
       ['ETA JSON keeps BMSR114 Written Test', tests.some((it) => /BMSR 114 Written Test/i.test(it.name || ''))],
       ['BMSR114 Written Test is typed Test', tests.some((it) => it.type === 'Test' && /BMSR 114 Written Test/i.test(it.name || ''))],
@@ -101,6 +107,12 @@ function get(path) {
       ['Open todos JSON has items', todosBody.includes('"todos"') && todosBody.includes('"name"')],
       ['Product lanes JSON has lanes', lanesBody.includes('"lanes"') && lanesBody.includes('https://compliance-club.vercel.app')],
       ['DOCX preview page linked', r.body.includes('/preview/docx.html?file=')],
+      ['PDF preview wrapper linked', r.body.includes('/preview/pdf.html?file=')],
+      ['PDF view helper present', r.body.includes('function pdfViewHref')],
+      ['External open-in-panel helper present', r.body.includes('function openExternal')],
+      ['SW cache bumped to v19', (sw.body || '').includes('comb-shell-v19')],
+      ['DOCX has Back to Comb', (docx.body || '').includes('Back to Comb') && (docx.body || '').includes('href="/"')],
+      ['PDF wrapper has Back to Comb', (pdfWrap.body || '').includes('Back to Comb') && (pdfWrap.body || '').includes('href="/"')],
       ['No target=_blank in index.html', !r.body.includes('target="_blank"')],
       ...KEEP_CELLS.map(name => [`SKELETON keeps ${name}`, r.body.includes(`Project:"${name}"`)]),
       ...DROP_CELLS.map(name => [`SKELETON drops ${name}`, !r.body.includes(`Project:"${name}"`)]),

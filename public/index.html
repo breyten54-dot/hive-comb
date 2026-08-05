@@ -268,6 +268,7 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
   border:1px solid var(--gold-deep);border-radius:12px;padding:24px 26px;opacity:0;pointer-events:none;
   transition:all .26s cubic-bezier(.2,.8,.2,1);z-index:21;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .panel.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.panel.embed{width:min(920px,96vw);max-height:90vh;padding:16px 18px 18px}
 .panel .eb{font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
 .panel h2{font-size:1.22rem;color:var(--gold-br);margin-top:5px}
 .panel .row{margin-top:12px;font-size:.84rem;line-height:1.55}
@@ -277,6 +278,14 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 .panel .x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink-3);
   font-size:1.4rem;cursor:pointer;line-height:1;padding:4px}
 .panel .x:hover{color:var(--gold-br)}
+.panel .embed-note{font-size:.72rem;color:var(--ink-3);margin:8px 0 10px;line-height:1.45}
+.panel .comb-embed{width:100%;height:min(70vh,640px);border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);display:block}
+#combToast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--ink);
+  padding:10px 16px;border-radius:8px;font-size:.78rem;z-index:40;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;max-width:min(420px,92vw);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#combToast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -404,6 +413,7 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
   <button class="x" id="px" aria-label="Close">&times;</button>
   <div id="pbody"></div>
 </div>
+<div id="combToast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -595,10 +605,20 @@ window.addEventListener("resize",function(){
   else parkBee();
 });
 
-function openPanel(h){$("pbody").innerHTML=h;$("back").classList.add("on");$("panel").classList.add("on");}
-function closePanel(){$("back").classList.remove("on");$("panel").classList.remove("on");
+function openPanel(h,opts){
+  $("pbody").innerHTML=h;
+  $("back").classList.add("on");
+  $("panel").classList.add("on");
+  if(opts&&opts.embed) $("panel").classList.add("embed");
+  else $("panel").classList.remove("embed");
+}
+function closePanel(){
+  $("back").classList.remove("on");
+  $("panel").classList.remove("on");
+  $("panel").classList.remove("embed");
   if(selEl){selEl.classList.remove("sel");selEl=null;}
-  clearRailSelection();}
+  clearRailSelection();
+}
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
@@ -616,6 +636,68 @@ $("pbody").addEventListener("click",function(e){
   }
 });
 function row(k,v){return '<div class="row"><span class="k">'+esc(k)+'</span>'+v+'</div>';}
+
+/* Same-origin PDF view wrapper — raw /files/*.pdf stays available as Download. */
+function pdfViewHref(path){
+  if(!path) return "";
+  return "/preview/pdf.html?file="+esc(path);
+}
+
+/* Hosts that commonly refuse iframes (X-Frame-Options / CSP frame-ancestors). */
+var EMBED_REFUSED=/^(?:.*\.)?(?:notion\.(?:so|site)|etacollege\.com|github\.com|google\.com|googleapis\.com|gstatic\.com|youtube\.com|youtu\.be|outlook\.office\.com|office\.com|microsoft\.com|live\.com|office365\.com)$/i;
+function hostRefusesEmbed(url){
+  try{ return EMBED_REFUSED.test(new URL(url).hostname); }
+  catch(e){ return true; }
+}
+var toastTimer=null;
+function showToast(msg){
+  var t=$("combToast"); if(!t) return;
+  t.textContent=msg;
+  t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove("on"); },3200);
+}
+function leaveCombTo(url){
+  showToast("Browser Back returns to Comb");
+  setTimeout(function(){ location.assign(url); },850);
+}
+function openExternal(url, title){
+  var blocked=hostRefusesEmbed(url);
+  var label=title||(function(){try{return new URL(url).hostname;}catch(e){return "Link";}})();
+  var h='<div class="eb">External</div><h2>'+esc(label)+'</h2>';
+  if(blocked){
+    h+='<p class="embed-note">This site usually blocks embedding (X-Frame-Options / frame-ancestors). '+
+      'Open the page in this tab — browser <b>Back</b> returns to Comb. Close (Esc) stays on the dashboard.</p>';
+    h+='<div class="chips"><a class="chip" id="combExtGo" href="'+esc(url)+'">Open page</a></div>';
+    openPanel(h);
+  }else{
+    h+='<p class="embed-note">Embedded below. Close / Esc / backdrop returns to Comb. '+
+      'If the frame stays blank, the site blocked embedding — use Open full page (browser Back returns here).</p>';
+    h+='<iframe class="comb-embed" title="'+esc(label)+'" src="'+esc(url)+'"></iframe>';
+    h+='<div class="chips" style="margin-top:10px"><a class="chip" id="combExtGo" href="'+esc(url)+'">Open full page</a></div>';
+    openPanel(h,{embed:true});
+  }
+}
+document.addEventListener("click",function(e){
+  var go=e.target.closest && e.target.closest("#combExtGo");
+  if(go){
+    e.preventDefault();
+    e.stopPropagation();
+    leaveCombTo(go.getAttribute("href"));
+    return;
+  }
+  var a=e.target.closest && e.target.closest("a[href]");
+  if(!a) return;
+  var href=a.getAttribute("href");
+  if(!href || href.charAt(0)==="#") return;
+  if(/^(mailto|tel):/i.test(href)) return;
+  var u;
+  try{ u=new URL(href, location.href); }catch(err){ return; }
+  if(u.protocol!=="http:" && u.protocol!=="https:") return;
+  if(u.origin===location.origin) return; /* DOCX/PDF preview, downloads, internal */
+  e.preventDefault();
+  openExternal(u.href, (a.textContent||"").replace(/\s+/g," ").trim());
+}, true);
 
 function hubPanel(){
   var h='<div class="eb">Queen’s chamber</div><h2>HIVE pipeline</h2>';
@@ -889,8 +971,8 @@ function renderTestsTable(tests){
     return;
   }
   var rows=tests.map(function(it){
-    var study=it.pdf?'<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>':'<span style="color:var(--ink-3)">—</span>';
-    var file=it.pdf?'<a class="eta-link" href="'+esc(it.pdf)+'">PDF</a>':'<span style="color:var(--ink-3)">—</span>';
+    var study=it.pdf?'<a class="eta-link" href="'+pdfViewHref(it.pdf)+'">View</a>':'<span style="color:var(--ink-3)">—</span>';
+    var file=it.pdf?'<a class="eta-link" href="'+esc(it.pdf)+'">Download</a>':'<span style="color:var(--ink-3)">—</span>';
     return '<tr><td>'+esc(it.name)+'</td><td class="mono">'+esc(it.date)+'</td>'+
       '<td>'+study+'</td><td>'+file+'</td></tr>';
   }).join("");
@@ -1038,7 +1120,10 @@ function assignmentDetailHtml(it){
   if(it.notes) h+=row("Notes",esc(it.notes));
   var chips=[];
   if(it.word) chips.push('<a class="chip" href="/preview/docx.html?file='+esc(it.word)+'">Word handout</a>');
-  if(it.pdf) chips.push('<a class="chip" href="'+esc(it.pdf)+'">PDF</a>');
+  if(it.pdf){
+    chips.push('<a class="chip" href="'+pdfViewHref(it.pdf)+'">PDF</a>');
+    chips.push('<a class="chip" href="'+esc(it.pdf)+'">Download PDF</a>');
+  }
   if(chips.length) h+=row("Files",'<div class="chips">'+chips.join("")+'</div>');
   h+=row("Websites",'<div class="chips"><a class="chip" href="https://etaconnect.etacollege.com/my/">etaConnect LMS</a></div>');
   return h;

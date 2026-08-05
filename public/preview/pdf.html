@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF — The Comb</title>
+<style>
+:root{
+  --bg:#0a0806; --surface:#12100c; --surface-2:#181410;
+  --line:#2e2618; --line-soft:#241d12;
+  --gold:#d4a72c; --gold-br:#f4c430; --gold-deep:#8a6414;
+  --ink:#f2e7d0; --ink-2:#b5a687; --ink-3:#7d735f;
+  --r:10px;
+}
+:root[data-theme="light"]{
+  --bg:#f7efdd; --surface:#fffaef; --surface-2:#f3e8cd;
+  --line:#ddc79a; --line-soft:#ece0c2;
+  --gold:#a87c14; --gold-br:#8a6414; --gold-deep:#c9a227;
+  --ink:#2f2411; --ink-2:#6b5730; --ink-3:#8d7a4e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{display:flex;flex-direction:column;min-height:100%}
+.top{flex:0 0 auto;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);background:var(--surface)}
+.back-comb{display:inline-flex;align-items:center;gap:6px;color:var(--gold-br);text-decoration:none;
+  font-size:.85rem;font-weight:600;padding:6px 12px;border:1px solid var(--gold-deep);
+  border-radius:8px;background:var(--surface-2)}
+.back-comb:hover{border-color:var(--gold-br);background:var(--bg)}
+.top h1{font-size:1.05rem;color:var(--gold-br);margin:0}
+.top .meta{margin-left:auto;font-size:.72rem;color:var(--ink-3)}
+.top .meta a{color:var(--gold-br);text-decoration:none}
+.frame-wrap{flex:1 1 auto;min-height:0;position:relative;background:var(--bg)}
+.frame-wrap iframe,.frame-wrap embed{position:absolute;inset:0;width:100%;height:100%;border:0;background:#1a1510}
+.err{margin:24px auto;max-width:560px;color:#e07070;border-left:3px solid #e07070;padding:12px 16px;
+  background:var(--surface-2);border-radius:0 var(--r) var(--r) 0}
+.err b{display:block;margin-bottom:4px;color:var(--gold-br)}
+.err a{color:var(--gold-br)}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back-comb" href="/">← Back to Comb</a>
+  <h1>PDF</h1>
+  <div class="meta" id="meta"></div>
+</div>
+<div class="frame-wrap" id="frame"></div>
+<script>
+(function(){
+"use strict";
+var frame=document.getElementById("frame"), meta=document.getElementById("meta");
+var file=new URLSearchParams(location.search).get("file");
+if(!file){
+  frame.innerHTML='<div class="err"><b>Missing file</b>No ?file= URL was provided.</div>';
+  return;
+}
+var safe=file.replace(/"/g,"&quot;");
+meta.innerHTML='<a href="'+safe+'">Download PDF</a>';
+frame.innerHTML='<iframe title="PDF preview" src="'+safe+'"></iframe>';
+})();
+</script>
+</body>
+</html>
