@@ -87,6 +87,8 @@ function get(path) {
     const docx = await get('/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx');
     const pdfWrap = await get('/preview/pdf.html?file=/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf');
     const rolePlay = assigns.find((it) => it.name === 'Learning Activity 1: Role-Play Scenarios');
+    const interview = assigns.find((it) => it.name === 'Key Functions - The Interview');
+    const bmsrTest = tests.find((it) => /BMSR 114 Written Test/i.test(it.name || ''));
 
     const checks = [
       ['ETA tests panel present', r.body.includes('id="etaTestsCard"')],
@@ -102,6 +104,14 @@ function get(path) {
       ['ETA JSON lists Interview assignment', assigns.some((it) => it.name === 'Key Functions - The Interview')],
       ['ETA JSON keeps BMSR114 Written Test', tests.some((it) => /BMSR 114 Written Test/i.test(it.name || ''))],
       ['BMSR114 Written Test is typed Test', tests.some((it) => it.type === 'Test' && /BMSR 114 Written Test/i.test(it.name || ''))],
+      ['BMSR114 test keeps study-guide PDF link', !!bmsrTest && bmsrTest.pdf === '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf'],
+      ['BMSR114 test carries no draft fields', !!bmsrTest && !('draftStatus' in bmsrTest) && !('submissionUrl' in bmsrTest)],
+      ['Assignments carry draft status keys', assigns.length > 0 && assigns.every((it) => 'draftStatus' in it && 'submissionUrl' in it && 'draftPdf' in it && 'draftDocx' in it)],
+      ['Role-Play draft is not-started, URLs null', !!rolePlay && rolePlay.draftStatus === 'not-started' && rolePlay.submissionUrl == null && rolePlay.draftPdf == null && rolePlay.draftDocx == null],
+      ['Interview draft is not-started, URLs null', !!interview && interview.draftStatus === 'not-started' && interview.submissionUrl == null && interview.draftPdf == null && interview.draftDocx == null],
+      ['Assignment detail renders draft row', r.body.includes('row("Draft"')],
+      ['Assignment detail renders submission row', r.body.includes('row("Submission"')],
+      ['Assignment detail honest null-submission label', r.body.includes('Not yet captured')],
       ['No written-test titles in Assignment type', !etaItems.some((it) => it.type === 'Assignment' && /written\s*test/i.test(it.name || ''))],
       ['Filter helpers present in shell', r.body.includes('function isEtaAssignment') && r.body.includes('function isEtaTest')],
       ['Open todos JSON has items', todosBody.includes('"todos"') && todosBody.includes('"name"')],
@@ -110,7 +120,7 @@ function get(path) {
       ['PDF preview wrapper linked', r.body.includes('/preview/pdf.html?file=')],
       ['PDF view helper present', r.body.includes('function pdfViewHref')],
       ['External open-in-panel helper present', r.body.includes('function openExternal')],
-      ['SW cache bumped to v19', (sw.body || '').includes('comb-shell-v19')],
+      ['SW cache bumped to v20', (sw.body || '').includes('comb-shell-v20')],
       ['DOCX has Back to Comb', (docx.body || '').includes('Back to Comb') && (docx.body || '').includes('href="/"')],
       ['PDF wrapper has Back to Comb', (pdfWrap.body || '').includes('Back to Comb') && (pdfWrap.body || '').includes('href="/"')],
       ['No target=_blank in index.html', !r.body.includes('target="_blank"')],

@@ -1125,6 +1125,17 @@ function assignmentDetailHtml(it){
     chips.push('<a class="chip" href="'+esc(it.pdf)+'">Download PDF</a>');
   }
   if(chips.length) h+=row("Files",'<div class="chips">'+chips.join("")+'</div>');
+  /* Registry-driven draft status + draft files (additive; absent keys render nothing). */
+  if(it.draftStatus) h+=row("Draft",'<span class="chip">'+esc(String(it.draftStatus).replace(/-/g," "))+'</span>');
+  var draftChips=[];
+  if(it.draftPdf){
+    draftChips.push('<a class="chip" href="'+pdfViewHref(it.draftPdf)+'">View draft PDF</a>');
+    draftChips.push('<a class="chip" href="'+esc(it.draftPdf)+'">Download draft</a>');
+  }
+  if(it.draftDocx) draftChips.push('<a class="chip" href="/preview/docx.html?file='+esc(it.draftDocx)+'">Draft Word</a>');
+  if(draftChips.length) h+=row("Draft files",'<div class="chips">'+draftChips.join("")+'</div>');
+  if(it.submissionUrl) h+=row("Submission",'<a href="'+esc(it.submissionUrl)+'">etaConnect submission page</a>');
+  else if(it.draftStatus) h+=row("Submission",'<span style="color:var(--ink-3)">Not yet captured</span>');
   h+=row("Websites",'<div class="chips"><a class="chip" href="https://etaconnect.etacollege.com/my/">etaConnect LMS</a></div>');
   return h;
 }
