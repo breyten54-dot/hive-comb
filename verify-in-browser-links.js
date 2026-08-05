@@ -9,8 +9,6 @@ const CASES = [
   { path: '/meetings.json', name: 'Meetings JSON', expectType: 'application/json' },
   { path: '/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'BMSR114 study PDF (raw)', expectType: 'application/pdf' },
   { path: '/files/deadlines/briefs/2026-08-14/BMSR114-Written-Test-brief.docx', name: 'Sample test brief DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-  { path: '/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'Interview assignment DOCX', expectType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-  { path: '/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx', name: 'DOCX preview page', expectType: 'text/html' },
   { path: '/preview/pdf.html?file=/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf', name: 'PDF preview wrapper', expectType: 'text/html' },
 ];
 
@@ -84,7 +82,6 @@ function get(path) {
     const lanes = await get('/product-lanes.json');
     const lanesBody = lanes.body || '';
     const sw = await get('/sw.js');
-    const docx = await get('/preview/docx.html?file=/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx');
     const pdfWrap = await get('/preview/pdf.html?file=/files/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf');
     const rolePlay = assigns.find((it) => it.name === 'Learning Activity 1: Role-Play Scenarios');
     const interview = assigns.find((it) => it.name === 'Key Functions - The Interview');
@@ -121,8 +118,8 @@ function get(path) {
       ['PDF view helper present', r.body.includes('function pdfViewHref')],
       ['External open-in-panel helper present', r.body.includes('function openExternal')],
       ['SW cache bumped to v20', (sw.body || '').includes('comb-shell-v20')],
-      ['DOCX has Back to Comb', (docx.body || '').includes('Back to Comb') && (docx.body || '').includes('href="/"')],
       ['PDF wrapper has Back to Comb', (pdfWrap.body || '').includes('Back to Comb') && (pdfWrap.body || '').includes('href="/"')],
+      ['Interview assignment has no wired handout word (consent form not on disk)', interview.word == null],
       ['No target=_blank in index.html', !r.body.includes('target="_blank"')],
       ...KEEP_CELLS.map(name => [`SKELETON keeps ${name}`, r.body.includes(`Project:"${name}"`)]),
       ...DROP_CELLS.map(name => [`SKELETON drops ${name}`, !r.body.includes(`Project:"${name}"`)]),
