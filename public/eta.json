@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-05T16:38:01.507Z",
+  "updatedAt": "2026-08-05T17:58:37.774Z",
   "items": [
     {
       "name": "Learning Activity 1: Role-Play Scenarios",
@@ -7,11 +7,11 @@
       "date": "2026-07-31",
       "pdf": null,
       "word": null,
-      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-07-31 (real due 2026-08-04). Source: Notion ETA + etaConnect forum.",
-      "draftPdf": null,
-      "draftDocx": null,
-      "draftStatus": "not-started",
-      "submissionUrl": null
+      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-07-31 (real due 2026-08-04). Group in-class role-play; due 2026-08-04 14:00 has passed — user confirms group/late arrangement with lecturer. Draft pack complete, awaiting user review.",
+      "draftPdf": "/files/assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.pdf",
+      "draftDocx": "/files/assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.docx",
+      "draftStatus": "ready-for-user-review",
+      "submissionUrl": "https://etaconnect.etacollege.com/mod/forum/view.php?id=462034"
     },
     {
       "name": "Key Functions - The Interview",
@@ -19,11 +19,11 @@
       "date": "2026-08-06",
       "pdf": null,
       "word": "/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx",
-      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-08-06 (real due 2026-08-10). Consent form handout on disk.",
-      "draftPdf": null,
-      "draftDocx": null,
-      "draftStatus": "not-started",
-      "submissionUrl": null
+      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-08-06 (real due 2026-08-10). Consent form handout on disk. Pack drafted but IN-PROGRESS: the real interview, recording and link are still outstanding.",
+      "draftPdf": "/files/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.pdf",
+      "draftDocx": "/files/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.docx",
+      "draftStatus": "in-progress",
+      "submissionUrl": "https://etaconnect.etacollege.com/mod/assign/view.php?id=499140"
     },
     {
       "name": "BMSR 114 Written Test",
