@@ -288,6 +288,57 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 #combToast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
 
+/* ---------- deep hive (dive view) ---------- */
+#deepHive{position:fixed;left:0;right:0;bottom:0;top:64px;z-index:15;display:flex;flex-direction:column;
+  background:
+    radial-gradient(ellipse 46% 58% at 50% 52%, rgba(244,196,48,.14), transparent 62%),
+    radial-gradient(ellipse 95% 75% at 50% 58%, rgba(138,100,20,.10), transparent 68%),
+    linear-gradient(180deg,#0b0805,#050403 70%)}
+:root[data-theme="light"] #deepHive{background:
+    radial-gradient(ellipse 46% 58% at 50% 52%, rgba(168,124,20,.16), transparent 62%),
+    linear-gradient(180deg,#f7efdd,#eee1bf 70%)}
+#deepHive[hidden]{display:none}
+.deep-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 18px 8px}
+.deep-surface{background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--gold-br);
+  border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;font-weight:600}
+.deep-surface:hover{border-color:var(--gold-br);background:var(--bg)}
+.deep-crumbs{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-3);flex-wrap:wrap;min-width:0}
+.deep-crumbs a{color:var(--gold-br);text-decoration:none}
+.deep-crumbs a:hover{text-decoration:underline}
+.deep-crumbs .sep{color:var(--gold-deep)}
+.deep-crumbs .here{color:var(--ink);font-weight:600}
+#deepStageWrap{flex:1 1 auto;min-height:0;position:relative}
+#deepStage{position:absolute;inset:0;display:flex;align-items:center;gap:34px;
+  padding:0 8vw;overflow-x:auto;overflow-y:hidden;perspective:1200px;perspective-origin:50% 46%;
+  scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
+#deepStage::-webkit-scrollbar{height:6px}
+#deepStage::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
+.deep-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px;
+  transform-style:preserve-3d}
+.deep-col h3{margin:0;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+  text-align:center;max-width:160px}
+.deep-col .deep-count{font-size:.6rem;color:var(--ink-3)}
+.deep-col svg{display:block;overflow:visible}
+.deep-cell{cursor:pointer}
+.deep-cell polygon{fill:rgba(26,19,8,.94);stroke:rgba(212,167,44,.5);stroke-width:1.3;
+  transition:fill .2s,stroke .2s,filter .2s}
+:root[data-theme="light"] .deep-cell polygon{fill:rgba(255,246,224,.94)}
+.deep-cell:hover polygon,.deep-cell:focus-visible polygon{fill:#33240b;stroke:var(--gold-br);
+  filter:drop-shadow(0 0 9px rgba(244,196,48,.5))}
+:root[data-theme="light"] .deep-cell:hover polygon{fill:#f0dfb4}
+.deep-cell.recent polygon{stroke:var(--gold-br);filter:drop-shadow(0 0 8px rgba(244,196,48,.45))}
+.deep-cell.hubback polygon{fill:#1e1609;stroke:var(--gold);stroke-width:2}
+:root[data-theme="light"] .deep-cell.hubback polygon{fill:#f0e2bb}
+.deep-cell.hubback text{fill:var(--gold-br);font-weight:700}
+.deep-cell text{fill:var(--ink);text-anchor:middle;dominant-baseline:middle;pointer-events:none;
+  font-family:-apple-system,"Segoe UI",sans-serif}
+.deep-cell .ext{fill:var(--gold);letter-spacing:.06em}
+.deep-empty{flex:0 0 auto;color:var(--ink-3);font-size:.8rem;font-style:italic;padding:0 40px}
+body.diving .comb-core{transition:transform .5s cubic-bezier(.3,.7,.3,1),opacity .45s;
+  transform:scale(2.6);opacity:0}
+body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility:hidden}
+@media(prefers-reduced-motion:reduce){body.diving .comb-core{transition:none;transform:none;opacity:1}}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -415,6 +466,17 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
 </div>
 <div id="combToast" role="status" aria-live="polite"></div>
 
+<div id="deepHive" hidden>
+  <div class="deep-top">
+    <button class="deep-surface" id="deepSurface">← Surface</button>
+    <nav class="deep-crumbs" id="deepCrumbs" aria-label="Deep hive breadcrumb"></nav>
+    <button class="iconbtn" id="deepPipe" title="Pipeline summary" aria-label="Pipeline summary" style="margin-left:auto;width:30px;height:30px">▦</button>
+  </div>
+  <div id="deepStageWrap">
+    <div id="deepStage" role="group" aria-label="Deep hive"></div>
+  </div>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -516,6 +578,7 @@ function wrapName(n){var w=String(n||"").split(/[\s\/]+/),L=[],c="";
 var selEl=null;
 function renderComb(projects,isLive){
   var svg=$("comb"); if(!svg)return; svg.innerHTML="";
+  projects=orderByRecents(projects);
   var NS="http://www.w3.org/2000/svg";
   var cells=[{hub:true,q:0,r:0}],i=0,rad=1;
   while(i<projects.length&&rad<=4){
@@ -621,7 +684,16 @@ function closePanel(){
 }
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
-document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel();});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape")return;
+  if($("panel").classList.contains("on")){ closePanel(); return; }
+  if(deep.on){
+    var h=parseHash();
+    if(h&&h.section) navTo("#/hive/"+h.root);
+    else if(h&&h.root) navTo("#/hive");
+    else navTo("#/");
+  }
+});
 $("pbody").addEventListener("click",function(e){
   if(e.target && e.target.id==="pcopy"){
     var el=$("ppath"); if(!el) return;
@@ -699,6 +771,263 @@ document.addEventListener("click",function(e){
   openExternal(u.href, (a.textContent||"").replace(/\s+/g," ").trim());
 }, true);
 
+/* ---------- deep hive (dive into the honeycomb) ---------- */
+var RECENTS_KEY="comb-recents";
+function getRecents(){
+  try{ var r=JSON.parse(localStorage.getItem(RECENTS_KEY)||"[]"); return Array.isArray(r)?r:[]; }
+  catch(e){ return []; }
+}
+function pushRecent(item){
+  var r=getRecents().filter(function(x){return x.id!==item.id;});
+  item.at=new Date().toISOString();
+  r.unshift(item);
+  try{ localStorage.setItem(RECENTS_KEY,JSON.stringify(r.slice(0,24))); }catch(e){}
+}
+function orderByRecents(projects){
+  var rec=getRecents().filter(function(x){return x.kind==="project";});
+  if(!rec.length) return projects;
+  var rank={};
+  rec.forEach(function(x,i){ if(rank[x.label]==null) rank[x.label]=i; });
+  return projects.slice().sort(function(a,b){
+    var ra=rank[a.Project], rb=rank[b.Project];
+    if(ra==null&&rb==null) return String(a.Project).localeCompare(String(b.Project));
+    if(ra==null) return 1;
+    if(rb==null) return -1;
+    return ra-rb;
+  });
+}
+
+var deep={on:false, roots:null, trees:{}};
+var DEEP_COL_ROWS=6, DEEP_SIZE=44;
+
+function parseHash(){
+  var h=location.hash||"";
+  if(h.indexOf("#/hive")!==0) return null;
+  var rest=h.slice("#/hive".length).replace(/^\/+/,"");
+  var parts=rest?rest.split("/").map(function(p){try{return decodeURIComponent(p);}catch(e){return p;}}):[];
+  return {root:parts[0]||null, section:parts[1]||null};
+}
+function navTo(hash){ if(location.hash===hash) route(); else location.hash=hash; }
+
+function deepTopOffset(){ var t=document.querySelector(".top"); return t?t.offsetHeight:0; }
+function showDeep(){
+  var d=$("deepHive");
+  d.style.top=deepTopOffset()+"px";
+  d.hidden=false;
+  document.body.classList.add("deep-on");
+  deep.on=true;
+}
+function hideDeep(){
+  $("deepHive").hidden=true;
+  document.body.classList.remove("deep-on");
+  deep.on=false;
+  if(selEl){ selEl.classList.remove("sel"); selEl=null; }
+}
+function enterDeep(){
+  if(deep.on) return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ showDeep(); return; }
+  document.body.classList.add("diving");
+  setTimeout(function(){
+    document.body.classList.remove("diving");
+    showDeep();
+  },480);
+}
+function exitDeep(){ hideDeep(); }
+
+function route(){
+  var h=parseHash();
+  if(h){ enterDeep(); renderDeepRoute(h); }
+  else if(deep.on){ exitDeep(); }
+}
+window.addEventListener("hashchange",route);
+window.addEventListener("resize",function(){
+  if(deep.on) $("deepHive").style.top=deepTopOffset()+"px";
+});
+
+function renderCrumbs(parts){
+  $("deepCrumbs").innerHTML=parts.map(function(p,i){
+    return (i?'<span class="sep">/</span>':'')+
+      (p.hash?'<a href="'+p.hash+'">'+esc(p.label)+'</a>':'<span class="here">'+esc(p.label)+'</span>');
+  }).join("");
+}
+
+function deepStageMsg(label,msg,isErr){
+  $("deepStage").innerHTML='<div class="deep-col"><h3>'+esc(label)+'</h3>'+
+    '<div class="deep-empty">'+msg+'</div></div>';
+}
+function renderDeepError(err){
+  deepStageMsg("Deep hive",'Couldn’t read the hive — '+esc(err&&err.message||"unexpected error")+
+    '. <a href="#/" style="color:var(--gold-br)">Back to surface</a>',true);
+}
+
+function fileLabelWords(name){
+  return String(name||"").replace(/\.[a-z0-9]+$/i,"").replace(/[-_]+/g," ");
+}
+
+/* items: [{label, sub?, cls?, aria?, onPick}] — chunked into receding wall columns. */
+function renderDeepColumns(items, colLabel, totalCount){
+  var stage=$("deepStage"); stage.innerHTML="";
+  if(!items.length){ deepStageMsg(colLabel,"Nothing here yet."); return; }
+  var NS="http://www.w3.org/2000/svg";
+  var size=DEEP_SIZE, pitchY=size*Math.sqrt(3)+8, padY=size+6;
+  var cols=[], i;
+  for(i=0;i<items.length;i+=DEEP_COL_ROWS) cols.push(items.slice(i,i+DEEP_COL_ROWS));
+  cols.forEach(function(colItems,ci){
+    var col=document.createElement("div");
+    col.className="deep-col";
+    var h=document.createElement("h3");
+    h.textContent=colLabel+(cols.length>1?" "+(ci+1):"");
+    col.appendChild(h);
+    if(ci===0&&totalCount!=null){
+      var c=document.createElement("div");
+      c.className="deep-count";
+      c.textContent=totalCount+" item"+(totalCount!==1?"s":"");
+      col.appendChild(c);
+    }
+    var hgt=padY*2+(colItems.length-1)*pitchY+size;
+    var svg=document.createElementNS(NS,"svg");
+    svg.setAttribute("viewBox","0 0 "+(size*2+10)+" "+Math.round(hgt));
+    svg.setAttribute("width",size*2+10);
+    svg.setAttribute("height",Math.round(hgt));
+    colItems.forEach(function(it,ri){
+      var cx=size+5, cy=padY+ri*pitchY;
+      var g=document.createElementNS(NS,"g");
+      g.setAttribute("class","deep-cell"+(it.cls?" "+it.cls:""));
+      g.setAttribute("tabindex","0"); g.setAttribute("role","button");
+      g.setAttribute("aria-label",it.aria||it.label);
+      var poly=document.createElementNS(NS,"polygon");
+      poly.setAttribute("points",hexPts(cx,cy,size-3));
+      g.appendChild(poly);
+      var lines=wrapName(it.label).slice(0,2);
+      var blockH=lines.length*10.5+(it.sub?9:0);
+      var ty=cy-blockH/2+5;
+      lines.forEach(function(ln,li){
+        var t=document.createElementNS(NS,"text");
+        t.setAttribute("x",cx); t.setAttribute("y",ty+li*10.5);
+        t.setAttribute("font-size","8.5");
+        t.textContent=ln; g.appendChild(t);
+      });
+      if(it.sub){
+        var s=document.createElementNS(NS,"text");
+        s.setAttribute("x",cx); s.setAttribute("y",cy+blockH/2-4);
+        s.setAttribute("font-size","6.5"); s.setAttribute("class","ext");
+        s.textContent=it.sub; g.appendChild(s);
+      }
+      g.addEventListener("click",function(){ it.onPick(); });
+      g.addEventListener("keydown",function(e){
+        if(e.key==="Enter"||e.key===" "){ e.preventDefault(); it.onPick(); }
+      });
+      svg.appendChild(g);
+    });
+    col.appendChild(svg);
+    /* Tunnel walls: alternating yaw, receding depth, dimming with distance. */
+    col.style.transform="rotateY("+(ci%2?-12:12)+"deg) translateZ("+(-ci*55)+"px)";
+    col.style.opacity=String(Math.max(.42,1-ci*.09));
+    col.style.zIndex=String(100-ci);
+    stage.appendChild(col);
+  });
+  stage.scrollLeft=0;
+}
+
+function loadRoots(){
+  if(deep.roots) return Promise.resolve(deep.roots);
+  return fetch("/api/tree",{headers:{"accept":"application/json"}}).then(function(r){
+    if(!r.ok) throw new Error("/api/tree → "+r.status);
+    return r.json();
+  }).then(function(d){ deep.roots=(d&&d.roots)||[]; return deep.roots; });
+}
+function loadRootTree(id){
+  if(deep.trees[id]) return Promise.resolve(deep.trees[id]);
+  return fetch("/api/tree?root="+encodeURIComponent(id),{headers:{"accept":"application/json"}}).then(function(r){
+    if(!r.ok) throw new Error("/api/tree?root="+id+" → "+r.status);
+    return r.json();
+  }).then(function(d){ deep.trees[id]=d; return d; });
+}
+
+function viewDeepRoot(){
+  renderCrumbs([{label:"HIVE"}]);
+  deepStageMsg("Projects","Scanning the hive…");
+  loadRoots().then(function(roots){
+    var rec=getRecents();
+    var recentIds=rec.filter(function(x){return x.kind==="project";}).map(function(x){return x.id;});
+    var items=roots.map(function(r){
+      return { label:r.label, cls:recentIds.indexOf("root:"+r.id)>-1?"recent":"",
+        onPick:function(){
+          pushRecent({id:"root:"+r.id,label:r.label,kind:"project",href:"#/hive/"+r.id});
+          navTo("#/hive/"+r.id);
+        }};
+    });
+    items.unshift({label:"Surface",cls:"hubback",aria:"Back to surface",onPick:function(){ navTo("#/"); }});
+    renderDeepColumns(items,"Projects",roots.length);
+  }).catch(renderDeepError);
+}
+function viewDeepProject(rootId){
+  renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:rootId}]);
+  deepStageMsg(rootId,"Scanning the hive…");
+  loadRootTree(rootId).then(function(tree){
+    renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:tree.root.label}]);
+    var items=tree.sections.map(function(s){
+      return { label:s.label, sub:s.files.length+" file"+(s.files.length!==1?"s":""),
+        onPick:function(){ navTo("#/hive/"+rootId+"/"+s.id); }};
+    });
+    items.unshift({label:"HIVE",cls:"hubback",aria:"Back to hive root",onPick:function(){ navTo("#/hive"); }});
+    renderDeepColumns(items,tree.root.label,tree.sections.length);
+    if(tree.truncated) showToast(tree.root.label+" is large — showing the first 200 files");
+  }).catch(renderDeepError);
+}
+function viewDeepSection(rootId,sectionId){
+  renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:rootId,hash:"#/hive/"+rootId},{label:sectionId}]);
+  deepStageMsg(sectionId,"Scanning the hive…");
+  loadRootTree(rootId).then(function(tree){
+    var sec=null;
+    tree.sections.forEach(function(s){ if(s.id===sectionId) sec=s; });
+    if(!sec){ renderDeepError(new Error("section not found")); return; }
+    renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:tree.root.label,hash:"#/hive/"+rootId},{label:sec.label}]);
+    var items=sec.files.map(function(f){
+      return { label:fileLabelWords(f.label), sub:(f.ext||"file").replace(".","").toUpperCase(),
+        aria:f.label, onPick:function(){ openVaultFile(tree.root,f); }};
+    });
+    items.unshift({label:tree.root.label,cls:"hubback",aria:"Back to "+tree.root.label,
+      onPick:function(){ navTo("#/hive/"+rootId); }});
+    renderDeepColumns(items,sec.label,sec.files.length);
+  }).catch(renderDeepError);
+}
+function renderDeepRoute(h){
+  if(!h.root) viewDeepRoot();
+  else if(!h.section) viewDeepProject(h.root);
+  else viewDeepSection(h.root,h.section);
+}
+
+function openVaultFile(root,f){
+  var preview=null;
+  if(f.ext===".pdf") preview="/preview/pdf.html?file="+encodeURIComponent(f.url);
+  else if(f.ext===".docx") preview="/preview/docx.html?file="+encodeURIComponent(f.url);
+  pushRecent({id:"file:"+root.id+":"+f.rel,label:f.label,kind:"file",
+    href:preview||f.url,path:f.rel});
+  if(preview){ location.assign(preview); return; }
+  var h='<div class="eb">'+esc(root.label)+'</div><h2 style="word-break:break-word;font-size:1.05rem">'+esc(f.label)+'</h2>';
+  if(f.ext===".html"){
+    h+='<p class="embed-note">Embedded below. Close / Esc stays in the deep hive.</p>';
+    h+='<iframe class="comb-embed" title="'+esc(f.label)+'" src="'+esc(f.url)+'"></iframe>';
+    h+='<div class="chips" style="margin-top:10px"><a class="chip" href="'+esc(f.url)+'">Open full page</a></div>';
+    openPanel(h,{embed:true});
+    return;
+  }
+  if(/^\.(png|jpe?g|gif|svg|webp)$/.test(f.ext)){
+    h+='<img src="'+esc(f.url)+'" alt="'+esc(f.label)+'" style="max-width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#0a0806;margin-top:10px">';
+    h+='<div class="chips" style="margin-top:10px"><a class="chip" href="'+esc(f.url)+'" download>Download</a></div>';
+    openPanel(h,{embed:true});
+    return;
+  }
+  h+=row("Type",esc(f.ext||"file"));
+  if(f.bytes!=null) h+=row("Size",f.bytes<1048576?Math.round(f.bytes/1024)+" KB":(f.bytes/1048576).toFixed(1)+" MB");
+  h+='<div class="chips" style="margin-top:12px"><a class="chip" href="'+esc(f.url)+'" download>Download</a></div>';
+  openPanel(h);
+}
+
+$("deepSurface").addEventListener("click",function(){ navTo("#/"); });
+$("deepPipe").addEventListener("click",function(){ openPanel(hubPanel()); });
+
 function hubPanel(){
   var h='<div class="eb">Queen’s chamber</div><h2>HIVE pipeline</h2>';
   if(!state.tasks) return h+row("Live data","Not loaded yet — the ring panels will say why.");
@@ -737,7 +1066,9 @@ function select(g){
   clearRailSelection();
   if(selEl)selEl.classList.remove("sel");
   selEl=g; g.classList.add("sel");
-  flyTo(g,function(){openPanel(g.__c.hub?hubPanel():projPanel(g.__c.p));});
+  /* Hub = dive into the deep hive. Pipeline summary lives behind the ▦ button there. */
+  if(g.__c.hub){ flyTo(g,function(){ navTo("#/hive"); }); return; }
+  flyTo(g,function(){openPanel(projPanel(g.__c.p));});
 }
 $("comb").addEventListener("click",function(e){var g=e.target.closest(".cell");if(g)select(g);});
 $("comb").addEventListener("keydown",function(e){
@@ -1216,6 +1547,7 @@ if("serviceWorker" in navigator){
 renderComb(SKELETON,false);          /* comb exists before any network call */
 load();
 setInterval(function(){ if(!document.hidden) load(); },POLL);
+route();                             /* honor a #/hive… deep link on load */
 })();
 </script>
 </body>
