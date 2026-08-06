@@ -21,10 +21,16 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body{padding:20px}
+body.bare{padding:12px}
+body.bare .top{display:none}
 .top{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.back-comb{display:inline-flex;align-items:center;gap:6px;color:var(--gold-br);text-decoration:none;
+  font-size:.85rem;font-weight:600;padding:6px 12px;border:1px solid var(--gold-deep);
+  border-radius:8px;background:var(--surface-2)}
+.back-comb:hover{border-color:var(--gold-br);background:var(--bg)}
 .top h1{font-size:1.1rem;color:var(--gold-br);margin:0}
 .top .meta{margin-left:auto;font-size:.72rem;color:var(--ink-3)}
-.top a{color:var(--gold-br);text-decoration:none}
+.top .meta a{color:var(--gold-br);text-decoration:none}
 .page{max-width:980px;margin:20px auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 28px;line-height:1.6;font-size:.95rem}
 .page h2{font-size:1.2rem;color:var(--gold-br);border-bottom:1px solid var(--line);padding-bottom:8px}
 .page h3{font-size:1rem;color:var(--ink)}
@@ -43,6 +49,7 @@ body{padding:20px}
 </head>
 <body>
 <div class="top">
+  <a class="back-comb" href="/">← Back to Comb</a>
   <h1>DOCX preview</h1>
   <div class="meta" id="meta"></div>
 </div>
@@ -56,6 +63,7 @@ body{padding:20px}
 "use strict";
 var el=document.getElementById("page"), meta=document.getElementById("meta");
 var params=new URLSearchParams(location.search);
+if(params.get("bare")==="1") document.body.classList.add("bare");
 var file=params.get("file");
 if(!file){
   el.innerHTML='<div class="err"><b>Missing file</b>No ?file= URL was provided.</div>';

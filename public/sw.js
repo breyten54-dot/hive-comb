@@ -2,7 +2,7 @@
 // (BUILD-STANDARDS #6: a stale-while-revalidate SW on Stella kept serving the PREVIOUS bundle
 // after a deploy; this SW versions its cache name so a redeploy can bust it — bump CACHE below
 // on any future shell change.)
-const CACHE = "comb-shell-v18";
+const CACHE = "comb-shell-v41";
 const SHELL = ["/", "/manifest.webmanifest", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -20,6 +20,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (url.pathname.startsWith("/api/")) return; // always network, never cached
+  if (url.pathname.startsWith("/vault/")) return; // OneDrive files change on disk — always live
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request)
