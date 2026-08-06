@@ -319,26 +319,16 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
     linear-gradient(180deg,rgba(5,4,3,.55) 0%,transparent 18%,transparent 78%,rgba(5,4,3,.75) 100%)}
 :root[data-theme="light"] .deep-vignette{background:
     radial-gradient(ellipse 70% 55% at 50% 42%, transparent 25%, rgba(90,70,30,.18) 70%, rgba(60,45,20,.4) 100%)}
-.deep-lattice{position:absolute;inset:-8%;opacity:.18;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64' viewBox='0 0 56 64'%3E%3Cpath d='M28 2 52 16v32L28 62 4 48V16Z' fill='none' stroke='%23d4a72c' stroke-width='1.2' opacity='.55'/%3E%3C/svg%3E");
-  background-size:56px 64px;transform:scale(1.15);filter:blur(.3px)}
-:root[data-theme="light"] .deep-lattice{opacity:.12}
-.deep-motes{position:absolute;inset:0}
+.deep-lattice{display:none}
+.deep-motes{position:absolute;inset:0;z-index:1}
 .deep-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,196,48,.75);
   box-shadow:0 0 8px rgba(244,196,48,.65);animation:deepMote linear infinite}
 @keyframes deepMote{0%{transform:translate3d(0,20px,0);opacity:0}15%{opacity:.85}85%{opacity:.5}100%{transform:translate3d(12px,-110vh,0);opacity:0}}
-.deep-walls{position:absolute;inset:0;z-index:1;pointer-events:none;transform-style:preserve-3d;opacity:.38}
-.deep-wall{position:absolute;top:-12%;bottom:-12%;width:38%;transform-style:preserve-3d;opacity:.7}
-.deep-wall svg{width:100%;height:100%;display:block}
-.deep-wall-left{left:-14%;transform-origin:100% 50%;
-  transform:rotateY(62deg) translateZ(-80px) translateX(6%);
-  mask-image:linear-gradient(90deg,transparent 0%,#000 22%,#000 70%,transparent 100%);
-  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 22%,#000 70%,transparent 100%)}
-.deep-wall-right{right:-14%;transform-origin:0% 50%;
-  transform:rotateY(-62deg) translateZ(-80px) translateX(-6%);
-  mask-image:linear-gradient(270deg,transparent 0%,#000 22%,#000 70%,transparent 100%);
-  -webkit-mask-image:linear-gradient(270deg,transparent 0%,#000 22%,#000 70%,transparent 100%)}
-:root[data-theme="light"] .deep-walls{opacity:.28}
+#deepBgHexes{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  opacity:.42;filter:blur(.35px);transform:scale(1.02)}
+:root[data-theme="light"] #deepBgHexes{opacity:.28}
+.deep-walls{display:none}
+#deepBees{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 #deepStage{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
   padding:12px 16px 28px;overflow:auto;transform-style:flat}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
@@ -365,31 +355,14 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 .panel .deep-about li{font-size:.84rem;line-height:1.55;color:var(--ink-2);margin:0 0 8px;
   padding-left:12px;border-left:2px solid var(--gold-deep)}
 .panel .deep-focus{margin-top:12px;font-size:.8rem;color:var(--gold-br);line-height:1.45}
-.deep-drift-bee{position:absolute;width:36px;height:36px;opacity:.82;filter:drop-shadow(0 0 8px rgba(244,196,48,.45));
-  animation:deepBeeDrift 16s ease-in-out infinite;pointer-events:none;z-index:3}
-.deep-drift-bee.bee-b{width:30px;height:30px;opacity:.7;animation-duration:22s;animation-delay:-4s;animation-name:deepBeeDrift2}
-.deep-drift-bee.bee-c{width:34px;height:34px;opacity:.75;animation-duration:19s;animation-delay:-9s;animation-name:deepBeeDrift3}
-.deep-drift-bee.bee-d{width:28px;height:28px;opacity:.68;animation-duration:25s;animation-delay:-12s;animation-name:deepBeeDrift}
-.deep-drift-bee.bee-e{width:32px;height:32px;opacity:.72;animation-duration:21s;animation-delay:-2s;animation-name:deepBeeDrift2}
-.deep-drift-bee.bee-f{width:26px;height:26px;opacity:.65;animation-duration:27s;animation-delay:-15s;animation-name:deepBeeDrift3}
-@keyframes deepBeeDrift{
-  0%{transform:translate3d(12vw,68%,0) rotate(-8deg)}
-  35%{transform:translate3d(48vw,22%,0) rotate(10deg)}
-  70%{transform:translate3d(72vw,54%,0) rotate(-6deg)}
-  100%{transform:translate3d(12vw,68%,0) rotate(-8deg)}
-}
-@keyframes deepBeeDrift2{
-  0%{transform:translate3d(78vw,30%,0) rotate(12deg)}
-  40%{transform:translate3d(30vw,58%,0) rotate(-10deg)}
-  75%{transform:translate3d(18vw,24%,0) rotate(8deg)}
-  100%{transform:translate3d(78vw,30%,0) rotate(12deg)}
-}
-@keyframes deepBeeDrift3{
-  0%{transform:translate3d(40vw,72%,0) rotate(-4deg)}
-  30%{transform:translate3d(62vw,36%,0) rotate(14deg)}
-  65%{transform:translate3d(22vw,44%,0) rotate(-12deg)}
-  100%{transform:translate3d(40vw,72%,0) rotate(-4deg)}
-}
+.deep-drift-bee{position:absolute;width:34px;height:34px;margin-left:-17px;margin-top:-17px;
+  opacity:.8;filter:drop-shadow(0 0 8px rgba(244,196,48,.45));pointer-events:none;
+  will-change:left,top,transform;left:50%;top:50%}
+.deep-drift-bee.bee-b{width:28px;height:28px;margin-left:-14px;margin-top:-14px;opacity:.7}
+.deep-drift-bee.bee-c{width:32px;height:32px;margin-left:-16px;margin-top:-16px;opacity:.75}
+.deep-drift-bee.bee-d{width:26px;height:26px;margin-left:-13px;margin-top:-13px;opacity:.68}
+.deep-drift-bee.bee-e{width:30px;height:30px;margin-left:-15px;margin-top:-15px;opacity:.72}
+.deep-drift-bee.bee-f{width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.65}
 body.diving .comb-core{transition:transform .5s cubic-bezier(.3,.7,.3,1),opacity .45s;
   transform:scale(2.6);opacity:0}
 body.diving #deepHive{opacity:0}
@@ -397,7 +370,8 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
 @media(prefers-reduced-motion:reduce){
   body.diving .comb-core{transition:none;transform:none;opacity:1}
   body.deep-on #deepHive{animation:none}
-  .deep-vanish,.deep-mote,.deep-drift-bee{animation:none!important}
+  .deep-vanish,.deep-mote{animation:none!important}
+  .deep-drift-bee{transition:none!important}
 }
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -554,14 +528,10 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
         </defs>
       </svg>
       <div class="deep-vanish"></div>
-      <div class="deep-lattice"></div>
+      <svg id="deepBgHexes" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
       <div class="deep-vignette"></div>
       <div class="deep-motes" id="deepMotes"></div>
       <div id="deepBees"></div>
-    </div>
-    <div class="deep-walls" aria-hidden="true">
-      <div class="deep-wall deep-wall-left"><svg id="deepWallLeftSvg" viewBox="0 0 280 640" preserveAspectRatio="xMidYMid slice"></svg></div>
-      <div class="deep-wall deep-wall-right"><svg id="deepWallRightSvg" viewBox="0 0 280 640" preserveAspectRatio="xMidYMid slice"></svg></div>
     </div>
     <div id="deepStage" role="group" aria-label="Deep hive"></div>
   </div>
@@ -894,7 +864,8 @@ function orderByRecents(projects){
   });
 }
 
-var deep={on:false, roots:null, trees:{}, decorReady:false, cards:null, cardsPromise:null};
+var deep={on:false, roots:null, trees:{}, decorReady:false, cards:null, cardsPromise:null,
+  bgHexPoints:[], beeTimers:[], beeRunning:false};
 var DEEP_SIZE=50;
 
 function hexPtsOrganic(cx,cy,s,jitter){
@@ -908,29 +879,34 @@ function hexPtsOrganic(cx,cy,s,jitter){
   return p.join(" ");
 }
 
-function paintWallMesh(svg){
+function paintBgHexField(svg){
   var NS="http://www.w3.org/2000/svg";
   svg.innerHTML="";
-  var size=18, cols=10, rows=22;
+  var points=[];
+  var size=22, cols=22, rows=16;
   var dx=size*1.5, dy=size*Math.sqrt(3);
+  var vbW=16+cols*dx+size, vbH=18+rows*dy*0.52+size;
+  svg.setAttribute("viewBox","0 0 "+Math.round(vbW)+" "+Math.round(vbH));
   for(var r=0;r<rows;r++){
     for(var c=0;c<cols;c++){
       var cx=16+c*dx+(r%2?dx/2:0);
       var cy=18+r*dy*0.5;
+      points.push({cx:cx, cy:cy, nx:cx/vbW, ny:cy/vbH});
       var g=document.createElementNS(NS,"g");
       var rim=document.createElementNS(NS,"polygon");
-      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1,1.1));
+      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1,1.15));
       rim.setAttribute("fill","none");
-      rim.setAttribute("stroke","rgba(212,167,44,"+(0.22+((c+r)%5)*0.04)+")");
-      rim.setAttribute("stroke-width","1.1");
+      rim.setAttribute("stroke","rgba(212,167,44,"+(0.18+((c+r)%5)*0.035)+")");
+      rim.setAttribute("stroke-width","1.05");
       var well=document.createElementNS(NS,"polygon");
-      well.setAttribute("points",hexPtsOrganic(cx,cy,size-4.5,0.8));
+      well.setAttribute("points",hexPtsOrganic(cx,cy,size-5,0.85));
       well.setAttribute("fill","url(#deepWallCell)");
-      well.setAttribute("opacity",String(0.35+((c*3+r)%7)*0.05));
+      well.setAttribute("opacity",String(0.28+((c*3+r)%7)*0.045));
       g.appendChild(well); g.appendChild(rim);
       svg.appendChild(g);
     }
   }
+  return points;
 }
 
 function beeWithDocSvg(cls){
@@ -945,29 +921,108 @@ function beeWithDocSvg(cls){
     '</svg>';
 }
 
+function stopBeeWander(){
+  if(deep.beeTimers && deep.beeTimers.length){
+    deep.beeTimers.forEach(function(t){ clearTimeout(t); });
+  }
+  deep.beeTimers=[];
+  deep.beeRunning=false;
+}
+
+function bgHexToStagePx(pt){
+  var wrap=$("deepStageWrap");
+  if(!wrap) return {x:0,y:0};
+  var r=wrap.getBoundingClientRect();
+  return {x:pt.nx*r.width, y:pt.ny*r.height};
+}
+
+function pickBgHex(avoidIdx){
+  var pts=deep.bgHexPoints||[];
+  if(!pts.length) return {idx:-1, pt:null};
+  var idx=Math.floor(Math.random()*pts.length);
+  if(pts.length>1 && idx===avoidIdx) idx=(idx+1+Math.floor(Math.random()*(pts.length-1)))%pts.length;
+  return {idx:idx, pt:pts[idx]};
+}
+
+function seatBee(el, pt, withTransition, fromPt){
+  var pos=bgHexToStagePx(pt);
+  var dur=(1.2+Math.random()*1.6).toFixed(2)+"s";
+  if(withTransition){
+    el.style.transition="left "+dur+" cubic-bezier(.35,.7,.25,1), top "+dur+" cubic-bezier(.35,.7,.25,1), transform "+dur+" ease";
+  } else {
+    el.style.transition="none";
+  }
+  var rot=0;
+  if(fromPt){
+    var a=bgHexToStagePx(fromPt);
+    rot=Math.atan2(pos.y-a.y, pos.x-a.x)*180/Math.PI;
+  } else {
+    rot=-12+Math.random()*24;
+  }
+  el.style.left=pos.x+"px";
+  el.style.top=pos.y+"px";
+  el.style.transform="rotate("+rot.toFixed(1)+"deg)";
+}
+
+function scheduleBeeHop(el, state){
+  if(!deep.beeRunning) return;
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce) return;
+  var pause=300+Math.random()*900;
+  var t=setTimeout(function(){
+    if(!deep.beeRunning) return;
+    var next=pickBgHex(state.idx);
+    if(!next.pt) return;
+    var from=deep.bgHexPoints[state.idx];
+    seatBee(el, next.pt, true, from);
+    state.idx=next.idx;
+    var flight=1200+Math.random()*1600;
+    var t2=setTimeout(function(){ scheduleBeeHop(el, state); }, flight+80);
+    deep.beeTimers.push(t2);
+  }, pause);
+  deep.beeTimers.push(t);
+}
+
+function startBeeWander(){
+  stopBeeWander();
+  var bees=$("deepBees");
+  if(!bees || !(deep.bgHexPoints&&deep.bgHexPoints.length)) return;
+  deep.beeRunning=true;
+  var els=[].slice.call(bees.querySelectorAll(".deep-drift-bee"));
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  els.forEach(function(el){
+    var start=pickBgHex(-1);
+    if(!start.pt) return;
+    seatBee(el, start.pt, false, null);
+    var st={idx:start.idx};
+    if(!reduce) scheduleBeeHop(el, st);
+  });
+}
+
 function seedDeepDecor(){
-  if(deep.decorReady) return;
-  deep.decorReady=true;
-  var left=$("deepWallLeftSvg"), right=$("deepWallRightSvg");
-  if(left) paintWallMesh(left);
-  if(right) paintWallMesh(right);
-  var moteHost=$("deepMotes");
-  if(moteHost && !moteHost.childElementCount){
-    for(var i=0;i<11;i++){
-      var m=document.createElement("span");
-      m.className="deep-mote";
-      m.style.left=(6+i*8.2+(i%3)*3)+"%";
-      m.style.bottom=(-4-(i%4)*6)+"%";
-      m.style.animationDuration=(9+i*1.1)+"s";
-      m.style.animationDelay=(-i*1.4)+"s";
-      m.style.width=m.style.height=(2+(i%3))+"px";
-      moteHost.appendChild(m);
+  if(!deep.decorReady){
+    deep.decorReady=true;
+    var bg=$("deepBgHexes");
+    if(bg) deep.bgHexPoints=paintBgHexField(bg);
+    var moteHost=$("deepMotes");
+    if(moteHost && !moteHost.childElementCount){
+      for(var i=0;i<11;i++){
+        var m=document.createElement("span");
+        m.className="deep-mote";
+        m.style.left=(6+i*8.2+(i%3)*3)+"%";
+        m.style.bottom=(-4-(i%4)*6)+"%";
+        m.style.animationDuration=(9+i*1.1)+"s";
+        m.style.animationDelay=(-i*1.4)+"s";
+        m.style.width=m.style.height=(2+(i%3))+"px";
+        moteHost.appendChild(m);
+      }
+    }
+    var bees=$("deepBees");
+    if(bees && !bees.childElementCount){
+      bees.innerHTML=["bee-a","bee-b","bee-c","bee-d","bee-e","bee-f"].map(beeWithDocSvg).join("");
     }
   }
-  var bees=$("deepBees");
-  if(bees && !bees.childElementCount){
-    bees.innerHTML=["bee-a","bee-b","bee-c","bee-d","bee-e","bee-f"].map(beeWithDocSvg).join("");
-  }
+  if(deep.on && !deep.beeRunning) startBeeWander();
 }
 
 function loadCards(){
@@ -1060,6 +1115,7 @@ function showDeep(){
   seedDeepDecor();
 }
 function hideDeep(){
+  stopBeeWander();
   $("deepHive").hidden=true;
   document.body.classList.remove("deep-on");
   deep.on=false;
@@ -1087,7 +1143,10 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 window.addEventListener("resize",function(){
-  if(deep.on) $("deepHive").style.top=deepTopOffset()+"px";
+  if(deep.on){
+    $("deepHive").style.top=deepTopOffset()+"px";
+    if(deep.beeRunning) startBeeWander();
+  }
 });
 
 function renderCrumbs(parts){
