@@ -1,0 +1,248 @@
+{
+  "system": {
+    "id": "system",
+    "title": "System",
+    "tagline": "Benchmarks · Skills · Workflows",
+    "about": [
+      "The operating layer of HIVE — how models are chosen, how work is measured, and how plan → build → mark stays honest.",
+      "Open this hex to step into a nested comb with three chambers."
+    ],
+    "focus": "Keep routing cheap, verifiers loud, and handovers exhaustive.",
+    "links": [
+      { "label": "Enter System comb", "href": "#/hive/system" }
+    ]
+  },
+  "benchmarks": {
+    "id": "benchmarks",
+    "title": "Benchmarks",
+    "tagline": "AI-Benchmark — model traits and cost signals",
+    "about": [
+      "Where model behaviour, latency, and routing evidence live.",
+      "Used to tune which hive-* specialist owns plan, build, mark, vision, and research — not a dump of test harness code."
+    ],
+    "focus": "Watch burn vs quality; propose routing tweaks from multi-day trends.",
+    "links": [
+      { "label": "Open AI-Benchmark vault", "href": "#/hive/browse/ai-benchmark" }
+    ]
+  },
+  "skills": {
+    "id": "skills",
+    "title": "Skills",
+    "tagline": "Personal Cursor skills & model-routing",
+    "about": [
+      "Reusable procedures the parent agent loads on demand — digital-brain, video-vision, anti-slop, fable-mode, model-routing.",
+      "Skills are the playbook; Automations and Hermes wakes must name a model, never leave blanks for editor defaults."
+    ],
+    "focus": "Assess every task: thinking → planner/architect; building → builder ladder; day-to-day → lesser models.",
+    "links": []
+  },
+  "workflows": {
+    "id": "workflows",
+    "title": "Workflows",
+    "tagline": "Hand-Over central · Comb pipeline",
+    "about": [
+      "The fixed HIVE pipeline: user goal → hive-planner → hive-builder → hive-marker → launch.",
+      "Handovers live in Hand-Over central; mark notes in Requires review. Sector refreshes truth from disk — never from session memory alone."
+    ],
+    "focus": "Two-pass gate: mark does not fix what it reviews. Gaps become ❓ notes, not guesses.",
+    "links": [
+      { "label": "Browse Hand-Over central", "href": "#/hive/browse/hand-over-central" },
+      { "label": "Browse Comb", "href": "#/hive/browse/comb" }
+    ]
+  },
+  "football": {
+    "id": "football",
+    "title": "Football",
+    "tagline": "Ethekwini City FC · Manning Rangers Sporting",
+    "about": [
+      "Club documents for both sides of the name/league swap — player and coach agreements, SAFA letter, equipment quote, clearances, badges, trials flyer.",
+      "Everything is local under Football/ and reachable from the Comb vault."
+    ],
+    "focus": "Contracts, SAFA placement letter, and Charmers equipment quote are ready for human fill-in and sign-off.",
+    "links": [
+      { "label": "Browse Football files", "href": "#/hive/browse/football" }
+    ]
+  },
+  "eta-work": {
+    "id": "eta-work",
+    "title": "ETA Work",
+    "tagline": "Coursework · assessments · study packs",
+    "about": [
+      "etaConnect monitoring, assessment pipeline, study guides, and assignment drafts for BMSR modules.",
+      "Drafts are labelled by provenance — official LMS, HIVE evidence, assistant, or needs your confirm — never silently invented."
+    ],
+    "focus": "BMSR114 test prep and BMSR120 assignment drafts surface from Comb assignment hexes and the vault.",
+    "links": [
+      { "label": "Browse ETA Work", "href": "#/hive/browse/eta-work" }
+    ]
+  },
+  "digital-brain": {
+    "id": "digital-brain",
+    "title": "Digital Brain",
+    "tagline": "Living Obsidian vault — state, entities, reports",
+    "about": [
+      "Canonical memory for projects, people, and decisions. Agents read _STATE and entity notes before inventing facts.",
+      "Pack-it-up and Video-Inbox reviews write into reports/ and re-verify the vault."
+    ],
+    "focus": "Keep _STATE fresh after sector; don’t answer pipeline questions from chat memory alone.",
+    "links": [
+      { "label": "Browse Digital Brain", "href": "#/hive/browse/digital-brain" }
+    ]
+  },
+  "stella": {
+    "id": "stella",
+    "title": "Stella",
+    "tagline": "Indoor product · Glenwood webapp",
+    "about": [
+      "Stella Indoor is the product surface; Stella@Glenwood is the site/webapp lane.",
+      "Both live under HIVE folders and share the Comb as the OS entry point."
+    ],
+    "focus": "Treat production src/ changes as live; verify against deployed reality when tests disagree.",
+    "links": [
+      { "label": "Browse Stella Project", "href": "#/hive/browse/stella-project" },
+      { "label": "Browse Stella@Glenwood", "href": "#/hive/browse/stella-glenwood-webapp" }
+    ]
+  },
+  "praeto": {
+    "id": "praeto",
+    "title": "Praeto",
+    "tagline": "Office AI Portal · Balance · 90-day plan",
+    "about": [
+      "Praeto commercial and product work — Compliance Club history, Balance app, Office AI Portal, and the Million dollar 90-day plan lane.",
+      "One hex here so the deep comb stays readable; open chips for the folder you need."
+    ],
+    "focus": "Balance migrate/seed and Office Portal stay separate codebases — pick the chip, don’t mix vault roots.",
+    "links": [
+      { "label": "Office AI Portal", "href": "#/hive/browse/praeto-office-ai-portal" },
+      { "label": "Balance app folder", "href": "#/hive/browse/praeto-balance-app-2-1" },
+      { "label": "90-day plan", "href": "#/hive/browse/million-dollar-90-day-plan" }
+    ]
+  },
+  "hermes": {
+    "id": "hermes",
+    "title": "Hermes",
+    "tagline": "Phone courier — Notion + ntfy",
+    "about": [
+      "Hermes-Bridge carries short intents from your phone into the HIVE inbox and notifies when work completes.",
+      "Courier only — it does not replace sector or the Comb OS."
+    ],
+    "focus": "Check hermes on wake; notify on completion without leaving stray browser tabs.",
+    "links": [
+      { "label": "Browse Hermes-Bridge", "href": "#/hive/browse/hermes-bridge" }
+    ]
+  },
+  "video-inbox": {
+    "id": "video-inbox",
+    "title": "Video-Inbox",
+    "tagline": "Reels · screen recordings · review drops",
+    "about": [
+      "Drop zone for WhatsApp reels and local videos. Sector runs video-vision / hive-video to extract frames, optional transcript, and a dated review.",
+      "Manifest + Digital Brain keep what you’ve already watched."
+    ],
+    "focus": "Unviewed count shows on the Comb surface badge when present.",
+    "links": [
+      { "label": "Browse Video-Inbox", "href": "#/hive/browse/video-inbox" }
+    ]
+  },
+  "personal": {
+    "id": "personal",
+    "title": "Personal",
+    "tagline": "Private lane",
+    "about": [
+      "Personal documents and side projects that stay off the commercial Praeto and ETA tracks.",
+      "Still reachable from the Comb OS when you dive in."
+    ],
+    "focus": "Keep secrets out of commits; Comb never invents missing files.",
+    "links": [
+      { "label": "Browse Personal", "href": "#/hive/browse/personal" }
+    ]
+  },
+  "projects": {
+    "id": "projects",
+    "title": "Projects",
+    "tagline": "Everything else in the outer ring",
+    "about": [
+      "Smaller or quieter HIVE folders grouped so the main deep comb stays like the homepage — dense, centered, readable.",
+      "Open this hex for Anialah, Project Tech, Tiespro, Boss questionnaire, Backend Checklist, Notion-Access, council-reports, fable-mode, and kin."
+    ],
+    "focus": "Use the nested comb; each sub-hex still opens its own topic card.",
+    "links": [
+      { "label": "Enter Projects comb", "href": "#/hive/projects" }
+    ]
+  },
+  "anialah": {
+    "id": "anialah",
+    "title": "Anialah",
+    "tagline": "Named project lane",
+    "about": ["HIVE folder for Anialah work — open the vault when you need files, not a code tour."],
+    "focus": "",
+    "links": [{ "label": "Browse Anialah", "href": "#/hive/browse/anialah" }]
+  },
+  "project-tech": {
+    "id": "project-tech",
+    "title": "Project Tech",
+    "tagline": "Tech experiments & tools",
+    "about": ["Scratch and tooling space under Project Tech."],
+    "focus": "",
+    "links": [{ "label": "Browse Project Tech", "href": "#/hive/browse/project-tech" }]
+  },
+  "tiespro": {
+    "id": "tiespro",
+    "title": "Tiespro",
+    "tagline": "Tiespro product lane",
+    "about": ["Tiespro project work living under HIVE."],
+    "focus": "",
+    "links": [{ "label": "Browse Tiespro", "href": "#/hive/browse/tiespro-proj" }]
+  },
+  "boss-questionnaire": {
+    "id": "boss-questionnaire",
+    "title": "Boss Questionnaire",
+    "tagline": "Deployed questionnaire surface",
+    "about": ["Questionnaire build and deploy URL for boss-facing intake — keep the Comb link handy when sharing."],
+    "focus": "",
+    "links": [{ "label": "Browse folder", "href": "#/hive/browse/boss-questionnaire" }]
+  },
+  "backend-checklist": {
+    "id": "backend-checklist",
+    "title": "Backend Checklist",
+    "tagline": "Ops / backend checklist lane",
+    "about": ["Checklist and backend hygiene notes for shipping safely."],
+    "focus": "",
+    "links": [{ "label": "Browse Backend Checklist", "href": "#/hive/browse/backend-checklist" }]
+  },
+  "notion-access": {
+    "id": "notion-access",
+    "title": "Notion Access",
+    "tagline": "Notion integration helpers",
+    "about": ["Tokens, sharing, and access notes for Notion-backed HIVE surfaces. Comb itself is local-first now."],
+    "focus": "",
+    "links": [{ "label": "Browse Notion-Access", "href": "#/hive/browse/notion-access" }]
+  },
+  "council-reports": {
+    "id": "council-reports",
+    "title": "Council reports",
+    "tagline": "Dated council / status writeups",
+    "about": ["Stored council-style reports separate from Digital Brain entity notes."],
+    "focus": "",
+    "links": [{ "label": "Browse council-reports", "href": "#/hive/browse/council-reports" }]
+  },
+  "fable-mode": {
+    "id": "fable-mode",
+    "title": "Fable mode",
+    "tagline": "Staged execution discipline",
+    "about": ["fable-mode skills enforce stage plans, verification gates, and skeptical self-review on large work."],
+    "focus": "",
+    "links": [{ "label": "Browse fable-mode-main", "href": "#/hive/browse/fable-mode-main" }]
+  },
+  "comb": {
+    "id": "comb",
+    "title": "The Comb",
+    "tagline": "This OS — local dashboard on :8765",
+    "about": [
+      "The Comb is the HIVE operating surface: surface rails, deep hive, ETA drafts, vault mounts.",
+      "You are looking at it now."
+    ],
+    "focus": "Hard-refresh after SW bumps so shell caches don’t stick.",
+    "links": [{ "label": "Browse Comb folder", "href": "#/hive/browse/comb" }]
+  }
+}
