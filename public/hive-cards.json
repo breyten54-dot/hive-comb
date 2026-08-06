@@ -2,10 +2,10 @@
   "system": {
     "id": "system",
     "title": "System",
-    "tagline": "Benchmarks · Skills · Workflows",
+    "tagline": "Benchmarks · Docs · Env · Skills · Workflows",
     "about": [
       "The operating layer of HIVE — how models are chosen, how work is measured, and how plan → build → mark stays honest.",
-      "Open this hex to step into a nested comb with three chambers."
+      "Open this hex to step into a nested comb with five chambers: Benchmarks, Docs, Env, Skills, and Workflows."
     ],
     "focus": "Keep routing cheap, verifiers loud, and handovers exhaustive.",
     "links": [
@@ -28,13 +28,15 @@
   "skills": {
     "id": "skills",
     "title": "Skills",
-    "tagline": "Personal Cursor skills & model-routing",
+    "tagline": "Personal Cursor skills catalog",
     "about": [
-      "Reusable procedures the parent agent loads on demand — digital-brain, video-vision, anti-slop, fable-mode, model-routing.",
-      "Skills are the playbook; Automations and Hermes wakes must name a model, never leave blanks for editor defaults."
+      "Reusable procedures the parent agent loads on demand — digital-brain, video-vision, anti-slop, fable-mode, model-routing, execution-guardrails.",
+      "Open the Skills hex in the System comb to browse the live catalog pulled from /api/system-catalog."
     ],
     "focus": "Assess every task: thinking → planner/architect; building → builder ladder; day-to-day → lesser models.",
-    "links": []
+    "links": [
+      { "label": "Open System skills", "href": "#/hive/system" }
+    ]
   },
   "workflows": {
     "id": "workflows",

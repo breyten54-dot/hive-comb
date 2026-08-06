@@ -350,7 +350,7 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 .deep-walls{display:none}
 #deepBees{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
 #deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
-  padding:12px 16px 28px;overflow:auto;transform-style:flat}
+  padding:12px 16px 28px;overflow:hidden;transform-style:flat}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
   display:block;margin:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 0 auto}
 .deep-cell{cursor:pointer}
@@ -420,7 +420,7 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
 
 <div class="spine">
   <div class="spine-col left">
-    <div class="card" id="openTodosCard">
+    <div class="card" id="openTodosCard" hidden>
       <h2>Open todos <span class="hint">Projects</span></h2>
       <div class="sub">App/website backlog + user gates. Same-tab links only.</div>
       <div id="openTodosBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
@@ -715,15 +715,71 @@ function renderComb(projects,isLive){
   requestAnimationFrame(function(){ if(!selEl) parkBee(); });
   markAttnCells();
 }
+
+/* Surface comb driven by open todos: hub dives into deep hive, ring cells are
+   P0-first todos with a hard cap so the comb stays readable. */
+function renderCombFromTodos(todos){
+  var svg=$("comb"); if(!svg) return; svg.innerHTML="";
+  todos=todos||[];
+  var NS="http://www.w3.org/2000/svg";
+  var cells=[{hub:true,q:0,r:0}];
+  var rank={"P0 Critical":0,"P0":0,"P1 High":1,"P1":1,"P2 Medium":2,"P2":2,"P3 Low":3,"P3":3};
+  var sorted=todos.slice().sort(function(a,b){
+    var ra=rank[a.priority]==null?9:rank[a.priority];
+    var rb=rank[b.priority]==null?9:rank[b.priority];
+    if(ra!==rb) return ra-rb;
+    return String(a.name||"").localeCompare(String(b.name||""));
+  });
+  var cap=Math.min(sorted.length, 18), i=0, rad=1;
+  while(i<cap && rad<=4){
+    var rg=ring(rad);
+    for(var k=0;k<rg.length && i<cap;k++)
+      cells.push({hub:false,q:rg[k][0],r:rg[k][2],todo:sorted[i++]});
+    rad++;
+  }
+  var xs=[],ys=[];
+  cells.forEach(function(c){
+    var p=px(c.q,c.r); xs.push(p.x); ys.push(p.y);
+    var g=document.createElementNS(NS,"g");
+    var cls="cell"+(c.hub?" hub":"");
+    if(!c.hub && c.todo){
+      if(c.todo.priority==="P0" || c.todo.priority==="P0 Critical" || c.todo.status==="Blocked") cls+=" attn-blocked";
+      else if(c.todo.status==="Open" || c.todo.status==="In Progress") cls+=" attn-review";
+    }
+    g.setAttribute("class",cls);
+    g.setAttribute("tabindex","0"); g.setAttribute("role","button");
+    g.setAttribute("aria-label",c.hub?"HIVE":(c.todo.name||"todo"));
+    var poly=document.createElementNS(NS,"polygon");
+    poly.setAttribute("points",hexPts(p.x,p.y,SIZE-3)); g.appendChild(poly);
+    var lines=c.hub?["HIVE"]:wrapName(c.todo.name);
+    lines.forEach(function(ln,li){
+      var t=document.createElementNS(NS,"text");
+      t.setAttribute("x",p.x);
+      t.setAttribute("y",p.y-((lines.length-1)*5)+li*10.5-(c.hub?0:3));
+      t.textContent=ln; g.appendChild(t);
+    });
+    g.__c=c; g.__p=p; svg.appendChild(g);
+  });
+  var pad=SIZE+12;
+  svg.setAttribute("viewBox",(Math.min.apply(null,xs)-pad)+" "+(Math.min.apply(null,ys)-pad)+" "+
+    (Math.max.apply(null,xs)-Math.min.apply(null,xs)+pad*2)+" "+
+    (Math.max.apply(null,ys)-Math.min.apply(null,ys)+pad*2));
+  var open=todos.filter(function(t){return t.status==="Open"||t.status==="In Progress"||t.status==="Building";}).length;
+  var blocked=todos.filter(function(t){return t.status==="Blocked";}).length;
+  $("combLegend").innerHTML='<span style="font-style:italic">'+todos.length+' todos · '+open+' open · '+blocked+' blocked</span>';
+  requestAnimationFrame(function(){ if(!selEl) parkBee(); });
+  markAttnCells();
+}
+
 function markAttnCells(){
   if(!state.attn) return;
   document.querySelectorAll("#comb .cell").forEach(function(g){
+    if(!g.__c || !g.__c.p) return;
     g.classList.remove("attn-blocked","attn-review");
-    if(g.__c && !g.__c.hub && g.__c.p){
-      var flag=state.attn[g.__c.p.Project];
-      if(flag==="blocked") g.classList.add("attn-blocked");
-      else if(flag==="review") g.classList.add("attn-review");
-    }
+    if(g.__c.hub) return;
+    var flag=state.attn[g.__c.p.Project];
+    if(flag==="blocked") g.classList.add("attn-blocked");
+    else if(flag==="review") g.classList.add("attn-review");
   });
 }
 
@@ -771,25 +827,38 @@ function closePanel(){
   $("panel").classList.remove("embed");
   if(selEl){selEl.classList.remove("sel");selEl=null;}
   clearRailSelection();
+  updateDeepBackLabel();
 }
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
+function stepDeepBack(){
+  if($("panel").classList.contains("on")){ closePanel(); return; }
+  if(!deep.on){ navTo("#/"); return; }
+  var h=parseHash();
+  if(!h || h.mode==="root"){ navTo("#/"); return; }
+  if(h.mode==="browse" && h.section){ navTo("#/hive/browse/"+h.root); return; }
+  if(h.mode==="browse"){ navTo("#/hive"); return; }
+  if(h.mode==="system" || h.mode==="projects"){ navTo("#/hive"); return; }
+  if(h.mode==="card"){
+    if(SYSTEM_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/system"); return; }
+    if(PROJECTS_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/projects"); return; }
+    navTo("#/hive"); return;
+  }
+  navTo("#/");
+}
+function updateDeepBackLabel(){
+  var btn=$("deepSurface"); if(!btn) return;
+  var panelOpen=$("panel").classList.contains("on");
+  var label="← Back";
+  if(!panelOpen && deep.on){
+    var h=parseHash();
+    if(!h || h.mode==="root") label="← Surface";
+  }
+  btn.textContent=label;
+}
 document.addEventListener("keydown",function(e){
   if(e.key!=="Escape")return;
-  if($("panel").classList.contains("on")){ closePanel(); return; }
-  if(deep.on){
-    var h=parseHash();
-    if(!h || h.mode==="root"){ navTo("#/"); return; }
-    if(h.mode==="browse" && h.section){ navTo("#/hive/browse/"+h.root); return; }
-    if(h.mode==="browse"){ navTo("#/hive"); return; }
-    if(h.mode==="system" || h.mode==="projects"){ navTo("#/hive"); return; }
-    if(h.mode==="card"){
-      if(SYSTEM_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/system"); return; }
-      if(PROJECTS_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/projects"); return; }
-      navTo("#/hive"); return;
-    }
-    navTo("#/");
-  }
+  stepDeepBack();
 });
 $("pbody").addEventListener("click",function(e){
   if(e.target && e.target.id==="pcopy"){
@@ -1140,6 +1209,8 @@ var L1_NODES=[
 ];
 var SYSTEM_NODES=[
   {id:"benchmarks",label:"Benchmarks"},
+  {id:"docs",label:"Docs"},
+  {id:"env",label:"Env"},
   {id:"skills",label:"Skills"},
   {id:"workflows",label:"Workflows"}
 ];
@@ -1175,6 +1246,7 @@ function showDeep(){
   document.body.classList.add("deep-on");
   deep.on=true;
   seedDeepDecor();
+  updateDeepBackLabel();
 }
 function hideDeep(){
   stopBeeWander();
@@ -1297,6 +1369,7 @@ function nodeFromSpec(spec, recentIds){
     onPick:function(){
       if(spec.id==="system"){ navTo("#/hive/system"); return; }
       if(spec.id==="projects"){ navTo("#/hive/projects"); return; }
+      if(spec.id==="docs" || spec.id==="env" || spec.id==="skills"){ openSystemCatalog(spec.id); return; }
       navTo("#/hive/"+spec.id);
     }
   };
@@ -1315,6 +1388,41 @@ function loadRootTree(id){
     if(!r.ok) throw new Error("/api/tree?root="+id+" → "+r.status);
     return r.json();
   }).then(function(d){ deep.trees[id]=d; return d; });
+}
+function loadSystemCatalog(){
+  if(deep.systemCatalog) return Promise.resolve(deep.systemCatalog);
+  return fetch("/api/system-catalog",{headers:{"accept":"application/json"}}).then(function(r){
+    if(!r.ok) throw new Error("/api/system-catalog → "+r.status);
+    return r.json();
+  }).then(function(d){ deep.systemCatalog=d||{}; return deep.systemCatalog; });
+}
+function openSystemCatalog(initialTab){
+  initialTab=initialTab||"skills";
+  loadSystemCatalog().then(function(cat){
+    var h='<div class="eb">System catalog</div><h2>System catalog</h2>';
+    h+='<p class="embed-note">Docs, environment files, and skills that make HIVE run.</p>';
+    var skills=(cat.skills||[]);
+    h+='<div class="row"><span class="k">Skills</span></div>';
+    if(!skills.length) h+='<p class="embed-note">No skills catalogued.</p>';
+    else h+='<div class="chips" style="margin-top:6px">'+skills.map(function(s){
+      return '<span class="chip" title="'+esc(s.note||'')+'">'+esc(s.label)+'</span>';
+    }).join('')+'</div>';
+    var docs=(cat.docs||[]);
+    h+='<div class="row"><span class="k">Docs</span></div>';
+    if(!docs.length) h+='<p class="embed-note">No README files found.</p>';
+    else h+='<div class="chips" style="margin-top:6px">'+docs.map(function(d){
+      return '<a class="chip" href="'+esc(d.url)+'" download title="'+esc(d.origin)+'">'+esc(d.label)+'</a>';
+    }).join('')+'</div>';
+    var env=(cat.env||[]);
+    h+='<div class="row"><span class="k">Environment files</span></div>';
+    if(!env.length) h+='<p class="embed-note">No .env files found.</p>';
+    else h+='<div class="chips" style="margin-top:6px">'+env.map(function(e){
+      return '<span class="chip" title="'+esc(e.origin+' · '+e.rel)+'">'+esc(e.name)+'</span>';
+    }).join('')+'</div>';
+    openPanel(h);
+  }).catch(function(err){
+    openPanel('<div class="eb">System catalog</div><h2>System catalog</h2>'+errHtml("server",err.message));
+  });
 }
 
 function viewDeepRoot(){
@@ -1399,20 +1507,25 @@ function renderDeepRoute(h){
   else if(h.mode==="browse") viewDeepBrowse(h.root, h.section);
   else if(h.mode==="card") viewDeepCard(h.cardId);
   else viewDeepRoot();
+  updateDeepBackLabel();
 }
 
 function openVaultFile(root,f){
-  var preview=null;
-  if(f.ext===".pdf") preview="/preview/pdf.html?file="+encodeURIComponent(f.url);
-  else if(f.ext===".docx") preview="/preview/docx.html?file="+encodeURIComponent(f.url);
   pushRecent({id:"file:"+root.id+":"+f.rel,label:f.label,kind:"file",
-    href:preview||f.url,path:f.rel});
-  if(preview){ location.assign(preview); return; }
+    href:f.url,path:f.rel});
   var h='<div class="eb">'+esc(root.label)+'</div><h2 style="word-break:break-word;font-size:1.05rem">'+esc(f.label)+'</h2>';
+  if(f.ext===".pdf" || f.ext===".docx"){
+    var preview=(f.ext===".pdf"?"/preview/pdf.html?file=":"/preview/docx.html?file=")+encodeURIComponent(f.url);
+    h+='<p class="embed-note">Preview below. Close / Esc returns to the deep hive.</p>';
+    h+='<iframe class="comb-embed" title="'+esc(f.label)+'" src="'+esc(preview)+'"></iframe>';
+    h+='<div class="chips" style="margin-top:10px"><a class="chip" href="'+esc(f.url)+'" download>Download</a></div>';
+    openPanel(h,{embed:true});
+    return;
+  }
   if(f.ext===".html"){
     h+='<p class="embed-note">Embedded below. Close / Esc stays in the deep hive.</p>';
     h+='<iframe class="comb-embed" title="'+esc(f.label)+'" src="'+esc(f.url)+'"></iframe>';
-    h+='<div class="chips" style="margin-top:10px"><a class="chip" href="'+esc(f.url)+'">Open full page</a></div>';
+    h+='<div class="chips" style="margin-top:10px"><a class="chip" href="'+esc(f.url)+'">Open full page</a><a class="chip" href="'+esc(f.url)+'" download>Download</a></div>';
     openPanel(h,{embed:true});
     return;
   }
@@ -1428,7 +1541,7 @@ function openVaultFile(root,f){
   openPanel(h);
 }
 
-$("deepSurface").addEventListener("click",function(){ navTo("#/"); });
+$("deepSurface").addEventListener("click",function(){ stepDeepBack(); });
 $("deepPipe").addEventListener("click",function(){ openPanel(hubPanel()); });
 
 function hubPanel(){
@@ -1465,12 +1578,30 @@ function projPanel(p){
   if(!state.live)h+=row("Live data","Showing folder name only — Notion data not loaded.");
   return h;
 }
+function todoPanel(t){
+  var h='<div class="eb">Open todo</div><h2>'+esc(t.name)+'</h2>';
+  if(t.section) h+=row("Section",esc(t.section));
+  if(t.owner) h+=row("Owner",esc(t.owner));
+  if(t.priority){
+    var pc=(t.priority==="P0"||t.priority==="P0 Critical")?"p0":((t.priority==="P1"||t.priority==="P1 High")?"p1":"");
+    h+=row("Priority",'<span class="chip '+pc+'">'+esc(t.priority)+'</span>');
+  }
+  if(t.status) h+=row("Status",'<span class="chip">'+esc(t.status)+'</span>');
+  if(t.blockedOn) h+=row("Blocked on",esc(t.blockedOn));
+  if(t.notes) h+=row("Notes",esc(t.notes));
+  if(t.howTo) h+=row("How to",esc(t.howTo));
+  if(t.estimateMinutes!=null) h+=row("Estimate","~"+t.estimateMinutes+" min");
+  if(t.url) h+=row("URL",'<a href="'+esc(t.url)+'">'+esc(t.url)+'</a>');
+  if(t.hivePath) h+=row("HIVE path",'<span class="mono">'+esc(t.hivePath)+'</span>');
+  return h;
+}
 function select(g){
   clearRailSelection();
   if(selEl)selEl.classList.remove("sel");
   selEl=g; g.classList.add("sel");
   /* Hub = dive into the deep hive. Pipeline summary lives behind the ▦ button there. */
   if(g.__c.hub){ flyTo(g,function(){ navTo("#/hive"); }); return; }
+  if(g.__c.todo){ flyTo(g,function(){openPanel(todoPanel(g.__c.todo));}); return; }
   flyTo(g,function(){openPanel(projPanel(g.__c.p));});
 }
 $("comb").addEventListener("click",function(e){var g=e.target.closest(".cell");if(g)select(g);});
@@ -1600,7 +1731,7 @@ function load(){
   }).then(function(d){
     state.at = d.fetchedAt ? new Date(d.fetchedAt).getTime() : Date.now();
     state.live=true; clearBanner();
-    if(Array.isArray(d.projects)&&d.projects.length){state.projects=d.projects;renderComb(d.projects,true);}
+    if(Array.isArray(d.projects)&&d.projects.length){state.projects=d.projects;}
     if(Array.isArray(d.tasks)) renderTasks(d.tasks);
     if(d.partial&&d.partial.tasks) setErr(PANELS,"server",d.partial.tasks);
     freshness();
@@ -1691,12 +1822,12 @@ function loadOpenTodos(){
     .then(function(d){
       state.todos = d && d.todos;
       renderOpenTodos(state.todos);
-    }).catch(function(){ renderOpenTodos(null); });
+      renderCombFromTodos(state.todos);
+    }).catch(function(){ renderOpenTodos(null); renderCombFromTodos(null); });
   fetch("/portfolio-gates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){ renderPortfolioGates(d && d.gates); })
     .catch(function(){});
 }
-loadOpenTodos();
 
 function renderTestsTable(tests){
   var el=$("etaBody"); if(!el) return;
@@ -1947,8 +2078,9 @@ if("serviceWorker" in navigator){
   });
 }
 
-renderComb(SKELETON,false);          /* comb exists before any network call */
+renderCombFromTodos([]);             /* hub + todo ring rendered before any network call */
 load();
+loadOpenTodos();
 setInterval(function(){ if(!document.hidden) load(); },POLL);
 route();                             /* honor a #/hive… deep link on load */
 })();

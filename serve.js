@@ -71,6 +71,17 @@ function isExcludedFile(name) {
   if (n.endsWith('.pem') || n.endsWith('.key')) return true;
   return false;
 }
+/* Project tree view hides meta/readme files so the deep-hive comb shows work
+   rather than repository clutter. These files are still reachable via direct
+   vault URLs when needed (e.g. the system catalog docs index). */
+function isProjectBrowseExcluded(name) {
+  const n = name.toLowerCase();
+  if (n === 'skill.md') return true;
+  if (n.startsWith('readme')) return true;
+  if (n.startsWith('changelog')) return true;
+  if (n.startsWith('license')) return true;
+  return isExcludedFile(name);
+}
 
 /* Depth-capped recursive scan. Stops at MAX_FILES and flags truncation; rel
    paths use '/'. OneDrive Files-On-Demand placeholders report as symlinks
@@ -101,7 +112,7 @@ function scanTree(dir, relBase, depth, out, state) {
       if (isExcludedDir(e.name)) continue;
       scanTree(abs, rel, depth + 1, out, state);
     } else if (isFile) {
-      if (isExcludedFile(e.name)) continue;
+      if (isProjectBrowseExcluded(e.name)) continue;
       let st;
       try { st = fs.statSync(abs); } catch { continue; }
       out.push({ rel, bytes: st.size, mtime: st.mtime.toISOString() });
@@ -172,6 +183,96 @@ function buildRootTree(root) {
   };
   if (state.truncated) out.truncated = true;
   return out;
+}
+
+/* Catalog scan: lists README*, .env*, and SKILL.md files across all whitelisted
+   roots. READMEs are exposed with vault URLs; .env* only name/rel/root — bodies
+   are still forbidden by the vault route. */
+function scanAllFiles(dir, relBase, depth, out, state) {
+  if (depth > SCAN_DEPTH) return;
+  if (state.count >= MAX_FILES) { state.truncated = true; return; }
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  for (const e of entries) {
+    if (state.count >= MAX_FILES) { state.truncated = true; return; }
+    if (e.name === '.' || e.name === '..') continue;
+    const abs = path.join(dir, e.name);
+    const rel = relBase ? relBase + '/' + e.name : e.name;
+    let isDir = e.isDirectory();
+    let isFile = e.isFile();
+    if (e.isSymbolicLink()) {
+      try {
+        const real = fs.realpathSync(abs);
+        if (real !== state.realRoot && !real.startsWith(state.realRoot + path.sep)) continue;
+        const st = fs.statSync(abs);
+        isDir = st.isDirectory();
+        isFile = st.isFile();
+      } catch { continue; }
+    }
+    if (isDir) {
+      if (isExcludedDir(e.name)) continue;
+      scanAllFiles(abs, rel, depth + 1, out, state);
+    } else if (isFile) {
+      const n = e.name.toLowerCase();
+      if (n === 'credentials.json') continue;
+      if (n.includes('secret')) continue;
+      let st;
+      try { st = fs.statSync(abs); } catch { continue; }
+      out.push({ rel, bytes: st.size, mtime: st.mtime.toISOString() });
+      state.count++;
+    }
+  }
+}
+
+function buildSystemCatalog() {
+  const docs = [];
+  const env = [];
+  const extraSkills = [];
+  for (const root of Object.values(ROOTS)) {
+    if (!fs.statSync(root.dir, { throwIfNoEntry: false })?.isDirectory()) continue;
+    const files = [];
+    const state = { count: 0, truncated: false, realRoot: root.dir };
+    try { state.realRoot = fs.realpathSync(root.dir); } catch { /* keep literal */ }
+    scanAllFiles(root.dir, '', 1, files, state);
+    for (const f of files) {
+      const segs = f.rel.split('/');
+      const name = segs[segs.length - 1];
+      const n = name.toLowerCase();
+      if (n.startsWith('readme')) {
+        docs.push({
+          origin: root.label,
+          label: name,
+          rel: f.rel,
+          rootId: root.id,
+          url: '/vault/' + root.id + '/' + segs.map(encodeURIComponent).join('/'),
+        });
+      }
+      if (n === '.env' || n.startsWith('.env.') || n.endsWith('.env')) {
+        env.push({
+          origin: root.label,
+          name,
+          rel: f.rel,
+          rootId: root.id,
+        });
+      }
+      if (n === 'skill.md' || n.endsWith('/skill.md')) {
+        extraSkills.push({
+          id: slugify(root.id + '-' + f.rel),
+          label: name + ' · ' + root.label,
+          note: 'SKILL.md found under ' + root.label + '/' + f.rel,
+        });
+      }
+    }
+  }
+  const skills = [
+    { id: 'model-routing', label: 'model-routing', note: 'Routes HIVE work across the full hive-* subagent roster by model traits.' },
+    { id: 'digital-brain', label: 'digital-brain', note: 'HIVE Digital Brain (Obsidian vault) usage.' },
+    { id: 'video-vision', label: 'video-vision', note: 'Give Cursor Agent eyes and ears on video.' },
+    { id: 'anti-slop', label: 'anti-slop', note: 'Detect and rewrite generic AI writing patterns in HIVE deliverables.' },
+    { id: 'fable-mode', label: 'fable-mode', note: 'Enforces staged execution discipline on large tasks.' },
+    { id: 'execution-guardrails', label: 'execution-guardrails', note: 'Always-on verify-before-flag and safety habits.' },
+  ].concat(extraSkills);
+  return { generatedAt: new Date().toISOString(), docs, env, skills };
 }
 
 const treeCache = new Map(); // rootId -> { at, data }
@@ -259,6 +360,11 @@ const server = http.createServer((req, res) => {
       return sendJson(res, 200, out);
     }
     return sendJson(res, 200, tree);
+  }
+
+  /* System catalog: docs (README*), env files (.env* names only), and skills. */
+  if (pathname === '/api/system-catalog') {
+    return sendJson(res, 200, buildSystemCatalog());
   }
 
   /* File mount: /vault/<rootId>/<rel> — whitelist + safePath + realpath jail. */

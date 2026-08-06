@@ -96,6 +96,48 @@ const run = (async () => {
   const noVaultShell = await get('/vault/');
   check('GET /vault/ without root → 404', noVaultShell.status === 404, 'status ' + noVaultShell.status);
 
+  // 7. System catalog returns 200 with the expected shape.
+  const catalog = await get('/api/system-catalog');
+  check('GET /api/system-catalog → 200', catalog.status === 200, 'status ' + catalog.status);
+  check('system-catalog has docs array', Array.isArray(catalog.json && catalog.json.docs), '');
+  check('system-catalog has env array', Array.isArray(catalog.json && catalog.json.env), '');
+  check('system-catalog has skills array', Array.isArray(catalog.json && catalog.json.skills) && catalog.json.skills.length > 0, '');
+
+  // 8. Project trees hide README/CHANGELOG/LICENSE/.env/SKILL.md meta files.
+  let readmeLeaked = false;
+  let envLeaked = false;
+  let skillLeaked = false;
+  for (const r of roots) {
+    const t = await get('/api/tree?root=' + encodeURIComponent(r.id));
+    if (!t.json || !Array.isArray(t.json.sections)) continue;
+    for (const s of t.json.sections) {
+      for (const f of (s.files || [])) {
+        const base = f.rel.split('/').pop().toLowerCase();
+        if (base.startsWith('readme') || base.startsWith('changelog') || base.startsWith('license')) readmeLeaked = true;
+        if (base === '.env' || base.startsWith('.env.') || base.endsWith('.env')) envLeaked = true;
+        if (base === 'skill.md') skillLeaked = true;
+      }
+    }
+  }
+  check('project trees hide README/CHANGELOG/LICENSE', !readmeLeaked, '');
+  check('project trees hide .env files', !envLeaked, '');
+  check('project trees hide SKILL.md', !skillLeaked, '');
+
+  // 9. Vault GET still forbids .env bodies, and the catalog names them without content.
+  const envs = catalog.json && Array.isArray(catalog.json.env) ? catalog.json.env : [];
+  check('system-catalog env entries are name-only (no url/content)', envs.every((e) => !e.url && !e.content), '');
+  if (envs.length) {
+    const first = envs[0];
+    const enc = first.rel.split('/').map(encodeURIComponent).join('/');
+    const ev = await get('/vault/' + first.rootId + '/' + enc);
+    check('vault .env GET forbidden (404/403)', ev.status === 404 || ev.status === 403, 'status ' + ev.status);
+  }
+
+  // 10. SW cache name was bumped.
+  const sw = await get('/sw.js');
+  check('GET /sw.js → 200', sw.status === 200, 'status ' + sw.status);
+  check('sw.js cache bumped to v27', sw.text.includes('comb-shell-v27'), sw.text.slice(0, 120));
+
   console.log('');
   if (failures) {
     console.log(failures + ' check(s) FAILED');
