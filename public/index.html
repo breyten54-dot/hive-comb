@@ -854,6 +854,7 @@ function stepDeepBack(){
   if(h.mode==="system" || h.mode==="projects"){ navTo("#/hive"); return; }
   if(h.mode==="card"){
     if(SYSTEM_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/system"); return; }
+    if(PROJECTS_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/projects"); return; }
     navTo("#/hive"); return;
   }
   navTo("#/");
@@ -1205,13 +1206,41 @@ function openCard(id){
   });
 }
 
-/* System nest chambers. Work projects come from live /api/tree roots. */
+/* Curated L1 — work hexes only. Ops (Benchmarks / Hand-Over / Fable) live under System. */
+var L1_NODES=[
+  {id:"system",label:"System"},
+  {id:"football",label:"Football",rootId:"football"},
+  {id:"eta-work",label:"ETA Work",rootId:"eta-work"},
+  {id:"digital-brain",label:"Digital Brain",rootId:"digital-brain"},
+  {id:"stella",label:"Stella",rootId:"stella-project"},
+  {id:"praeto",label:"Praeto",rootId:"praeto-office-ai-portal"},
+  {id:"hermes",label:"Hermes",rootId:"hermes-bridge"},
+  {id:"video-inbox",label:"Video-Inbox",rootId:"video-inbox"},
+  {id:"personal",label:"Personal",rootId:"personal"},
+  {id:"projects",label:"Projects"},
+  {id:"comb",label:"Comb",rootId:"comb"}
+];
+/* System nest — keep AI-Benchmark, Hand-Over, Fable off the main hive. */
 var SYSTEM_NODES=[
   {id:"benchmarks",label:"Benchmarks",browse:"ai-benchmark"},
+  {id:"workflows",label:"Workflows",browse:"hand-over-central"},
+  {id:"fable",label:"Fable",browse:"fable-mode-main"},
   {id:"docs",label:"Docs"},
   {id:"env",label:"Env"},
-  {id:"skills",label:"Skills"},
-  {id:"workflows",label:"Workflows",browse:"hand-over-central"}
+  {id:"skills",label:"Skills"}
+];
+/* Smaller apps — not dumped onto L1. */
+var PROJECTS_NODES=[
+  {id:"anialah",label:"Anialah",rootId:"anialah"},
+  {id:"project-tech",label:"Project Tech",rootId:"project-tech"},
+  {id:"tiespro",label:"Tiespro",rootId:"tiespro-proj"},
+  {id:"boss-questionnaire",label:"Boss Questionnaire",rootId:"boss-questionnaire"},
+  {id:"backend-checklist",label:"Backend Checklist",rootId:"backend-checklist"},
+  {id:"notion-access",label:"Notion Access",rootId:"notion-access"},
+  {id:"council-reports",label:"Council reports",rootId:"council-reports"},
+  {id:"praeto-balance",label:"Praeto Balance",rootId:"praeto-balance-app-2-1"},
+  {id:"million-dollar",label:"Million-dollar plan",rootId:"million-dollar-90-day-plan"},
+  {id:"stella-glenwood",label:"Stella Glenwood",rootId:"stella-glenwood-webapp"}
 ];
 
 function parseHash(){
@@ -1428,10 +1457,9 @@ function openSystemCatalog(initialTab){
 function viewDeepRoot(){
   renderCrumbs([{label:"HIVE"}]);
   deepStageMsg("Opening the hive…");
-  Promise.all([loadCards(), loadRoots()]).then(function(){
+  loadCards().then(function(){
     var recentIds=getRecents().map(function(x){return x.id;});
-    var nodes=[nodeFromSpec({id:"system",label:"System"}, recentIds)]
-      .concat(rootNodesFromApi(deep.roots, recentIds));
+    var nodes=L1_NODES.map(function(s){ return nodeFromSpec(s, recentIds); });
     renderDeepComb(nodes, "HIVE", function(){ openPanel(hubPanel()); });
   }).catch(renderDeepError);
 }
@@ -1447,31 +1475,32 @@ function viewDeepSystem(){
 
 function viewDeepProjectsNest(){
   renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:"Projects"}]);
-  deepStageMsg("Loading projects…");
-  Promise.all([loadCards(), loadRoots()]).then(function(){
+  loadCards().then(function(){
     var recentIds=getRecents().map(function(x){return x.id;});
-    var nodes=rootNodesFromApi(deep.roots, recentIds);
+    var nodes=PROJECTS_NODES.map(function(s){ return nodeFromSpec(s, recentIds); });
     renderDeepComb(nodes, "Projects", function(){ navTo("#/hive"); });
   }).catch(renderDeepError);
 }
 
 function viewDeepCard(cardId){
-  /* Browse-first: vault root ids open files, not topic blurbs. */
+  /* System chamber ids open under System; curated work roots browse-first. */
+  if(SYSTEM_NODES.some(function(n){return n.id===cardId;})){
+    var spec=SYSTEM_NODES.filter(function(n){return n.id===cardId;})[0];
+    if(spec && spec.browse){ navTo("#/hive/browse/"+spec.browse); return; }
+    if(cardId==="docs"||cardId==="env"||cardId==="skills"){ viewDeepSystem(); openSystemCatalog(cardId); return; }
+  }
+  var l1=L1_NODES.filter(function(n){return n.id===cardId;})[0];
+  if(l1 && l1.rootId){ navTo("#/hive/browse/"+l1.rootId); return; }
+  var proj=PROJECTS_NODES.filter(function(n){return n.id===cardId;})[0];
+  if(proj && proj.rootId){ navTo("#/hive/browse/"+proj.rootId); return; }
+  /* Never promote System vault roots (ai-benchmark, hand-over, fable) via raw root id on L1 — still allow deep link browse. */
   loadRoots().then(function(roots){
-    if((roots||[]).some(function(r){ return r.id===cardId; })){
-      navTo("#/hive/browse/"+cardId);
-      return;
-    }
-    var parentHash="#/hive";
-    var parentLabel="HIVE";
-    var nest=SYSTEM_NODES.some(function(n){return n.id===cardId;})?"system":null;
-    if(nest==="system"){ parentHash="#/hive/system"; parentLabel="System"; viewDeepSystem(); }
-    else viewDeepRoot();
-    renderCrumbs([
-      {label:"HIVE",hash:"#/hive"},
-      nest?{label:parentLabel,hash:parentHash}:null,
-      {label:cardId}
-    ].filter(Boolean));
+    var sysOwned={};
+    SYSTEM_NODES.forEach(function(n){ if(n.browse) sysOwned[n.browse]=true; });
+    var hit=(roots||[]).filter(function(r){ return r.id===cardId; })[0];
+    if(hit && !sysOwned[hit.id]){ navTo("#/hive/browse/"+cardId); return; }
+    if(hit && sysOwned[hit.id]){ navTo("#/hive/browse/"+cardId); return; }
+    viewDeepRoot();
     openCard(cardId);
   }).catch(function(){
     viewDeepRoot();

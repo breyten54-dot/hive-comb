@@ -133,6 +133,18 @@ const FOOTBALL_SECTIONS = [
   { id: 'trials',          label: 'Trials',          match: /^ethekwini-city-fc-player-trials-15-16-aug-2026\.png$/i },
 ];
 
+/* ETA Work — Study guide (tests) vs Assignments; keep monitor noise out of primary hexes. */
+const ETA_ARTEFACT_EXT = new Set(['.html', '.pdf', '.docx', '.md', '.png', '.jpg', '.jpeg', '.webp']);
+const ETA_SECTIONS = [
+  { id: 'study-guide',  label: 'Study guide',  match: /^(study-guide\/|BMSR114_Written_Test)/i },
+  { id: 'assignments',  label: 'Assignments',  match: /^assessments\//i },
+  { id: 'deadlines',    label: 'Deadlines',    match: /^deadlines\//i },
+];
+
+function isEtaBrowseArtefact(fe) {
+  return ETA_ARTEFACT_EXT.has(fe.ext);
+}
+
 function fileEntry(rootId, f) {
   const label = f.rel.split('/').pop();
   const url = '/vault/' + rootId + '/' + f.rel.split('/').map(encodeURIComponent).join('/');
@@ -159,6 +171,16 @@ function buildRootTree(root) {
     const other = { id: 'other', label: 'Other files', files: [] };
     for (const fe of entries) {
       const idx = FOOTBALL_SECTIONS.findIndex((s) => s.match.test(fe.rel));
+      (idx === -1 ? other : sections[idx]).files.push(fe);
+    }
+    sections = sections.filter((s) => s.files.length);
+    if (other.files.length) sections.push(other);
+  } else if (root.id === 'eta-work') {
+    sections = ETA_SECTIONS.map((s) => ({ id: s.id, label: s.label, files: [] }));
+    const other = { id: 'other', label: 'Other files', files: [] };
+    for (const fe of entries) {
+      if (!isEtaBrowseArtefact(fe)) continue;
+      const idx = ETA_SECTIONS.findIndex((s) => s.match.test(fe.rel));
       (idx === -1 ? other : sections[idx]).files.push(fe);
     }
     sections = sections.filter((s) => s.files.length);

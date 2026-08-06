@@ -2,10 +2,10 @@
   "system": {
     "id": "system",
     "title": "System",
-    "tagline": "Benchmarks · Docs · Env · Skills · Workflows",
+    "tagline": "Benchmarks · Workflows · Fable · Docs · Env · Skills",
     "about": [
       "The operating layer of HIVE — how models are chosen, how work is measured, and how plan → build → mark stays honest.",
-      "Open this hex to step into a nested comb with five chambers: Benchmarks, Docs, Env, Skills, and Workflows."
+      "Open this hex for Benchmarks (AI-Benchmark), Workflows (Hand-Over), Fable, Docs, Env, and Skills — not on the main hive ring."
     ],
     "focus": "Keep routing cheap, verifiers loud, and handovers exhaustive.",
     "links": [

@@ -78,6 +78,20 @@ const run = (async () => {
     check('pdf body starts with %PDF', pv.text.slice(0, 4) === '%PDF', pv.text.slice(0, 8));
   }
 
+  // 2b. ETA Work compartments: Study guide + Assignments.
+  const eta = await get('/api/tree?root=eta-work');
+  check('GET /api/tree?root=eta-work → 200', eta.status === 200, 'status ' + eta.status);
+  const etaSections = eta.json && Array.isArray(eta.json.sections) ? eta.json.sections : [];
+  const etaById = Object.fromEntries(etaSections.map((s) => [s.id, s]));
+  check('eta section "study-guide" present', !!etaById['study-guide'],
+    'sections: ' + etaSections.map((s) => s.id).join(', '));
+  check('eta section "assignments" present', !!etaById['assignments'],
+    'sections: ' + etaSections.map((s) => s.id).join(', '));
+  check('eta study-guide has ≥1 artefact',
+    ((etaById['study-guide'] && etaById['study-guide'].files) || []).length >= 1, '');
+  check('eta assignments has ≥1 artefact',
+    ((etaById['assignments'] && etaById['assignments'].files) || []).length >= 1, '');
+
   // 5. Path traversal is rejected (raw + encoded variants).
   const t1 = await get('/vault/football/../../Comb/serve.js');
   check('traversal ../../ rejected', t1.status === 404 || t1.status === 403, 'status ' + t1.status);
@@ -140,7 +154,7 @@ const run = (async () => {
   // 10. SW cache name was bumped.
   const sw = await get('/sw.js');
   check('GET /sw.js → 200', sw.status === 200, 'status ' + sw.status);
-  check('sw.js cache bumped to v28', sw.text.includes('comb-shell-v28'), sw.text.slice(0, 120));
+  check('sw.js cache bumped to v29', sw.text.includes('comb-shell-v29'), sw.text.slice(0, 120));
 
   console.log('');
   if (failures) {
