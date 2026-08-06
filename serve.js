@@ -72,8 +72,10 @@ function isExcludedFile(name) {
   return false;
 }
 
-/* Depth-capped recursive scan. Never follows symlinks, never enters excluded
-   dirs, stops at MAX_FILES and flags truncation. rel paths use '/'. */
+/* Depth-capped recursive scan. Stops at MAX_FILES and flags truncation; rel
+   paths use '/'. OneDrive Files-On-Demand placeholders report as symlinks
+   (dirent.isSymbolicLink()), so links are resolved and kept only when the
+   real path stays under the scanned root — outside targets are skipped. */
 function scanTree(dir, relBase, depth, out, state) {
   if (depth > SCAN_DEPTH) return;
   if (state.count >= MAX_FILES) { state.truncated = true; return; }
@@ -81,14 +83,24 @@ function scanTree(dir, relBase, depth, out, state) {
   try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
   for (const e of entries) {
     if (state.count >= MAX_FILES) { state.truncated = true; return; }
-    if (e.isSymbolicLink()) continue;
     if (e.name.startsWith('.')) continue;
     const abs = path.join(dir, e.name);
     const rel = relBase ? relBase + '/' + e.name : e.name;
-    if (e.isDirectory()) {
+    let isDir = e.isDirectory();
+    let isFile = e.isFile();
+    if (e.isSymbolicLink()) {
+      try {
+        const real = fs.realpathSync(abs);
+        if (real !== state.realRoot && !real.startsWith(state.realRoot + path.sep)) continue;
+        const st = fs.statSync(abs);
+        isDir = st.isDirectory();
+        isFile = st.isFile();
+      } catch { continue; }
+    }
+    if (isDir) {
       if (isExcludedDir(e.name)) continue;
       scanTree(abs, rel, depth + 1, out, state);
-    } else if (e.isFile()) {
+    } else if (isFile) {
       if (isExcludedFile(e.name)) continue;
       let st;
       try { st = fs.statSync(abs); } catch { continue; }
@@ -125,7 +137,8 @@ function fileEntry(rootId, f) {
 
 function buildRootTree(root) {
   const files = [];
-  const state = { count: 0, truncated: false };
+  const state = { count: 0, truncated: false, realRoot: root.dir };
+  try { state.realRoot = fs.realpathSync(root.dir); } catch { /* keep literal dir */ }
   scanTree(root.dir, '', 1, files, state);
   const entries = files.map((f) => fileEntry(root.id, f));
   let sections;
