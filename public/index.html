@@ -313,22 +313,23 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
   filter:blur(2px);animation:deepPulse 5.5s ease-in-out infinite alternate}
 :root[data-theme="light"] .deep-vanish{background:radial-gradient(circle,rgba(255,230,160,.7) 0%,rgba(212,167,44,.25) 40%,transparent 70%)}
 @keyframes deepPulse{from{opacity:.72;transform:translate(-50%,-50%) scale(1)}to{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
-.deep-vignette{position:absolute;inset:0;
+.deep-vignette{position:absolute;inset:0;z-index:1;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 18%, rgba(0,0,0,.35) 55%, rgba(0,0,0,.82) 100%),
-    linear-gradient(180deg,rgba(5,4,3,.55) 0%,transparent 18%,transparent 78%,rgba(5,4,3,.75) 100%)}
+    radial-gradient(ellipse 78% 62% at 50% 42%, transparent 32%, rgba(0,0,0,.22) 62%, rgba(0,0,0,.72) 100%),
+    linear-gradient(180deg,rgba(5,4,3,.35) 0%,transparent 16%,transparent 82%,rgba(5,4,3,.55) 100%)}
 :root[data-theme="light"] .deep-vignette{background:
-    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 25%, rgba(90,70,30,.18) 70%, rgba(60,45,20,.4) 100%)}
+    radial-gradient(ellipse 78% 62% at 50% 42%, transparent 35%, rgba(90,70,30,.14) 70%, rgba(60,45,20,.35) 100%)}
 .deep-lattice{display:none}
-.deep-motes{position:absolute;inset:0;z-index:1}
+.deep-motes{position:absolute;inset:0;z-index:2}
 .deep-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,196,48,.75);
   box-shadow:0 0 8px rgba(244,196,48,.65);animation:deepMote linear infinite}
 @keyframes deepMote{0%{transform:translate3d(0,20px,0);opacity:0}15%{opacity:.85}85%{opacity:.5}100%{transform:translate3d(12px,-110vh,0);opacity:0}}
-#deepBgHexes{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
-  opacity:.42;filter:blur(.35px);transform:scale(1.02)}
-:root[data-theme="light"] #deepBgHexes{opacity:.28}
+#deepBgHexes{position:absolute;inset:-2%;width:104%;height:104%;z-index:0;pointer-events:none;
+  opacity:.92;filter:none}
+:root[data-theme="light"] #deepBgHexes{opacity:.7}
+.deep-vanish{z-index:1}
 .deep-walls{display:none}
-#deepBees{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+#deepBees{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
 #deepStage{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
   padding:12px 16px 28px;overflow:auto;transform-style:flat}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
@@ -524,6 +525,11 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
             <stop offset="0%" stop-color="#a87828" stop-opacity=".55"/>
             <stop offset="40%" stop-color="#4a3210" stop-opacity=".85"/>
             <stop offset="100%" stop-color="#120c05" stop-opacity=".95"/>
+          </radialGradient>
+          <radialGradient id="deepBgCell" cx="42%" cy="32%" r="72%">
+            <stop offset="0%" stop-color="#c9922e" stop-opacity=".55"/>
+            <stop offset="45%" stop-color="#6b4514" stop-opacity=".42"/>
+            <stop offset="100%" stop-color="#1a1006" stop-opacity=".55"/>
           </radialGradient>
         </defs>
       </svg>
@@ -883,7 +889,7 @@ function paintBgHexField(svg){
   var NS="http://www.w3.org/2000/svg";
   svg.innerHTML="";
   var points=[];
-  var size=22, cols=22, rows=16;
+  var size=26, cols=20, rows=14;
   var dx=size*1.5, dy=size*Math.sqrt(3);
   var vbW=16+cols*dx+size, vbH=18+rows*dy*0.52+size;
   svg.setAttribute("viewBox","0 0 "+Math.round(vbW)+" "+Math.round(vbH));
@@ -893,15 +899,15 @@ function paintBgHexField(svg){
       var cy=18+r*dy*0.5;
       points.push({cx:cx, cy:cy, nx:cx/vbW, ny:cy/vbH});
       var g=document.createElementNS(NS,"g");
-      var rim=document.createElementNS(NS,"polygon");
-      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1,1.15));
-      rim.setAttribute("fill","none");
-      rim.setAttribute("stroke","rgba(212,167,44,"+(0.18+((c+r)%5)*0.035)+")");
-      rim.setAttribute("stroke-width","1.05");
       var well=document.createElementNS(NS,"polygon");
-      well.setAttribute("points",hexPtsOrganic(cx,cy,size-5,0.85));
-      well.setAttribute("fill","url(#deepWallCell)");
-      well.setAttribute("opacity",String(0.28+((c*3+r)%7)*0.045));
+      well.setAttribute("points",hexPtsOrganic(cx,cy,size-4.2,0.9));
+      well.setAttribute("fill","url(#deepBgCell)");
+      well.setAttribute("opacity",String(0.55+((c*3+r)%7)*0.06));
+      var rim=document.createElementNS(NS,"polygon");
+      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1.2,1.2));
+      rim.setAttribute("fill","none");
+      rim.setAttribute("stroke","rgba(244,196,48,"+(0.45+((c+r)%5)*0.08)+")");
+      rim.setAttribute("stroke-width","1.55");
       g.appendChild(well); g.appendChild(rim);
       svg.appendChild(g);
     }
