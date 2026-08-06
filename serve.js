@@ -129,6 +129,7 @@ const FOOTBALL_SECTIONS = [
   { id: 'ethekwini-city',  label: 'Ethekwini City',  match: /^Ethekwini City\/.+/i },
   { id: 'manning-rangers', label: 'Manning Rangers', match: /^Manning Rangers\/.+/i },
   { id: 'assets',          label: 'Assets',          match: /^assets\/[^/]+$/i },
+  { id: 'player-profiles', label: 'Player profiles', match: /^Player-Profiles\//i },
   { id: 'trials',          label: 'Trials',          match: /^ethekwini-city-fc-player-trials-15-16-aug-2026\.png$/i },
 ];
 

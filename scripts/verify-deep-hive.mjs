@@ -36,9 +36,13 @@ const run = (async () => {
   check('GET /api/tree?root=football → 200', fb.status === 200, 'status ' + fb.status);
   const sections = fb.json && Array.isArray(fb.json.sections) ? fb.json.sections : [];
   const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
-  for (const id of ['contracts', 'safa', 'equipment', 'ethekwini-city', 'manning-rangers', 'assets', 'trials']) {
+  for (const id of ['contracts', 'safa', 'equipment', 'ethekwini-city', 'manning-rangers', 'assets', 'player-profiles', 'trials']) {
     check('football section "' + id + '" present', !!byId[id], 'sections: ' + sections.map((s) => s.id).join(', '));
   }
+  const profiles = (byId['player-profiles'] && byId['player-profiles'].files) || [];
+  check('player-profiles has Profile Form artefact',
+    profiles.some((f) => /Player-Profile-Form-2026\.(pdf|docx|html)$/i.test(f.label)),
+    profiles.map((f) => f.label).join(' | ') || 'no files');
   for (const id of ['contracts', 'safa', 'equipment']) {
     const files = (byId[id] && byId[id].files) || [];
     check(id + ' has ≥1 pdf', files.some((f) => f.ext === '.pdf'), files.map((f) => f.label).join(' | ') || 'no files');
@@ -136,7 +140,7 @@ const run = (async () => {
   // 10. SW cache name was bumped.
   const sw = await get('/sw.js');
   check('GET /sw.js → 200', sw.status === 200, 'status ' + sw.status);
-  check('sw.js cache bumped to v27', sw.text.includes('comb-shell-v27'), sw.text.slice(0, 120));
+  check('sw.js cache bumped to v28', sw.text.includes('comb-shell-v28'), sw.text.slice(0, 120));
 
   console.log('');
   if (failures) {

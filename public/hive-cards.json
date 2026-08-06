@@ -57,12 +57,13 @@
     "title": "Football",
     "tagline": "Ethekwini City FC · Manning Rangers Sporting",
     "about": [
-      "Club documents for both sides of the name/league swap — player and coach agreements, SAFA letter, equipment quote, clearances, badges, trials flyer.",
-      "Everything is local under Football/ and reachable from the Comb vault."
+      "Club documents for both sides of the name/league swap — player profiles, coaching agreements, SAFA letter, equipment quote, clearances, badges, trials flyer.",
+      "Click Football in the hive to open the vault directly: Contracts, SAFA, Equipment, Player profiles, and more."
     ],
-    "focus": "Contracts, SAFA placement letter, and Charmers equipment quote are ready for human fill-in and sign-off.",
+    "focus": "Player Profile Form (trials) and contracts are ready to send / fill in.",
     "links": [
-      { "label": "Browse Football files", "href": "#/hive/browse/football" }
+      { "label": "Browse Football files", "href": "#/hive/browse/football" },
+      { "label": "Player profiles", "href": "#/hive/browse/football/player-profiles" }
     ]
   },
   "eta-work": {

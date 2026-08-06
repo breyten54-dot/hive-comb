@@ -281,6 +281,8 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 .panel .embed-note{font-size:.72rem;color:var(--ink-3);margin:8px 0 10px;line-height:1.45}
 .panel .comb-embed{width:100%;height:min(70vh,640px);border:1px solid var(--line);border-radius:8px;
   background:var(--bg);display:block}
+body.panel-open{overflow:hidden}
+body.panel-open #deepHive{touch-action:none}
 #combToast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--ink);
   padding:10px 16px;border-radius:8px;font-size:.78rem;z-index:40;opacity:0;pointer-events:none;
@@ -818,17 +820,28 @@ function openPanel(h,opts){
   $("pbody").innerHTML=h;
   $("back").classList.add("on");
   $("panel").classList.add("on");
+  document.body.classList.add("panel-open");
   if(opts&&opts.embed) $("panel").classList.add("embed");
   else $("panel").classList.remove("embed");
+  updateDeepBackLabel();
 }
 function closePanel(){
   $("back").classList.remove("on");
   $("panel").classList.remove("on");
   $("panel").classList.remove("embed");
+  document.body.classList.remove("panel-open");
   if(selEl){selEl.classList.remove("sel");selEl=null;}
   clearRailSelection();
   updateDeepBackLabel();
 }
+function panelScrollGuard(e){
+  if(!document.body.classList.contains("panel-open")) return;
+  var panel=$("panel");
+  if(panel && panel.contains(e.target)) return;
+  e.preventDefault();
+}
+document.addEventListener("wheel",panelScrollGuard,{passive:false,capture:true});
+document.addEventListener("touchmove",panelScrollGuard,{passive:false,capture:true});
 $("back").addEventListener("click",closePanel);
 $("px").addEventListener("click",closePanel);
 function stepDeepBack(){
@@ -841,7 +854,6 @@ function stepDeepBack(){
   if(h.mode==="system" || h.mode==="projects"){ navTo("#/hive"); return; }
   if(h.mode==="card"){
     if(SYSTEM_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/system"); return; }
-    if(PROJECTS_NODES.some(function(n){return n.id===h.cardId;})){ navTo("#/hive/projects"); return; }
     navTo("#/hive"); return;
   }
   navTo("#/");
@@ -1193,36 +1205,13 @@ function openCard(id){
   });
 }
 
-/* L1 grouping — fewer hexes; System + Projects nest. */
-var L1_NODES=[
-  {id:"system",label:"System"},
-  {id:"football",label:"Football"},
-  {id:"eta-work",label:"ETA Work"},
-  {id:"digital-brain",label:"Digital Brain"},
-  {id:"stella",label:"Stella"},
-  {id:"praeto",label:"Praeto"},
-  {id:"hermes",label:"Hermes"},
-  {id:"video-inbox",label:"Video-Inbox"},
-  {id:"personal",label:"Personal"},
-  {id:"projects",label:"Projects"},
-  {id:"comb",label:"Comb"}
-];
+/* System nest chambers. Work projects come from live /api/tree roots. */
 var SYSTEM_NODES=[
-  {id:"benchmarks",label:"Benchmarks"},
+  {id:"benchmarks",label:"Benchmarks",browse:"ai-benchmark"},
   {id:"docs",label:"Docs"},
   {id:"env",label:"Env"},
   {id:"skills",label:"Skills"},
-  {id:"workflows",label:"Workflows"}
-];
-var PROJECTS_NODES=[
-  {id:"anialah",label:"Anialah"},
-  {id:"project-tech",label:"Project Tech"},
-  {id:"tiespro",label:"Tiespro"},
-  {id:"boss-questionnaire",label:"Boss Questionnaire"},
-  {id:"backend-checklist",label:"Backend Checklist"},
-  {id:"notion-access",label:"Notion Access"},
-  {id:"council-reports",label:"Council reports"},
-  {id:"fable-mode",label:"Fable mode"}
+  {id:"workflows",label:"Workflows",browse:"hand-over-central"}
 ];
 
 function parseHash(){
@@ -1365,14 +1354,25 @@ function nodeFromSpec(spec, recentIds){
   return {
     id:spec.id,
     label:spec.label,
-    cls:recentIds.indexOf("card:"+spec.id)>-1?"recent":"",
+    cls:recentIds.indexOf("card:"+spec.id)>-1 || recentIds.indexOf("browse:"+spec.id)>-1?"recent":"",
     onPick:function(){
       if(spec.id==="system"){ navTo("#/hive/system"); return; }
       if(spec.id==="projects"){ navTo("#/hive/projects"); return; }
       if(spec.id==="docs" || spec.id==="env" || spec.id==="skills"){ openSystemCatalog(spec.id); return; }
+      if(spec.browse){ navTo("#/hive/browse/"+spec.browse); return; }
+      /* Browse-first: vault root id → files, not topic blurb */
+      if(spec.rootId){ navTo("#/hive/browse/"+spec.rootId); return; }
       navTo("#/hive/"+spec.id);
     }
   };
+}
+
+function rootNodesFromApi(roots, recentIds){
+  return (roots||[]).slice().sort(function(a,b){
+    return String(a.label||a.id).localeCompare(String(b.label||b.id));
+  }).map(function(r){
+    return nodeFromSpec({id:r.id,label:r.label,rootId:r.id}, recentIds);
+  });
 }
 
 function loadRoots(){
@@ -1430,7 +1430,8 @@ function viewDeepRoot(){
   deepStageMsg("Opening the hive…");
   Promise.all([loadCards(), loadRoots()]).then(function(){
     var recentIds=getRecents().map(function(x){return x.id;});
-    var nodes=L1_NODES.map(function(s){ return nodeFromSpec(s, recentIds); });
+    var nodes=[nodeFromSpec({id:"system",label:"System"}, recentIds)]
+      .concat(rootNodesFromApi(deep.roots, recentIds));
     renderDeepComb(nodes, "HIVE", function(){ openPanel(hubPanel()); });
   }).catch(renderDeepError);
 }
@@ -1446,27 +1447,36 @@ function viewDeepSystem(){
 
 function viewDeepProjectsNest(){
   renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:"Projects"}]);
-  loadCards().then(function(){
+  deepStageMsg("Loading projects…");
+  Promise.all([loadCards(), loadRoots()]).then(function(){
     var recentIds=getRecents().map(function(x){return x.id;});
-    var nodes=PROJECTS_NODES.map(function(s){ return nodeFromSpec(s, recentIds); });
-    renderDeepComb(nodes, "Projects", function(){ openCard("projects"); });
+    var nodes=rootNodesFromApi(deep.roots, recentIds);
+    renderDeepComb(nodes, "Projects", function(){ navTo("#/hive"); });
   }).catch(renderDeepError);
 }
 
 function viewDeepCard(cardId){
-  var parentHash="#/hive";
-  var parentLabel="HIVE";
-  var nest=SYSTEM_NODES.some(function(n){return n.id===cardId;})?"system":
-    PROJECTS_NODES.some(function(n){return n.id===cardId;})?"projects":null;
-  if(nest==="system"){ parentHash="#/hive/system"; parentLabel="System"; viewDeepSystem(); }
-  else if(nest==="projects"){ parentHash="#/hive/projects"; parentLabel="Projects"; viewDeepProjectsNest(); }
-  else viewDeepRoot();
-  renderCrumbs([
-    {label:"HIVE",hash:"#/hive"},
-    nest?{label:parentLabel,hash:parentHash}:null,
-    {label:cardId}
-  ].filter(Boolean));
-  openCard(cardId);
+  /* Browse-first: vault root ids open files, not topic blurbs. */
+  loadRoots().then(function(roots){
+    if((roots||[]).some(function(r){ return r.id===cardId; })){
+      navTo("#/hive/browse/"+cardId);
+      return;
+    }
+    var parentHash="#/hive";
+    var parentLabel="HIVE";
+    var nest=SYSTEM_NODES.some(function(n){return n.id===cardId;})?"system":null;
+    if(nest==="system"){ parentHash="#/hive/system"; parentLabel="System"; viewDeepSystem(); }
+    else viewDeepRoot();
+    renderCrumbs([
+      {label:"HIVE",hash:"#/hive"},
+      nest?{label:parentLabel,hash:parentHash}:null,
+      {label:cardId}
+    ].filter(Boolean));
+    openCard(cardId);
+  }).catch(function(){
+    viewDeepRoot();
+    openCard(cardId);
+  });
 }
 
 function viewDeepBrowse(rootId, sectionId){
