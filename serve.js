@@ -141,8 +141,54 @@ const ETA_SECTIONS = [
   { id: 'deadlines',    label: 'Deadlines',    match: /^deadlines\//i },
 ];
 
+/* Need-to-know browse: papers/media only — never frontend/backend/tmp code dirs as hexes. */
+const NEED_TO_KNOW_EXT = new Set(['.html', '.pdf', '.docx', '.png', '.jpg', '.jpeg', '.webp']);
+/* Stella root guides (README* still excluded by isProjectBrowseExcluded). */
+const STELLA_GUIDE_MD = /^(NOTIFICATION-GUIDE\.md|STELLA-ADMIN-APP-INSTALL\.md|play-store\/PLAY-SETUP\.md)$/i;
+const STELLA_SECTIONS = [
+  { id: 'guides',     label: 'Guides',           match: /^(NOTIFICATION-GUIDE\.md|STELLA-ADMIN-APP-INSTALL\.md)$/i },
+  { id: 'ads',        label: 'Ads & posters',    match: /^stella-(poster|launch-ad)\.html$/i },
+  { id: 'indoor',     label: 'Indoor app pages', match: /^stella-indoor-source\/(index\.html|admin\.html|public\/privacy\.html)$/i },
+  { id: 'play-store', label: 'Play Store notes', match: /^play-store\/PLAY-SETUP\.md$/i },
+];
+const PRAETO_SECTIONS = [
+  { id: 'about',  label: 'About',  match: /$a/, keepEmpty: true }, /* never matches; meta + links */
+  { id: 'papers', label: 'Papers', match: /\.(pdf|docx)$/i },
+];
+const HERMES_SECTIONS = [
+  { id: 'about', label: 'About', match: /$a/, keepEmpty: true },
+];
+
 function isEtaBrowseArtefact(fe) {
   return ETA_ARTEFACT_EXT.has(fe.ext);
+}
+function isNeedToKnowArtefact(fe, rootId) {
+  if (NEED_TO_KNOW_EXT.has(fe.ext)) return true;
+  if (rootId === 'stella-project' && fe.ext === '.md' && STELLA_GUIDE_MD.test(fe.rel)) return true;
+  return false;
+}
+
+/** Football/ETA-style shelves; keepEmpty sections survive with zero files (About panels). */
+function buildCuratedSections(entries, sectionDefs, { filter, includeOther = false } = {}) {
+  const sections = sectionDefs.map((s) => ({
+    id: s.id,
+    label: s.label,
+    files: [],
+    keepEmpty: !!s.keepEmpty,
+  }));
+  const other = { id: 'other', label: 'Other files', files: [] };
+  for (const fe of entries) {
+    if (filter && !filter(fe)) continue;
+    const idx = sectionDefs.findIndex((s) => s.match && s.match.test(fe.rel));
+    if (idx === -1) {
+      if (includeOther) other.files.push(fe);
+      continue;
+    }
+    sections[idx].files.push(fe);
+  }
+  let out = sections.filter((s) => s.files.length || s.keepEmpty);
+  if (includeOther && other.files.length) out.push(other);
+  return out.map(({ id, label, files }) => ({ id, label, files }));
 }
 
 function fileEntry(rootId, f) {
@@ -167,36 +213,31 @@ function buildRootTree(root) {
   const entries = files.map((f) => fileEntry(root.id, f));
   let sections;
   if (root.id === 'football') {
-    sections = FOOTBALL_SECTIONS.map((s) => ({ id: s.id, label: s.label, files: [] }));
-    const other = { id: 'other', label: 'Other files', files: [] };
-    for (const fe of entries) {
-      const idx = FOOTBALL_SECTIONS.findIndex((s) => s.match.test(fe.rel));
-      (idx === -1 ? other : sections[idx]).files.push(fe);
-    }
-    sections = sections.filter((s) => s.files.length);
-    if (other.files.length) sections.push(other);
+    sections = buildCuratedSections(entries, FOOTBALL_SECTIONS, { includeOther: true });
   } else if (root.id === 'eta-work') {
-    sections = ETA_SECTIONS.map((s) => ({ id: s.id, label: s.label, files: [] }));
-    const other = { id: 'other', label: 'Other files', files: [] };
-    for (const fe of entries) {
-      if (!isEtaBrowseArtefact(fe)) continue;
-      const idx = ETA_SECTIONS.findIndex((s) => s.match.test(fe.rel));
-      (idx === -1 ? other : sections[idx]).files.push(fe);
-    }
-    sections = sections.filter((s) => s.files.length);
-    if (other.files.length) sections.push(other);
+    sections = buildCuratedSections(entries, ETA_SECTIONS, {
+      filter: isEtaBrowseArtefact,
+      includeOther: true,
+    });
+  } else if (root.id === 'stella-project') {
+    sections = buildCuratedSections(entries, STELLA_SECTIONS, {
+      filter: (fe) => isNeedToKnowArtefact(fe, 'stella-project'),
+    });
+  } else if (root.id === 'praeto-office-ai-portal') {
+    sections = buildCuratedSections(entries, PRAETO_SECTIONS, {
+      filter: (fe) => isNeedToKnowArtefact(fe, root.id),
+    });
+  } else if (root.id === 'hermes-bridge') {
+    sections = buildCuratedSections(entries, HERMES_SECTIONS, {
+      filter: (fe) => isNeedToKnowArtefact(fe, root.id),
+    });
   } else {
-    const byDir = new Map();
-    const rootFiles = [];
-    for (const fe of entries) {
-      const seg = fe.rel.includes('/') ? fe.rel.split('/')[0] : null;
-      if (!seg) { rootFiles.push(fe); continue; }
-      const id = slugify(seg);
-      if (!byDir.has(id)) byDir.set(id, { id, label: seg, files: [] });
-      byDir.get(id).files.push(fe);
-    }
-    sections = [...byDir.values()].sort((a, b) => a.label.localeCompare(b.label));
-    if (rootFiles.length) sections.push({ id: 'root-files', label: 'Root files', files: rootFiles });
+    /* Default: one Files shelf of need-to-know artefacts — never top-level code dirs. */
+    sections = [{
+      id: 'files',
+      label: 'Files',
+      files: entries.filter((fe) => isNeedToKnowArtefact(fe, root.id)),
+    }];
   }
   sections.forEach((s) => s.files.sort((a, b) => a.label.localeCompare(b.label)));
   const out = {
@@ -388,6 +429,29 @@ const server = http.createServer((req, res) => {
   /* System catalog: docs (README*), env files (.env* names only), and skills. */
   if (pathname === '/api/system-catalog') {
     return sendJson(res, 200, buildSystemCatalog());
+  }
+
+  /* Avoid list — HIVE/Avoid/sites.json (agent-maintained; Comb reflects). */
+  if (pathname === '/api/avoid-sites') {
+    const avoidPath = path.join(HIVE_ROOT, 'Avoid', 'sites.json');
+    try {
+      const raw = fs.readFileSync(avoidPath, 'utf8');
+      const data = JSON.parse(raw);
+      return sendJson(res, 200, {
+        generatedAt: new Date().toISOString(),
+        updatedAt: data.updatedAt || null,
+        note: data.note || null,
+        sites: Array.isArray(data.sites) ? data.sites : [],
+      });
+    } catch (err) {
+      return sendJson(res, 200, {
+        generatedAt: new Date().toISOString(),
+        updatedAt: null,
+        note: 'Avoid/sites.json missing or unreadable',
+        sites: [],
+        error: String(err && err.message || err),
+      });
+    }
   }
 
   /* File mount: /vault/<rootId>/<rel> — whitelist + safePath + realpath jail. */

@@ -21,6 +21,8 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 body{padding:20px}
+body.bare{padding:12px}
+body.bare .top{display:none}
 .top{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .back-comb{display:inline-flex;align-items:center;gap:6px;color:var(--gold-br);text-decoration:none;
   font-size:.85rem;font-weight:600;padding:6px 12px;border:1px solid var(--gold-deep);
@@ -61,6 +63,7 @@ body{padding:20px}
 "use strict";
 var el=document.getElementById("page"), meta=document.getElementById("meta");
 var params=new URLSearchParams(location.search);
+if(params.get("bare")==="1") document.body.classList.add("bare");
 var file=params.get("file");
 if(!file){
   el.innerHTML='<div class="err"><b>Missing file</b>No ?file= URL was provided.</div>';

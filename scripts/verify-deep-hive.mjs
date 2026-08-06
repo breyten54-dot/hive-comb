@@ -154,7 +154,78 @@ const run = (async () => {
   // 10. SW cache name was bumped.
   const sw = await get('/sw.js');
   check('GET /sw.js → 200', sw.status === 200, 'status ' + sw.status);
-  check('sw.js cache bumped to v29', sw.text.includes('comb-shell-v29'), sw.text.slice(0, 120));
+  check('sw.js cache bumped to v41', sw.text.includes('comb-shell-v41'), sw.text.slice(0, 120));
+  check('shell locks scroll when deep-on', shell.text.includes('html.deep-on,body.deep-on') || shell.text.includes('html.deep-on'), '');
+  check('fluid bee wander (rAF)', shell.text.includes('tickBeeWander') && shell.text.includes('DEEP_BEE_COUNT'), '');
+  check('fifteen drift bees', shell.text.includes('DEEP_BEE_COUNT=15') || shell.text.includes('DEEP_BEE_COUNT = 15'), '');
+  check('bee drama + queen', shell.text.includes('beginFight') && shell.text.includes('is-queen') && shell.text.includes('beginCoffee'), '');
+  check('bees fly over hexes', shell.text.includes('id="deepBees"') && /deepStage[\s\S]*deepBees/.test(shell.text), '');
+  check('bee max dwell 4s', shell.text.includes('DEEP_BEE_MAX_DWELL=4000') || shell.text.includes('DEEP_BEE_MAX_DWELL = 4000'), '');
+  check('bee dialogue bubbles', shell.text.includes('showBeeSay') && shell.text.includes('beginChat') && shell.text.includes('BEE_LINES'), '');
+  check('queen yell locked once', shell.text.includes('yellShown') && shell.text.includes('QUEEN_LINES'), '');
+  check('shell has dark deep-doc panel', shell.text.includes('deep-doc') && shell.text.includes('rgba(8,6,4'), '');
+
+  // 11. Avoid list from HIVE/Avoid/sites.json
+  const avoid = await get('/api/avoid-sites');
+  check('GET /api/avoid-sites → 200', avoid.status === 200, 'status ' + avoid.status);
+  check('avoid-sites has sites array', Array.isArray(avoid.json && avoid.json.sites), '');
+  check('avoid-sites has ≥1 seed entry',
+    avoid.json && Array.isArray(avoid.json.sites) && avoid.json.sites.length >= 1,
+    avoid.json && avoid.json.sites ? 'len ' + avoid.json.sites.length : 'missing');
+  const sectionMeta = await get('/section-meta.json');
+  check('GET /section-meta.json → 200', sectionMeta.status === 200, 'status ' + sectionMeta.status);
+
+  // 12. Shell L1 ring — ETA rename, no System on ring, no School work
+  check('shell L1 has Avoid', shell.text.includes('label:"Avoid"') || shell.text.includes("label:'Avoid'"), '');
+  check('shell L1 has ETA label', /id:"eta-work",label:"ETA"/.test(shell.text), '');
+  check('shell L1 does not say School work', !shell.text.includes('School work'), '');
+  check('shell does not put System on L1_NODES',
+    !/L1_NODES\s*=\s*\[[^\]]*id:"system"/.test(shell.text),
+    '');
+  check('shell does not put digital-brain on L1_NODES',
+    !/L1_NODES\s*=\s*\[[^\]]*digital-brain/.test(shell.text),
+    '');
+  check('shell center hub is System', shell.text.includes('renderDeepComb(nodes, "System"'), '');
+
+  // 13. Stella / Praeto / Hermes — curated shelves, no code-dir hexes
+  const CODE_DIR_IDS = new Set([
+    'frontend', 'backend', 'infra', 'docs', 'root-files',
+    'stella-admin-app', 'stella-admin-twa-final', 'stella-indoor-source',
+    'testing-tools', 'tmp-audit', 'node-modules',
+  ]);
+  async function assertNoCodeDirs(rootId, expectIds) {
+    const t = await get('/api/tree?root=' + encodeURIComponent(rootId));
+    check('GET /api/tree?root=' + rootId + ' → 200', t.status === 200, 'status ' + t.status);
+    const secs = (t.json && t.json.sections) || [];
+    const ids = secs.map((s) => s.id);
+    const leaked = ids.filter((id) => CODE_DIR_IDS.has(id));
+    check(rootId + ' has no code-dir section ids', leaked.length === 0, 'leaked: ' + leaked.join(', '));
+    for (const id of expectIds) {
+      check(rootId + ' has section "' + id + '"', ids.includes(id), 'sections: ' + ids.join(', '));
+    }
+  }
+  await assertNoCodeDirs('stella-project', ['guides', 'ads', 'indoor', 'play-store']);
+  await assertNoCodeDirs('praeto-office-ai-portal', ['about']);
+  await assertNoCodeDirs('hermes-bridge', ['about']);
+  check('section-meta has stella guides', !!(sectionMeta.json && sectionMeta.json['stella-project:guides']), '');
+  check('section-meta has praeto about', !!(sectionMeta.json && sectionMeta.json['praeto-office-ai-portal:about']), '');
+
+  // 14. Panel-first + labeled doors (no flat data-work-file dump)
+  check('shell defines openWorkPanel', shell.text.includes('function openWorkPanel'), '');
+  check('shell uses labeled work doors', shell.text.includes('data-work-door'), '');
+  check('shell has no flat data-work-file dump', !shell.text.includes('data-work-file'), '');
+  check('shell Stella is panelFirst', /id:"stella"[^\}]*panelFirst:\s*true/.test(shell.text), '');
+  check('shell Praeto is panelFirst', /id:"praeto"[^\}]*panelFirst:\s*true/.test(shell.text), '');
+  check('shell has PAPERS_SHELVES for System', shell.text.includes('PAPERS_SHELVES'), '');
+  check('shell Stella has Indoor Client app link', shell.text.includes('stella-indoor.web.app'), '');
+  check('shell Stella has Indoor Admin app link', shell.text.includes('stella-indoor-admin.web.app'), '');
+  check('shell Stella has Glenwood app link', shell.text.includes('stella-glenwood.vercel.app'), '');
+  check('shell Praeto has Compliance Club link', shell.text.includes('compliance-club.vercel.app'), '');
+  check('shell Praeto has Balance demo link', shell.text.includes('praeto-balance-demo.vercel.app'), '');
+  check('shell apps rendered as App rows', shell.text.includes('row("App"'), '');
+  check('OTHER_APPS does not list Balance as sole home',
+    !/OTHER_APPS\s*=\s*\[[^\]]*praeto-balance/.test(shell.text),
+    '');
 
   console.log('');
   if (failures) {

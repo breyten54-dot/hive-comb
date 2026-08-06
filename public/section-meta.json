@@ -1,0 +1,77 @@
+{
+  "football:player-profiles": {
+    "description": "Player profile form for trials — PDF, Word, and HTML. Fill digitally or print.",
+    "links": [
+      { "label": "MYSAFA", "url": "https://www.mysafa.net/" },
+      { "label": "Inqaku", "url": "https://inqaku.com/" }
+    ]
+  },
+  "football:ethekwini-city": {
+    "description": "Ethekwini City FC papers — clearances, badges, club files.",
+    "links": [
+      { "label": "MYSAFA", "url": "https://www.mysafa.net/" }
+    ]
+  },
+  "football:manning-rangers": {
+    "description": "Manning Rangers papers — clearances and club files.",
+    "links": [
+      { "label": "MYSAFA", "url": "https://www.mysafa.net/" }
+    ]
+  },
+  "football:safa": {
+    "description": "SAFA letters and builds — name-change and federation paperwork.",
+    "links": [
+      { "label": "SAFA", "url": "https://www.safa.net/" }
+    ]
+  },
+  "eta-work:study-guide": {
+    "description": "ETA study guide PDFs for the current modules.",
+    "links": [
+      { "label": "etaConnect", "url": "https://etaconnect.etacollege.com/my/" }
+    ]
+  },
+  "eta-work:assignments": {
+    "description": "Assignment handouts and drafts (Word / PDF).",
+    "links": [
+      { "label": "etaConnect", "url": "https://etaconnect.etacollege.com/my/" }
+    ]
+  },
+  "eta-work:deadlines": {
+    "description": "Deadlines and other school files that are not the study guide or assignments.",
+    "links": [
+      { "label": "etaConnect", "url": "https://etaconnect.etacollege.com/my/" }
+    ]
+  },
+  "stella-project:guides": {
+    "description": "How to install the Stella admin app and set up notifications — plain guides, not source code.",
+    "links": []
+  },
+  "stella-project:ads": {
+    "description": "Launch ads and posters for Stella Indoor.",
+    "links": []
+  },
+  "stella-project:indoor": {
+    "description": "Indoor app entry pages you can open in the Comb (home, admin, privacy). Code stays on disk under System when you need it.",
+    "links": []
+  },
+  "stella-project:play-store": {
+    "description": "Play Store setup notes for publishing Stella.",
+    "links": []
+  },
+  "praeto-office-ai-portal:about": {
+    "description": "Praeto Office AI Portal — the live product and papers live here. Code folders (frontend, backend) are hidden from this shelf; use System → Docs if you need repo notes.",
+    "links": [
+      { "label": "praeto.co.za", "url": "https://praeto.co.za/" }
+    ]
+  },
+  "praeto-office-ai-portal:papers": {
+    "description": "PDFs and Word docs for Praeto Office AI (when present on disk).",
+    "links": [
+      { "label": "praeto.co.za", "url": "https://praeto.co.za/" }
+    ]
+  },
+  "hermes-bridge:about": {
+    "description": "Hermes is the phone courier (Notion + ntfy). Say “check hermes” to wake it. Bridge code is not listed here.",
+    "links": []
+  }
+}

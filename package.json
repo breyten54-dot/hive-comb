@@ -10,6 +10,11 @@
   "scripts": {
     "serve": "node serve.js",
     "serve:vercel": "vercel dev",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "verify:deep": "node scripts/verify-deep-hive.mjs",
+    "verify:ux": "node scripts/playwright-hive-ux.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
   }
 }
