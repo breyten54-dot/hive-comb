@@ -288,56 +288,105 @@ a.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 #combToast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
 
-/* ---------- deep hive (dive view) ---------- */
+/* ---------- deep hive (dive view — honeycomb corridor) ---------- */
 #deepHive{position:fixed;left:0;right:0;bottom:0;top:64px;z-index:15;display:flex;flex-direction:column;
-  background:
-    radial-gradient(ellipse 46% 58% at 50% 52%, rgba(244,196,48,.14), transparent 62%),
-    radial-gradient(ellipse 95% 75% at 50% 58%, rgba(138,100,20,.10), transparent 68%),
-    linear-gradient(180deg,#0b0805,#050403 70%)}
-:root[data-theme="light"] #deepHive{background:
-    radial-gradient(ellipse 46% 58% at 50% 52%, rgba(168,124,20,.16), transparent 62%),
-    linear-gradient(180deg,#f7efdd,#eee1bf 70%)}
+  background:#050403;overflow:hidden}
+:root[data-theme="light"] #deepHive{background:#ebe0c4}
 #deepHive[hidden]{display:none}
-.deep-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 18px 8px}
-.deep-surface{background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--gold-br);
-  border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;font-weight:600}
-.deep-surface:hover{border-color:var(--gold-br);background:var(--bg)}
+body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
+@keyframes deepEnter{from{opacity:0;filter:brightness(.4)}to{opacity:1;filter:none}}
+.deep-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 18px 8px;position:relative;z-index:6}
+.deep-surface{background:rgba(24,20,12,.82);border:1px solid var(--gold-deep);color:var(--gold-br);
+  border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;font-weight:600;backdrop-filter:blur(6px)}
+.deep-surface:hover{border-color:var(--gold-br);background:rgba(18,14,8,.95)}
 .deep-crumbs{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-3);flex-wrap:wrap;min-width:0}
 .deep-crumbs a{color:var(--gold-br);text-decoration:none}
 .deep-crumbs a:hover{text-decoration:underline}
 .deep-crumbs .sep{color:var(--gold-deep)}
 .deep-crumbs .here{color:var(--ink);font-weight:600}
-#deepStageWrap{flex:1 1 auto;min-height:0;position:relative}
-#deepStage{position:absolute;inset:0;display:flex;align-items:center;gap:34px;
-  padding:0 8vw;overflow-x:auto;overflow-y:hidden;perspective:1200px;perspective-origin:50% 46%;
+#deepStageWrap{flex:1 1 auto;min-height:0;position:relative;perspective:900px;perspective-origin:50% 42%;
+  overflow:hidden}
+#deepAtmosphere{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.deep-vanish{position:absolute;left:50%;top:42%;width:min(54vw,520px);height:min(54vw,520px);
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,210,90,.55) 0%,rgba(244,196,48,.28) 28%,rgba(138,100,20,.12) 52%,transparent 72%);
+  filter:blur(2px);animation:deepPulse 5.5s ease-in-out infinite alternate}
+:root[data-theme="light"] .deep-vanish{background:radial-gradient(circle,rgba(255,230,160,.7) 0%,rgba(212,167,44,.25) 40%,transparent 70%)}
+@keyframes deepPulse{from{opacity:.72;transform:translate(-50%,-50%) scale(1)}to{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
+.deep-vignette{position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 18%, rgba(0,0,0,.35) 55%, rgba(0,0,0,.82) 100%),
+    linear-gradient(180deg,rgba(5,4,3,.55) 0%,transparent 18%,transparent 78%,rgba(5,4,3,.75) 100%)}
+:root[data-theme="light"] .deep-vignette{background:
+    radial-gradient(ellipse 70% 55% at 50% 42%, transparent 25%, rgba(90,70,30,.18) 70%, rgba(60,45,20,.4) 100%)}
+.deep-lattice{position:absolute;inset:-8%;opacity:.18;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='64' viewBox='0 0 56 64'%3E%3Cpath d='M28 2 52 16v32L28 62 4 48V16Z' fill='none' stroke='%23d4a72c' stroke-width='1.2' opacity='.55'/%3E%3C/svg%3E");
+  background-size:56px 64px;transform:scale(1.15);filter:blur(.3px)}
+:root[data-theme="light"] .deep-lattice{opacity:.12}
+.deep-motes{position:absolute;inset:0}
+.deep-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,196,48,.75);
+  box-shadow:0 0 8px rgba(244,196,48,.65);animation:deepMote linear infinite}
+@keyframes deepMote{0%{transform:translate3d(0,20px,0);opacity:0}15%{opacity:.85}85%{opacity:.5}100%{transform:translate3d(12px,-110vh,0);opacity:0}}
+.deep-drift-bee{position:absolute;width:28px;height:28px;opacity:.55;filter:drop-shadow(0 0 6px rgba(244,196,48,.35));
+  animation:deepBeeDrift 18s ease-in-out infinite}
+.deep-drift-bee.bee-b{width:22px;height:22px;opacity:.4;animation-duration:24s;animation-delay:-7s}
+@keyframes deepBeeDrift{
+  0%{transform:translate3d(8vw,62%,0) rotate(-8deg)}
+  35%{transform:translate3d(42vw,28%,0) rotate(6deg)}
+  70%{transform:translate3d(68vw,48%,0) rotate(-4deg)}
+  100%{transform:translate3d(8vw,62%,0) rotate(-8deg)}
+}
+.deep-walls{position:absolute;inset:0;z-index:1;pointer-events:none;transform-style:preserve-3d}
+.deep-wall{position:absolute;top:-12%;bottom:-12%;width:46%;transform-style:preserve-3d;opacity:.62}
+.deep-wall svg{width:100%;height:100%;display:block}
+.deep-wall-left{left:-10%;transform-origin:100% 50%;
+  transform:rotateY(58deg) translateZ(-20px) translateX(4%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 18%,#000 78%,transparent 100%)}
+.deep-wall-right{right:-10%;transform-origin:0% 50%;
+  transform:rotateY(-58deg) translateZ(-20px) translateX(-4%);
+  mask-image:linear-gradient(270deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+  -webkit-mask-image:linear-gradient(270deg,transparent 0%,#000 18%,#000 78%,transparent 100%)}
+:root[data-theme="light"] .deep-wall{opacity:.45}
+#deepStage{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:flex-start;
+  gap:28px;padding:0 max(18vw,120px);overflow-x:auto;overflow-y:hidden;
+  perspective:900px;perspective-origin:50% 42%;transform-style:preserve-3d;
   scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
 #deepStage::-webkit-scrollbar{height:6px}
 #deepStage::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
 .deep-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px;
-  transform-style:preserve-3d}
-.deep-col h3{margin:0;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
-  text-align:center;max-width:160px}
+  transform-style:preserve-3d;transform-origin:50% 50%;will-change:transform,opacity,filter}
+.deep-col h3{margin:0;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-br);
+  text-align:center;max-width:160px;text-shadow:0 0 12px rgba(244,196,48,.35)}
 .deep-col .deep-count{font-size:.6rem;color:var(--ink-3)}
-.deep-col svg{display:block;overflow:visible}
+.deep-col svg{display:block;overflow:visible;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
 .deep-cell{cursor:pointer}
-.deep-cell polygon{fill:rgba(26,19,8,.94);stroke:rgba(212,167,44,.5);stroke-width:1.3;
+.deep-cell .wax-rim{fill:url(#deepWaxRim);stroke:rgba(244,196,48,.55);stroke-width:1.6;
+  transition:stroke .2s,filter .2s}
+.deep-cell .wax-well{fill:url(#deepWaxWell);stroke:rgba(90,60,18,.55);stroke-width:1;
   transition:fill .2s,stroke .2s,filter .2s}
-:root[data-theme="light"] .deep-cell polygon{fill:rgba(255,246,224,.94)}
-.deep-cell:hover polygon,.deep-cell:focus-visible polygon{fill:#33240b;stroke:var(--gold-br);
-  filter:drop-shadow(0 0 9px rgba(244,196,48,.5))}
-:root[data-theme="light"] .deep-cell:hover polygon{fill:#f0dfb4}
-.deep-cell.recent polygon{stroke:var(--gold-br);filter:drop-shadow(0 0 8px rgba(244,196,48,.45))}
-.deep-cell.hubback polygon{fill:#1e1609;stroke:var(--gold);stroke-width:2}
-:root[data-theme="light"] .deep-cell.hubback polygon{fill:#f0e2bb}
+.deep-cell:hover .wax-rim,.deep-cell:focus-visible .wax-rim{stroke:var(--gold-br);stroke-width:2;
+  filter:drop-shadow(0 0 10px rgba(244,196,48,.65))}
+.deep-cell:hover .wax-well,.deep-cell:focus-visible .wax-well{stroke:rgba(244,196,48,.35)}
+.deep-cell.recent .wax-rim{stroke:var(--gold-br);filter:drop-shadow(0 0 11px rgba(244,196,48,.7))}
+.deep-cell.hubback .wax-rim{stroke:var(--gold-br);stroke-width:2.2;filter:drop-shadow(0 0 8px rgba(244,196,48,.45))}
 .deep-cell.hubback text{fill:var(--gold-br);font-weight:700}
 .deep-cell text{fill:var(--ink);text-anchor:middle;dominant-baseline:middle;pointer-events:none;
-  font-family:-apple-system,"Segoe UI",sans-serif}
-.deep-cell .ext{fill:var(--gold);letter-spacing:.06em}
-.deep-empty{flex:0 0 auto;color:var(--ink-3);font-size:.8rem;font-style:italic;padding:0 40px}
+  font-family:Georgia,"Iowan Old Style","Segoe UI",serif;paint-order:stroke fill;
+  stroke:rgba(8,6,3,.55);stroke-width:2.5px}
+.deep-cell .ext{fill:var(--gold-br);letter-spacing:.06em;font-family:-apple-system,"Segoe UI",sans-serif;
+  stroke:none}
+.deep-empty{flex:0 0 auto;color:var(--ink-3);font-size:.8rem;font-style:italic;padding:0 40px;
+  position:relative;z-index:2}
 body.diving .comb-core{transition:transform .5s cubic-bezier(.3,.7,.3,1),opacity .45s;
   transform:scale(2.6);opacity:0}
+body.diving #deepHive{opacity:0}
 body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility:hidden}
-@media(prefers-reduced-motion:reduce){body.diving .comb-core{transition:none;transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  body.diving .comb-core{transition:none;transform:none;opacity:1}
+  body.deep-on #deepHive{animation:none}
+  .deep-vanish,.deep-mote,.deep-drift-bee{animation:none!important}
+}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -473,6 +522,36 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
     <button class="iconbtn" id="deepPipe" title="Pipeline summary" aria-label="Pipeline summary" style="margin-left:auto;width:30px;height:30px">▦</button>
   </div>
   <div id="deepStageWrap">
+    <div id="deepAtmosphere" aria-hidden="true">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+          <radialGradient id="deepWaxWell" cx="38%" cy="32%" r="68%">
+            <stop offset="0%" stop-color="#6b4a18"/>
+            <stop offset="45%" stop-color="#2a1c0a"/>
+            <stop offset="100%" stop-color="#0a0703"/>
+          </radialGradient>
+          <radialGradient id="deepWaxRim" cx="40%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#3d2a0e"/>
+            <stop offset="100%" stop-color="#161008"/>
+          </radialGradient>
+          <radialGradient id="deepWallCell" cx="40%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#a87828" stop-opacity=".55"/>
+            <stop offset="40%" stop-color="#4a3210" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#120c05" stop-opacity=".95"/>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="deep-vanish"></div>
+      <div class="deep-lattice"></div>
+      <div class="deep-vignette"></div>
+      <div class="deep-motes" id="deepMotes"></div>
+      <svg class="deep-drift-bee bee-a" viewBox="0 0 40 40"><ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/><path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/><circle cx="20" cy="13" r="5" fill="#2a1d0c"/><path d="M14 15Q6 6 12 4q2 6 2 11Z" fill="#f5e6c8" opacity=".9"/><path d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".9"/></svg>
+      <svg class="deep-drift-bee bee-b" viewBox="0 0 40 40"><ellipse cx="20" cy="22" rx="9" ry="7" fill="#d4a72c"/><path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/><circle cx="20" cy="13" r="5" fill="#2a1d0c"/><path d="M14 15Q6 6 12 4q2 6 2 11Z" fill="#f5e6c8" opacity=".85"/><path d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".85"/></svg>
+    </div>
+    <div class="deep-walls" aria-hidden="true">
+      <div class="deep-wall deep-wall-left"><svg id="deepWallLeftSvg" viewBox="0 0 280 640" preserveAspectRatio="xMidYMid slice"></svg></div>
+      <div class="deep-wall deep-wall-right"><svg id="deepWallRightSvg" viewBox="0 0 280 640" preserveAspectRatio="xMidYMid slice"></svg></div>
+    </div>
     <div id="deepStage" role="group" aria-label="Deep hive"></div>
   </div>
 </div>
@@ -797,8 +876,65 @@ function orderByRecents(projects){
   });
 }
 
-var deep={on:false, roots:null, trees:{}};
-var DEEP_COL_ROWS=6, DEEP_SIZE=44;
+var deep={on:false, roots:null, trees:{}, decorReady:false};
+var DEEP_COL_ROWS=6, DEEP_SIZE=46;
+
+function hexPtsOrganic(cx,cy,s,jitter){
+  var p=[], j=jitter||0;
+  for(var i=0;i<6;i++){
+    var a=Math.PI/180*(60*i);
+    var rj=j?((Math.sin((cx+cy)*0.07+i*1.7)*0.5+0.5)*j):0;
+    var rr=s-rj;
+    p.push((cx+rr*Math.cos(a)).toFixed(1)+","+(cy+rr*Math.sin(a)).toFixed(1));
+  }
+  return p.join(" ");
+}
+
+function paintWallMesh(svg){
+  var NS="http://www.w3.org/2000/svg";
+  svg.innerHTML="";
+  var size=18, cols=10, rows=22;
+  var dx=size*1.5, dy=size*Math.sqrt(3);
+  for(var r=0;r<rows;r++){
+    for(var c=0;c<cols;c++){
+      var cx=16+c*dx+(r%2?dx/2:0);
+      var cy=18+r*dy*0.5;
+      var g=document.createElementNS(NS,"g");
+      var rim=document.createElementNS(NS,"polygon");
+      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1,1.1));
+      rim.setAttribute("fill","none");
+      rim.setAttribute("stroke","rgba(212,167,44,"+(0.22+((c+r)%5)*0.04)+")");
+      rim.setAttribute("stroke-width","1.1");
+      var well=document.createElementNS(NS,"polygon");
+      well.setAttribute("points",hexPtsOrganic(cx,cy,size-4.5,0.8));
+      well.setAttribute("fill","url(#deepWallCell)");
+      well.setAttribute("opacity",String(0.35+((c*3+r)%7)*0.05));
+      g.appendChild(well); g.appendChild(rim);
+      svg.appendChild(g);
+    }
+  }
+}
+
+function seedDeepDecor(){
+  if(deep.decorReady) return;
+  deep.decorReady=true;
+  var left=$("deepWallLeftSvg"), right=$("deepWallRightSvg");
+  if(left) paintWallMesh(left);
+  if(right) paintWallMesh(right);
+  var moteHost=$("deepMotes");
+  if(moteHost && !moteHost.childElementCount){
+    for(var i=0;i<11;i++){
+      var m=document.createElement("span");
+      m.className="deep-mote";
+      m.style.left=(6+i*8.2+(i%3)*3)+"%";
+      m.style.bottom=(-4-(i%4)*6)+"%";
+      m.style.animationDuration=(9+i*1.1)+"s";
+      m.style.animationDelay=(-i*1.4)+"s";
+      m.style.width=m.style.height=(2+(i%3))+"px";
+      moteHost.appendChild(m);
+    }
+  }
+}
 
 function parseHash(){
   var h=location.hash||"";
@@ -816,6 +952,7 @@ function showDeep(){
   d.hidden=false;
   document.body.classList.add("deep-on");
   deep.on=true;
+  seedDeepDecor();
 }
 function hideDeep(){
   $("deepHive").hidden=true;
@@ -864,12 +1001,13 @@ function fileLabelWords(name){
   return String(name||"").replace(/\.[a-z0-9]+$/i,"").replace(/[-_]+/g," ");
 }
 
-/* items: [{label, sub?, cls?, aria?, onPick}] — chunked into receding wall columns. */
+/* items: [{label, sub?, cls?, aria?, onPick}] — chunked into receding corridor columns. */
 function renderDeepColumns(items, colLabel, totalCount){
   var stage=$("deepStage"); stage.innerHTML="";
+  seedDeepDecor();
   if(!items.length){ deepStageMsg(colLabel,"Nothing here yet."); return; }
   var NS="http://www.w3.org/2000/svg";
-  var size=DEEP_SIZE, pitchY=size*Math.sqrt(3)+8, padY=size+6;
+  var size=DEEP_SIZE, pitchY=size*Math.sqrt(3)+10, padY=size+8;
   var cols=[], i;
   for(i=0;i<items.length;i+=DEEP_COL_ROWS) cols.push(items.slice(i,i+DEEP_COL_ROWS));
   cols.forEach(function(colItems,ci){
@@ -886,18 +1024,23 @@ function renderDeepColumns(items, colLabel, totalCount){
     }
     var hgt=padY*2+(colItems.length-1)*pitchY+size;
     var svg=document.createElementNS(NS,"svg");
-    svg.setAttribute("viewBox","0 0 "+(size*2+10)+" "+Math.round(hgt));
-    svg.setAttribute("width",size*2+10);
+    svg.setAttribute("viewBox","0 0 "+(size*2+14)+" "+Math.round(hgt));
+    svg.setAttribute("width",size*2+14);
     svg.setAttribute("height",Math.round(hgt));
     colItems.forEach(function(it,ri){
-      var cx=size+5, cy=padY+ri*pitchY;
+      var cx=size+7, cy=padY+ri*pitchY;
       var g=document.createElementNS(NS,"g");
       g.setAttribute("class","deep-cell"+(it.cls?" "+it.cls:""));
       g.setAttribute("tabindex","0"); g.setAttribute("role","button");
       g.setAttribute("aria-label",it.aria||it.label);
-      var poly=document.createElementNS(NS,"polygon");
-      poly.setAttribute("points",hexPts(cx,cy,size-3));
-      g.appendChild(poly);
+      var rim=document.createElementNS(NS,"polygon");
+      rim.setAttribute("class","wax-rim");
+      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-2,1.2));
+      g.appendChild(rim);
+      var well=document.createElementNS(NS,"polygon");
+      well.setAttribute("class","wax-well");
+      well.setAttribute("points",hexPtsOrganic(cx,cy,size-7.5,0.9));
+      g.appendChild(well);
       var lines=wrapName(it.label).slice(0,2);
       var blockH=lines.length*10.5+(it.sub?9:0);
       var ty=cy-blockH/2+5;
@@ -920,10 +1063,16 @@ function renderDeepColumns(items, colLabel, totalCount){
       svg.appendChild(g);
     });
     col.appendChild(svg);
-    /* Tunnel walls: alternating yaw, receding depth, dimming with distance. */
-    col.style.transform="rotateY("+(ci%2?-12:12)+"deg) translateZ("+(-ci*55)+"px)";
-    col.style.opacity=String(Math.max(.42,1-ci*.09));
-    col.style.zIndex=String(100-ci);
+    /* Corridor runway: nearer = large/sharp; farther = smaller, dimmer, into the vanish. */
+    var z=-ci*92;
+    var scale=Math.max(0.52,1-ci*0.075);
+    var opacity=Math.max(0.28,1-ci*0.1);
+    var bright=Math.max(0.55,1-ci*0.055);
+    var blur=ci>2?Math.min(2.2,(ci-2)*0.45):0;
+    col.style.transform="translateZ("+z+"px) scale("+scale+")";
+    col.style.opacity=String(opacity);
+    col.style.filter="brightness("+bright+")"+(blur?" blur("+blur+"px)":"");
+    col.style.zIndex=String(200-ci);
     stage.appendChild(col);
   });
   stage.scrollLeft=0;
