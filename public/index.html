@@ -306,31 +306,50 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 .deep-crumbs .here{color:var(--ink);font-weight:600}
 #deepStageWrap{flex:1 1 auto;min-height:0;position:relative;perspective:900px;perspective-origin:50% 42%;
   overflow:hidden}
-#deepAtmosphere{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.deep-vanish{position:absolute;left:50%;top:42%;width:min(54vw,520px);height:min(54vw,520px);
-  transform:translate(-50%,-50%);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,210,90,.55) 0%,rgba(244,196,48,.28) 28%,rgba(138,100,20,.12) 52%,transparent 72%);
+#deepAtmosphere{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  perspective:720px;perspective-origin:50% 42%}
+.deep-vanish{position:absolute;left:50%;top:42%;width:min(58vw,560px);height:min(58vw,560px);
+  transform:translate(-50%,-50%);border-radius:50%;z-index:1;
+  background:radial-gradient(circle,rgba(255,220,110,.72) 0%,rgba(244,196,48,.35) 26%,rgba(138,100,20,.14) 48%,transparent 70%);
   filter:blur(2px);animation:deepPulse 5.5s ease-in-out infinite alternate}
 :root[data-theme="light"] .deep-vanish{background:radial-gradient(circle,rgba(255,230,160,.7) 0%,rgba(212,167,44,.25) 40%,transparent 70%)}
 @keyframes deepPulse{from{opacity:.72;transform:translate(-50%,-50%) scale(1)}to{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
-.deep-vignette{position:absolute;inset:0;z-index:1;
+.deep-vignette{position:absolute;inset:0;z-index:3;
   background:
-    radial-gradient(ellipse 78% 62% at 50% 42%, transparent 32%, rgba(0,0,0,.22) 62%, rgba(0,0,0,.72) 100%),
-    linear-gradient(180deg,rgba(5,4,3,.35) 0%,transparent 16%,transparent 82%,rgba(5,4,3,.55) 100%)}
+    radial-gradient(ellipse 70% 58% at 50% 42%, transparent 22%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.78) 100%),
+    linear-gradient(180deg,rgba(5,4,3,.4) 0%,transparent 14%,transparent 84%,rgba(5,4,3,.6) 100%)}
 :root[data-theme="light"] .deep-vignette{background:
-    radial-gradient(ellipse 78% 62% at 50% 42%, transparent 35%, rgba(90,70,30,.14) 70%, rgba(60,45,20,.35) 100%)}
+    radial-gradient(ellipse 70% 58% at 50% 42%, transparent 30%, rgba(90,70,30,.16) 70%, rgba(60,45,20,.38) 100%)}
 .deep-lattice{display:none}
-.deep-motes{position:absolute;inset:0;z-index:2}
+.deep-motes{position:absolute;inset:0;z-index:4}
 .deep-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,196,48,.75);
   box-shadow:0 0 8px rgba(244,196,48,.65);animation:deepMote linear infinite}
 @keyframes deepMote{0%{transform:translate3d(0,20px,0);opacity:0}15%{opacity:.85}85%{opacity:.5}100%{transform:translate3d(12px,-110vh,0);opacity:0}}
-#deepBgHexes{position:absolute;inset:-2%;width:104%;height:104%;z-index:0;pointer-events:none;
-  opacity:.92;filter:none}
-:root[data-theme="light"] #deepBgHexes{opacity:.7}
-.deep-vanish{z-index:1}
+#deepTunnel{position:absolute;inset:0;z-index:0;transform-style:preserve-3d;pointer-events:none}
+.deep-tunnel-plane{position:absolute;transform-style:preserve-3d;overflow:hidden;opacity:.9}
+.deep-tunnel-plane svg{width:100%;height:100%;display:block}
+.deep-tunnel-left{left:-8%;top:-15%;bottom:-15%;width:52%;transform-origin:100% 50%;
+  transform:rotateY(62deg) translateZ(-30px);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 12%,#000 78%,transparent 100%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 12%,#000 78%,transparent 100%)}
+.deep-tunnel-right{right:-8%;top:-15%;bottom:-15%;width:52%;transform-origin:0% 50%;
+  transform:rotateY(-62deg) translateZ(-30px);
+  mask-image:linear-gradient(270deg,transparent 0%,#000 12%,#000 78%,transparent 100%);
+  -webkit-mask-image:linear-gradient(270deg,transparent 0%,#000 12%,#000 78%,transparent 100%)}
+.deep-tunnel-floor{left:6%;right:6%;top:40%;height:78%;transform-origin:50% 0%;
+  transform:rotateX(72deg) translateZ(-12px);
+  mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%)}
+.deep-tunnel-ceil{left:8%;right:8%;top:-8%;height:52%;transform-origin:50% 100%;
+  transform:rotateX(-70deg) translateZ(-18px);
+  mask-image:linear-gradient(0deg,#000 0%,#000 50%,transparent 100%);
+  -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 50%,transparent 100%);
+  opacity:.72}
+:root[data-theme="light"] .deep-tunnel-plane{opacity:.75}
+#deepBgHexes{display:none}
 .deep-walls{display:none}
-#deepBees{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
-#deepStage{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+#deepBees{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+#deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
   padding:12px 16px 28px;overflow:auto;transform-style:flat}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
   display:block;margin:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 0 auto}
@@ -534,7 +553,12 @@ body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer{visibility
         </defs>
       </svg>
       <div class="deep-vanish"></div>
-      <svg id="deepBgHexes" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <div id="deepTunnel" aria-hidden="true">
+        <div class="deep-tunnel-plane deep-tunnel-left"><svg id="deepTunnelLeft" viewBox="0 0 280 640" preserveAspectRatio="none"></svg></div>
+        <div class="deep-tunnel-plane deep-tunnel-right"><svg id="deepTunnelRight" viewBox="0 0 280 640" preserveAspectRatio="none"></svg></div>
+        <div class="deep-tunnel-plane deep-tunnel-floor"><svg id="deepTunnelFloor" viewBox="0 0 800 400" preserveAspectRatio="none"></svg></div>
+        <div class="deep-tunnel-plane deep-tunnel-ceil"><svg id="deepTunnelCeil" viewBox="0 0 800 320" preserveAspectRatio="none"></svg></div>
+      </div>
       <div class="deep-vignette"></div>
       <div class="deep-motes" id="deepMotes"></div>
       <div id="deepBees"></div>
@@ -885,34 +909,46 @@ function hexPtsOrganic(cx,cy,s,jitter){
   return p.join(" ");
 }
 
-function paintBgHexField(svg){
+function paintTunnelPlane(svg, cols, rows, size){
   var NS="http://www.w3.org/2000/svg";
   svg.innerHTML="";
   var points=[];
-  var size=26, cols=20, rows=14;
+  size=size||24;
+  cols=cols||10; rows=rows||18;
   var dx=size*1.5, dy=size*Math.sqrt(3);
-  var vbW=16+cols*dx+size, vbH=18+rows*dy*0.52+size;
+  var vbW=16+cols*dx+size, vbH=18+rows*dy*0.5+size;
   svg.setAttribute("viewBox","0 0 "+Math.round(vbW)+" "+Math.round(vbH));
   for(var r=0;r<rows;r++){
     for(var c=0;c<cols;c++){
       var cx=16+c*dx+(r%2?dx/2:0);
       var cy=18+r*dy*0.5;
-      points.push({cx:cx, cy:cy, nx:cx/vbW, ny:cy/vbH});
+      points.push({svg:svg, cx:cx, cy:cy});
       var g=document.createElementNS(NS,"g");
       var well=document.createElementNS(NS,"polygon");
-      well.setAttribute("points",hexPtsOrganic(cx,cy,size-4.2,0.9));
+      well.setAttribute("points",hexPtsOrganic(cx,cy,size-4,0.9));
       well.setAttribute("fill","url(#deepBgCell)");
-      well.setAttribute("opacity",String(0.55+((c*3+r)%7)*0.06));
+      well.setAttribute("opacity",String(0.5+((c*3+r)%7)*0.05));
       var rim=document.createElementNS(NS,"polygon");
-      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1.2,1.2));
+      rim.setAttribute("points",hexPtsOrganic(cx,cy,size-1.1,1.15));
       rim.setAttribute("fill","none");
-      rim.setAttribute("stroke","rgba(244,196,48,"+(0.45+((c+r)%5)*0.08)+")");
-      rim.setAttribute("stroke-width","1.55");
+      rim.setAttribute("stroke","rgba(244,196,48,"+(0.42+((c+r)%5)*0.09)+")");
+      rim.setAttribute("stroke-width","1.45");
       g.appendChild(well); g.appendChild(rim);
       svg.appendChild(g);
     }
   }
   return points;
+}
+
+function paintDeepTunnel(){
+  var pts=[];
+  var left=$("deepTunnelLeft"), right=$("deepTunnelRight");
+  var floor=$("deepTunnelFloor"), ceil=$("deepTunnelCeil");
+  if(left) pts=pts.concat(paintTunnelPlane(left, 9, 20, 22));
+  if(right) pts=pts.concat(paintTunnelPlane(right, 9, 20, 22));
+  if(floor) pts=pts.concat(paintTunnelPlane(floor, 16, 10, 28));
+  if(ceil) pts=pts.concat(paintTunnelPlane(ceil, 14, 8, 26));
+  return pts;
 }
 
 function beeWithDocSvg(cls){
@@ -937,9 +973,17 @@ function stopBeeWander(){
 
 function bgHexToStagePx(pt){
   var wrap=$("deepStageWrap");
-  if(!wrap) return {x:0,y:0};
-  var r=wrap.getBoundingClientRect();
-  return {x:pt.nx*r.width, y:pt.ny*r.height};
+  if(!wrap || !pt || !pt.svg) return {x:0,y:0};
+  var ctm=pt.svg.getScreenCTM();
+  if(!ctm){
+    var r=wrap.getBoundingClientRect();
+    return {x:r.width*0.5, y:r.height*0.5};
+  }
+  var sp=pt.svg.createSVGPoint();
+  sp.x=pt.cx; sp.y=pt.cy;
+  var screen=sp.matrixTransform(ctm);
+  var wr=wrap.getBoundingClientRect();
+  return {x:screen.x-wr.left, y:screen.y-wr.top};
 }
 
 function pickBgHex(avoidIdx){
@@ -952,6 +996,15 @@ function pickBgHex(avoidIdx){
 
 function seatBee(el, pt, withTransition, fromPt){
   var pos=bgHexToStagePx(pt);
+  /* Keep bees on visible stage — skip if CTM put them wildly off-canvas. */
+  var wrap=$("deepStageWrap");
+  if(wrap){
+    var wr=wrap.getBoundingClientRect();
+    if(pos.x<-40||pos.y<-40||pos.x>wr.width+40||pos.y>wr.height+40){
+      var fallback=pickBgHex(-1);
+      if(fallback.pt){ pt=fallback.pt; pos=bgHexToStagePx(pt); }
+    }
+  }
   var dur=(1.2+Math.random()*1.6).toFixed(2)+"s";
   if(withTransition){
     el.style.transition="left "+dur+" cubic-bezier(.35,.7,.25,1), top "+dur+" cubic-bezier(.35,.7,.25,1), transform "+dur+" ease";
@@ -996,20 +1049,23 @@ function startBeeWander(){
   deep.beeRunning=true;
   var els=[].slice.call(bees.querySelectorAll(".deep-drift-bee"));
   var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  els.forEach(function(el){
-    var start=pickBgHex(-1);
-    if(!start.pt) return;
-    seatBee(el, start.pt, false, null);
-    var st={idx:start.idx};
-    if(!reduce) scheduleBeeHop(el, st);
+  /* Wait a frame so CSS 3D CTMs are valid after show. */
+  requestAnimationFrame(function(){
+    els.forEach(function(el){
+      var start=pickBgHex(-1);
+      if(!start.pt) return;
+      seatBee(el, start.pt, false, null);
+      var st={idx:start.idx};
+      if(!reduce) scheduleBeeHop(el, st);
+    });
   });
 }
 
 function seedDeepDecor(){
-  if(!deep.decorReady){
+  if(!deep.decorReady || deep.tunnelBuilt!==1){
     deep.decorReady=true;
-    var bg=$("deepBgHexes");
-    if(bg) deep.bgHexPoints=paintBgHexField(bg);
+    deep.tunnelBuilt=1;
+    deep.bgHexPoints=paintDeepTunnel();
     var moteHost=$("deepMotes");
     if(moteHost && !moteHost.childElementCount){
       for(var i=0;i<11;i++){
