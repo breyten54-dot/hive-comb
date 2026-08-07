@@ -6,11 +6,14 @@
 <meta name="theme-color" content="#0a0806">
 <meta name="description" content="HIVE — the comb. Live command view of the HIVE workspace.">
 <title>HIVE — The Comb</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 20 6.5V17.5L12 22 4 17.5V6.5L12 2Z' fill='%23f4c430'/></svg>">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="The Comb">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="/manifest.webmanifest">
 <style>
 :root{
   --bg:#0a0806; --surface:#12100c; --surface-2:#181410;
@@ -383,6 +386,8 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 #deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
   padding:12px 16px 28px;overflow:hidden;transform-style:flat}
 /* Bees z:6 over hex stage (5); deep-top z:7 keeps Surface/crumbs clickable. */
+/* System/Avoid (.deep-doc): tuck bees under the stage dark veil (class, not :has — avoids sticky z). */
+#deepHive.doc-open #deepBees{z-index:4}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
   display:block;margin:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 0 auto}
 .deep-cell{cursor:pointer}
@@ -2067,7 +2072,14 @@ function renderCrumbs(parts){
 }
 
 function deepStageMsg(msg){
-  $("deepStage").innerHTML='<div class="deep-empty">'+msg+'</div>';
+  setDeepStageHtml('<div class="deep-empty">'+msg+'</div>');
+}
+function setDeepStageHtml(html){
+  var stage=$("deepStage");
+  var hive=$("deepHive");
+  if(!stage) return;
+  stage.innerHTML=html==null?"":html;
+  if(hive) hive.classList.toggle("doc-open", !!stage.querySelector(".deep-doc"));
 }
 function renderDeepError(err){
   deepStageMsg('Couldn’t read the hive — '+esc(err&&err.message||"unexpected error")+
@@ -2084,7 +2096,7 @@ function deepPx(q,r,size,cx,cy){
 
 /* nodes: [{id,label,cls?,onPick}] — radial comb centered on stage (homepage-style). */
 function renderDeepComb(nodes, hubLabel, hubPick){
-  var stage=$("deepStage"); stage.innerHTML="";
+  var stage=$("deepStage"); setDeepStageHtml("");
   seedDeepDecor();
   var NS="http://www.w3.org/2000/svg";
   var size=DEEP_SIZE, cx=400, cy=380;
@@ -2225,7 +2237,6 @@ function viewDeepRoot(){
 
 function viewDeepSystem(){
   renderCrumbs([{label:"HIVE",hash:"#/hive"},{label:"System"}]);
-  stopBeeWander();
   deepStageMsg("Opening System…");
   Promise.all(PAPERS_SHELVES.map(function(s){
     return loadRootTree(s.rootId).then(function(tree){
@@ -2279,7 +2290,7 @@ function viewDeepSystem(){
       h+='<a class="chip" href="#/hive/browse/'+esc(a.rootId)+'">'+esc(a.label)+'</a>';
     });
     h+='</div></div>';
-    $("deepStage").innerHTML=h;
+    setDeepStageHtml(h);
     $("deepStage").querySelectorAll("[data-syscat]").forEach(function(btn){
       btn.addEventListener("click",function(){ openSystemCatalog(btn.getAttribute("data-syscat")); });
     });
@@ -2306,7 +2317,6 @@ function viewDeepAvoid(){
     if(!r.ok) throw new Error("/api/avoid-sites → "+r.status);
     return r.json();
   }).then(function(data){
-    stopBeeWander();
     var sites=(data&&data.sites)||[];
     var h='<div class="deep-doc">';
     h+='<div class="eb">Policy</div>';
@@ -2314,7 +2324,7 @@ function viewDeepAvoid(){
     h+='<p style="color:var(--ink-2);line-height:1.55;max-width:42rem;margin:0 0 14px">Sites the agent must not open or use when you ask — unethical, dangerous, or against policy. Written under <span class="mono">HIVE/Avoid/sites.json</span>; this page mirrors that file.</p>';
     if(!sites.length){
       h+='<p style="color:var(--ink-3)">No entries yet.</p></div>';
-      $("deepStage").innerHTML=h;
+      setDeepStageHtml(h);
       return;
     }
     sites.forEach(function(s){
@@ -2329,7 +2339,7 @@ function viewDeepAvoid(){
       h+='</div>';
     });
     h+='</div>';
-    $("deepStage").innerHTML=h;
+    setDeepStageHtml(h);
   }).catch(renderDeepError);
 }
 
