@@ -1,6 +1,19 @@
 {
-  "updatedAt": "2026-08-07T11:30:00.000Z",
+  "updatedAt": "2026-08-07T11:45:00.000Z",
   "todos": [
+    {
+      "name": "Verify praeto.co.za in Resend + retarget TechCo briefs",
+      "section": "TechCo",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": "https://resend.com/domains",
+      "blockedOn": "User finishes DNS for praeto.co.za (Resend status Not Started)",
+      "notes": "Came up 2026-08-07 after send-brief→Resend. Live mail works via onboarding@resend.dev → breyten54@gmail.com. After domain Verified: Agent sets RESEND_FROM=Praeto Group TechCo <noreply@praeto.co.za>, BRIEF_TO=praetotech@outlook.com, redeploys, re-smokes.",
+      "hivePath": "Project Tech\\",
+      "howTo": "In Resend Domains open praeto.co.za, add the SPF/DKIM/DMARC DNS records at the registrar, click Verify. Tell Agent when status is Verified.",
+      "estimateMinutes": 30
+    },
     {
       "name": "OUTLOOK_* env for live send-brief",
       "section": "TechCo",
@@ -9,9 +22,9 @@
       "status": "Done",
       "url": "https://praeto-group-tech-co.vercel.app",
       "blockedOn": "",
-      "notes": "2026-08-07: Migrated send-brief to Resend (Outlook SMTP AUTH dead). RESEND_API_KEY + RESEND_FROM=onboarding@resend.dev + BRIEF_TO=breyten54@gmail.com on prod. Live smoke 200. Follow-up: verify praeto.co.za DNS in Resend (status Not Started) then set RESEND_FROM=noreply@praeto.co.za and BRIEF_TO=praetotech@outlook.com.",
+      "notes": "2026-08-07: Migrated send-brief to Resend. Live smoke 200. Temporary BRIEF_TO=breyten54@gmail.com until domain verified (see sibling todo).",
       "hivePath": "Project Tech\\",
-      "howTo": "Verify praeto.co.za in Resend Domains, then Agent updates RESEND_FROM + BRIEF_TO to praetotech and re-smokes.",
+      "howTo": "Superseded by Resend path; keep for history.",
       "estimateMinutes": 25
     },
     {
@@ -48,7 +61,7 @@
       "status": "Done",
       "url": "https://hive-comb-iota.vercel.app",
       "blockedOn": null,
-      "notes": "vercel --prod 2026-08-07 \u2192 aliased https://hive-comb-iota.vercel.app (dpl_74ttZpWxC4vyaUmHzKqune2kNqLf)",
+      "notes": "vercel --prod 2026-08-07 → aliased https://hive-comb-iota.vercel.app",
       "hivePath": "Comb\\",
       "howTo": "Run vercel login in the Cursor terminal, select the HIVE Comb project, deploy the current branch, and verify the live URL shows the updated shell.",
       "estimateMinutes": 15
@@ -60,10 +73,10 @@
       "priority": "P0",
       "status": "Blocked",
       "url": "https://compliance-club.vercel.app",
-      "blockedOn": "User pastes PAYFAST_* + ANTHROPIC_API_KEY + RESEND_API_KEY (or confirms already set in Vercel)",
-      "notes": "Env names in vercel-compliance-club/.env.example. Agent ready to set + redeploy on paste.",
+      "blockedOn": "User pastes PAYFAST_* + ANTHROPIC_API_KEY (Resend account exists — confirm reuse TechCo key or paste Club-only key)",
+      "notes": "2026-08-07: Resend account breyten54 logged in; TechCo key TechCo send-brief minted. Club still needs PayFast + Anthropic. Agent ready to set + redeploy on paste.",
       "hivePath": "Million dollar 90 day plan\\Praeto-Web-Project\\vercel-compliance-club\\",
-      "howTo": "Add the PayFast merchant key, Anthropic API key, and SMTP credentials to the Vercel environment for the compliance-club project, then redeploy and run a checkout + chat + mail smoke test.",
+      "howTo": "Paste PayFast merchant credentials and Anthropic API key; say whether to reuse the TechCo Resend key on compliance-club. Agent sets Vercel env and redeploys.",
       "estimateMinutes": 30
     },
     {
@@ -74,7 +87,7 @@
       "status": "Blocked",
       "url": "https://praeto.co.za",
       "blockedOn": "Partner Firebase deploy (main@4411c32)",
-      "notes": "Parked 2026-08-07 \u2014 waiting on partner. Fix committed; verify praeto.co.za CTA when partner confirms.",
+      "notes": "Parked 2026-08-07 — waiting on partner. Fix committed; verify praeto.co.za CTA when partner confirms.",
       "hivePath": "Million dollar 90 day plan\\praeto-risk-and-insurance-git\\",
       "howTo": "Confirm the partner pushed main@4411c32 to Firebase hosting, then open praeto.co.za and verify the club CTA button navigates to the signup flow.",
       "estimateMinutes": 10
@@ -87,7 +100,7 @@
       "status": "Blocked",
       "url": "https://praeto-balance-demo.vercel.app",
       "blockedOn": "External counsel go/no-go",
-      "notes": "Parked 2026-08-07 \u2014 launch-blocked until written opinion on gambling-harm + financial data (ZA).",
+      "notes": "Parked 2026-08-07 — launch-blocked until written opinion on gambling-harm + financial data (ZA).",
       "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
       "howTo": "Brief external counsel on gambling-harm and financial data handling, request a written go/no-go opinion, and decide whether to launch Balance mobile.",
       "estimateMinutes": 60
@@ -100,7 +113,7 @@
       "status": "Blocked",
       "url": null,
       "blockedOn": "User picks host (default recommendation: Render)",
-      "notes": "Parked 2026-08-07 \u2014 decide Render vs Fly vs self-managed; default if decide-for-me = Render.",
+      "notes": "Parked 2026-08-07 — decide Render vs Fly vs self-managed; default if decide-for-me = Render.",
       "hivePath": "Praeto Office AI Portal\\",
       "howTo": "Compare Render, Fly, and self-managed options on price, deploy DX, and South African latency, pick one host for both services, and document the decision.",
       "estimateMinutes": 45
@@ -113,7 +126,7 @@
       "status": "Done",
       "url": null,
       "blockedOn": null,
-      "notes": "Restore source: https://github.com/breyten54-dot/Tiesproproject.git main@e15a59a \u2014 already cloned at Tiespro proj\\\\. Closed 2026-08-07.",
+      "notes": "Restore source: https://github.com/breyten54-dot/Tiesproproject.git main@e15a59a — already cloned at Tiespro proj\\. Closed 2026-08-07.",
       "hivePath": "Tiespro proj\\",
       "howTo": "Search local archives, old GitHub repositories, and backup drives for Tiespro source code; if nothing is found, confirm with the user that the project is written off.",
       "estimateMinutes": 40
@@ -124,11 +137,11 @@
       "owner": "User",
       "priority": "P0",
       "status": "Blocked",
-      "url": null,
-      "blockedOn": "User creates Postmark/SES/Resend account + API key",
-      "notes": "Parked 2026-08-07 \u2014 then Agent wires staging\u2192prod.",
+      "url": "https://resend.com",
+      "blockedOn": "User confirms Resend for PABOS (account exists) + which from-address / domain",
+      "notes": "2026-08-07: Resend account live (TechCo already using it). Prefer reuse over new Postmark/SES. Domain praeto.co.za still Not Started — same DNS gate as TechCo retarget todo.",
       "hivePath": "Praeto Office AI Portal\\",
-      "howTo": "Sign up for Postmark, AWS SES, or Resend, verify the sending domain, create an API key, add it to the PABOS environment, and send a test transactional email.",
+      "howTo": "Confirm Resend for PABOS; after praeto.co.za is Verified, Agent wires RESEND_API_KEY + from-address into PABOS staging→prod and sends a test mail.",
       "estimateMinutes": 35
     },
     {
@@ -152,7 +165,7 @@
       "status": "Done",
       "url": null,
       "blockedOn": null,
-      "notes": "origin https://github.com/breyten54-dot/hive-comb \u2014 master pushed 2026-08-07",
+      "notes": "origin https://github.com/breyten54-dot/hive-comb — master pushed 2026-08-07",
       "hivePath": "Comb\\",
       "howTo": "Create a GitHub repository for the Comb, add it as a remote, push the current cursor/comb-deep-hive and master branches, and set the default branch.",
       "estimateMinutes": 15
@@ -165,7 +178,7 @@
       "status": "Blocked",
       "url": null,
       "blockedOn": "User picks email / CRM / PABOS (default: email)",
-      "notes": "Parked 2026-08-07 \u2014 lead capture placeholder until destination chosen.",
+      "notes": "Parked 2026-08-07 — lead capture placeholder until destination chosen. Resend now available if destination=email.",
       "hivePath": "Million dollar 90 day plan\\praeto-risk-and-insurance-git\\",
       "howTo": "Choose whether quote submissions go to an email inbox, CRM, or PABOS API endpoint, update the form action, and test the full submission flow.",
       "estimateMinutes": 30
@@ -182,6 +195,19 @@
       "hivePath": "Million dollar 90 day plan\\Praeto-Web-Project\\vercel-compliance-club\\",
       "howTo": "Log in to the live compliance-club site, navigate to the Foundation+ manual, click download, and verify the 01_FSP_Compliance_Manual.docx file opens correctly.",
       "estimateMinutes": 15
+    },
+    {
+      "name": "Rotate praetotech Outlook password",
+      "section": "TechCo",
+      "owner": "User",
+      "priority": "P1",
+      "status": "Open",
+      "url": "https://account.live.com/password/Change",
+      "blockedOn": "User rotates password that was pasted in chat 2026-08-07",
+      "notes": "Hygiene only — send-brief no longer uses Outlook SMTP. Still rotate because the account password appeared in chat.",
+      "hivePath": "Project Tech\\",
+      "howTo": "Change the praetotech@outlook.com password in Microsoft account security, update any personal logins that used the old password, leave Vercel Outlook env alone (unused).",
+      "estimateMinutes": 10
     },
     {
       "name": "VAPID keys + Google Play verification (Stella Indoor)",
@@ -203,8 +229,8 @@
       "priority": "P1",
       "status": "Open",
       "url": null,
-      "blockedOn": "OneDrive Access denied \u2014 User closes locks + renames",
-      "notes": "praeto-balance-app_2 (1) \u2192 praeto-balance-app",
+      "blockedOn": "OneDrive Access denied — User closes locks + renames",
+      "notes": "praeto-balance-app_2 (1) → praeto-balance-app",
       "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
       "howTo": "Close any OneDrive locks on the praeto-balance-app_2 (1) folder, rename it to praeto-balance-app, and update any shortcuts or references that use the old path.",
       "estimateMinutes": 20
