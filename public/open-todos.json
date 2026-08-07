@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-06T13:48:00.000Z",
+  "updatedAt": "2026-08-07T10:11:49.000Z",
   "todos": [
     {
       "name": "OUTLOOK_* env for live send-brief",
@@ -110,10 +110,10 @@
       "section": "Tiespro",
       "owner": "User",
       "priority": "P0",
-      "status": "Open",
+      "status": "Done",
       "url": null,
-      "blockedOn": "User confirms restore source or write-off",
-      "notes": "Agent can check GitHub; user owns search of archives.",
+      "blockedOn": null,
+      "notes": "Restore source: https://github.com/breyten54-dot/Tiesproproject.git main@e15a59a \u2014 already cloned at Tiespro proj\\\\. Closed 2026-08-07.",
       "hivePath": "Tiespro proj\\",
       "howTo": "Search local archives, old GitHub repositories, and backup drives for Tiespro source code; if nothing is found, confirm with the user that the project is written off.",
       "estimateMinutes": 40
