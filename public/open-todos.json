@@ -149,10 +149,10 @@
       "section": "The Comb",
       "owner": "User",
       "priority": "P0",
-      "status": "Blocked",
+      "status": "Done",
       "url": null,
-      "blockedOn": "User creates GitHub remote",
-      "notes": "Then Agent can push master.",
+      "blockedOn": null,
+      "notes": "origin https://github.com/breyten54-dot/hive-comb \u2014 master pushed 2026-08-07",
       "hivePath": "Comb\\",
       "howTo": "Create a GitHub repository for the Comb, add it as a remote, push the current cursor/comb-deep-hive and master branches, and set the default branch.",
       "estimateMinutes": 15
