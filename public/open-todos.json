@@ -22,7 +22,7 @@
       "status": "Open",
       "url": "https://hive-comb-iota.vercel.app",
       "blockedOn": "User rotates Notion token; confirm COMB_USER/PASSWORD",
-      "notes": "C1/C2 — token may have been pasted in chat.",
+      "notes": "C1/C2 \u2014 token may have been pasted in chat.",
       "hivePath": "Comb\\",
       "howTo": "Revoke the old Notion integration token in Notion settings, create a new integration, share the HIVE databases with it, paste the new token into Vercel env, and verify the Comb live fetch works.",
       "estimateMinutes": 20
@@ -32,10 +32,10 @@
       "section": "Anialah",
       "owner": "User",
       "priority": "P0",
-      "status": "Open",
+      "status": "Done",
       "url": null,
-      "blockedOn": "User moves secrets off OneDrive + rotate",
-      "notes": "Secrets in synced folder.",
+      "blockedOn": null,
+      "notes": "Moved to %USERPROFILE%\\.anialah\\.env (+ jarvis.env); ani_config loads local-only path. Done 2026-08-07.",
       "hivePath": "Anialah\\",
       "howTo": "Move any .env files from the Anialah OneDrive folder to a local-only secrets directory outside sync, update the app config to read from the new path, and rotate any exposed credentials.",
       "estimateMinutes": 15
@@ -87,7 +87,7 @@
       "status": "Open",
       "url": "https://praeto-balance-demo.vercel.app",
       "blockedOn": "External counsel opinion",
-      "notes": "Launch-blocked — gambling-harm + financial data (ZA).",
+      "notes": "Launch-blocked \u2014 gambling-harm + financial data (ZA).",
       "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
       "howTo": "Brief external counsel on gambling-harm and financial data handling, request a written go/no-go opinion, and decide whether to launch Balance mobile.",
       "estimateMinutes": 60
@@ -126,7 +126,7 @@
       "status": "Blocked",
       "url": null,
       "blockedOn": "User creates Postmark/SES/Resend account + credentials",
-      "notes": "Then Agent wires staging → prod.",
+      "notes": "Then Agent wires staging \u2192 prod.",
       "hivePath": "Praeto Office AI Portal\\",
       "howTo": "Sign up for Postmark, AWS SES, or Resend, verify the sending domain, create an API key, add it to the PABOS environment, and send a test transactional email.",
       "estimateMinutes": 35
@@ -139,7 +139,7 @@
       "status": "Blocked",
       "url": null,
       "blockedOn": "User confirms whether remote exists",
-      "notes": "No local .git — unbacked working copy.",
+      "notes": "No local .git \u2014 unbacked working copy.",
       "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
       "howTo": "Initialize a git repository in the praeto-balance-app folder, create a GitHub remote, push the initial commit, and verify .gitignore excludes secrets and build artifacts.",
       "estimateMinutes": 20
@@ -203,8 +203,8 @@
       "priority": "P1",
       "status": "Open",
       "url": null,
-      "blockedOn": "OneDrive Access denied — User closes locks + renames",
-      "notes": "praeto-balance-app_2 (1) → praeto-balance-app",
+      "blockedOn": "OneDrive Access denied \u2014 User closes locks + renames",
+      "notes": "praeto-balance-app_2 (1) \u2192 praeto-balance-app",
       "hivePath": "praeto-balance-app_2 (1)\\praeto-balance-app\\",
       "howTo": "Close any OneDrive locks on the praeto-balance-app_2 (1) folder, rename it to praeto-balance-app, and update any shortcuts or references that use the old path.",
       "estimateMinutes": 20
