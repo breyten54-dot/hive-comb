@@ -1,118 +1,79 @@
 # HIVE — The Comb
 
-A standalone web app: honeycomb navigation for every HIVE project, encircled by
-live pipeline, attention, priority and completion data read from Notion.
+Phone-installable command view of the HIVE workspace: honeycomb navigation, alive bees,
+open todos, ETA / meetings rails, and pipeline panels.
 
-Independent of Claude — its own repo, its own Vercel deployment, its own URL.
-Works on a phone home screen (installable PWA).
+Independent of Claude — its own repo (`hive-comb`), Vercel deploy, and URL.
 
-## Layer roles (why three surfaces exist, not one)
+## Layer roles (disk-first — Notion retired for Comb)
 
-| Layer | Role | Flair |
-|-------|------|-------|
-| **The Comb** (this app) | Phone-installable **command view** — honeycomb, motion, status orbit | High — the "not a plain dashboard" surface |
-| **Notion Command Center** | **Source of truth for editing** tasks/projects (⚡ HIVE Command Center) | Medium — structured DBs, pages, filters; not hex UI |
-| **HIVE disk** (`_STATE.md`, sector, Digital Brain) | Pipeline truth for the Agent | Agent-facing |
+| Layer | Role |
+|-------|------|
+| **HIVE disk** | Source of truth — `public/open-todos.json`, Hand-Over / sector, Digital Brain `_STATE` |
+| **The Comb** (this app) | Live board — hexes, bees, pipeline derived from disk JSON (+ optional rails) |
+| **Cursor Agent + Ani** | Operators that edit the ledger; optional future: file-drop + Ani interview onboarding |
 
-Comb reads Notion (never writes). Notion is where humans/Agent edit records. Disk (`_STATE.md` +
-`sector-kimi.js`) is what the Agent itself trusts for pipeline state. See
-`Digital Brain\Brain\reports\2026-07-30_comb-notion-video-plan.md` for the full reasoning (why
-scrapping Comb for pure Notion was rejected).
+Comb **does not** require Notion. Pipeline detail falls back to `open-todos.json` when
+`/api/hive` is empty or unconfigured. Legacy `api/hive.js` (Notion) may still exist for
+optional use; do not block Comb setup on a Notion token.
 
-**Live:** <https://hive-comb-iota.vercel.app>
-Vercel project `hive-comb` (team LetsBuild).
+**Live:** <https://hive-comb-iota.vercel.app>  
+**Local:** `npm run serve` → <http://127.0.0.1:8765>
 
-> ⚠️ `hive-comb.vercel.app` is **not us** — that subdomain is already taken by an
-> unrelated account ("Hive Comb | Hivedec"). Vercel's `.vercel.app` namespace is
-> global. Always use the `-iota` URL above, or attach a custom domain.
+> ⚠️ `hive-comb.vercel.app` is **not us** — use the `-iota` URL above.
 
 ---
 
 ## Architecture
 
 ```
-public/index.html   the whole frontend — no build step, no framework, no CDN
-api/hive.js         Vercel serverless: holds the Notion token, returns flat JSON
+public/index.html        SPA (no build step)
+public/open-todos.json   P0/P1 backlog the Comb + Agent keep current
+public/eta.json          ETA rails
+public/sw.js             App-shell cache only — never caches *.json
+serve.js                 Local static + /api/tree vault scan; /api/hive stubs empty
+api/hive.js              Optional Vercel Notion bridge (legacy)
 ```
 
-**Why the serverless function exists:** a Notion token in frontend code is
-publicly readable by anyone who views source. The token lives only in Vercel's
-environment, and the browser only ever sees already-fetched rows. This is the
-"keys server-only" rule that queued task **A2** exists to enforce.
+**The comb always renders** from a skeleton + `open-todos.json` before any Notion call.
 
-**The comb always renders.** It draws from a hardcoded list of HIVE folder names
-before any network call, so navigation never disappears because a fetch failed.
-Live Notion data then upgrades it in place (status dots, real counts).
+**Bees:** `HOME_BEE_COUNT=15` on the surface; `DEEP_BEE_COUNT=20` inside `#/hive`
+(same wander / drama system; queen dramas deep-only).
 
 ---
 
-## Setup — one-time
+## Setup
 
-See also [`NOTION-SETUP.md`](NOTION-SETUP.md) for the Cursor-sole schema checklist.
-
-### 1. Create a Notion integration (only you can do this)
-
-1. Go to <https://www.notion.so/my-integrations>
-2. **New integration** → internal → name it `HIVE Comb` → submit
-3. Copy the **Internal Integration Secret** (starts `ntn_`)
-
-### 2. Share both databases with it
-
-Notion returns **404 for databases the integration can't see**, even with a
-valid token. For each database below: open it → `•••` (top right) →
-**Connections** → add `HIVE Comb`.
-
-| Database | ID |
-|---|---|
-| HIVE Tasks | `0dc4a16399414e0087faf4105a9205c7` |
-| HIVE Projects Registry | `a3f251c46daf43339c585f72bda63d8c` |
-
-### 3. Set the token in Vercel
-
-Vercel → this project → **Settings → Environment Variables**:
-
-| Name | Value | Environments |
-|---|---|---|
-| `NOTION_TOKEN` | the `ntn_…` secret | Production, Preview, Development |
-| `COMB_USER` | app-gate username (K-28) | Production, Preview, Development |
-| `COMB_PASSWORD` | app-gate password — strong | Production, Preview, Development |
-
-Redeploy after adding them — env vars are read at build/run time.
-
-**The app gate (K-28):** `middleware.js` enforces HTTP Basic auth on **every** path —
-the static page AND `/api/*`. If either `COMB_*` var is unset the whole app fails
-**closed** (401, no data). The browser holds the credentials (Basic-over-HTTPS), so
-the phone only asks once per browser/profile.
-
-**Rotating the gate password:** change `COMB_PASSWORD` in Vercel settings and redeploy.
-Old sessions simply get a fresh Basic prompt on next load. Rotate on any suspicion of
-leak — there is exactly one shared credential by design (single-operator dashboard).
-
-> **Never** put the token in this repo, in `.env` (only `.env.local`, which is
-> gitignored), or anywhere under `HIVE\` — that folder is OneDrive-synced.
-
----
-
-## Local development
+### Local
 
 ```bash
-npm i -g vercel      # once
-cp .env.example .env.local && edit it   # add the real token
-npm run serve        # = vercel dev → http://localhost:3000
+npm run serve          # http://127.0.0.1:8765
+npm run verify:deep    # deep-hive + bee count checks
 ```
 
-## Repo state
+### Vercel (gate only)
 
-This repository is **local-only** — it has no git remote configured. Branches cannot
-be pushed; every merge happens on this machine, and deploys run from here with
-`vercel --prod`. Ref verification (BUILD-STANDARDS #26) must therefore compare the
-local branch against local `master` (`git log master..<branch>`), never `origin/*`.
-Whether it gets a remote is the owner's open decision (2026-07-28, K-28b).
+| Name | Purpose |
+|---|---|
+| `COMB_USER` / `COMB_PASSWORD` | HTTP Basic gate (`middleware.js`) — fail closed if unset |
 
-**LAUNCH-phase note (added 2026-07-30):** once a remote exists, the standard flow is: hive-marker
-verifies on `cursor/comb-video-takeaways`, the parent merges `--no-ff` into local `master`, then
-pushes `master` (and the branch, if keeping it) to `origin`. Until a remote exists, "launch" means
-the local `--no-ff` merge only — do not invent a remote or push anywhere from a build or mark pass.
+Redeploy after changing gate credentials.
+
+Optional / legacy: `NOTION_TOKEN` for `/api/hive`. Not required for open-todos pipeline.
+
+---
+
+## Product pitch (file-drop + Ani)
+
+Already shipping the stack: disk ledger + Comb board + agent operators.
+Sellable onboarding ritual (not built yet — Comb todo parked):
+
+1. Drop a brief into a Comb Inbox folder  
+2. Ani asks setup questions (owner, priority, blocked-on, path)  
+3. Answers write `open-todos.json` (+ Brain / Hand-Over as needed)  
+4. Comb updates without a third-party task SaaS  
+
+---
 
 ## Deploy
 
@@ -120,45 +81,13 @@ the local `--no-ff` merge only — do not invent a remote or push anywhere from 
 vercel --prod
 ```
 
-Or connect the GitHub repo to Vercel and push — every push to `main` deploys.
+Remote: <https://github.com/breyten54-dot/hive-comb>
 
 ---
 
-## API
+## Data model (open-todos)
 
-`GET /api/hive`
-
-```jsonc
-{
-  "fetchedAt": "2026-07-28T13:00:00.000Z",
-  "tasks":    [ { "id": "…", "Task": "…", "Status": "Done", "Priority": "P1 High",
-                  "Owner": "Kimi", "Area": ["Deploy"], "Ref": "K26", "Next Step": "…" } ],
-  "projects": [ { "id": "…", "Project": "…", "Folder": "…", "Live URL": "…",
-                  "Status": "Active", "Notes": "…" } ],
-  "partial":  { "tasks": "…error…" }   // present only if ONE database failed
-}
-```
-
-Failure modes are distinct on purpose — the frontend shows a different message
-for each, because each has a different fix:
-
-| Status | Meaning | Fix |
-|---|---|---|
-| 500 `missing_token` | `NOTION_TOKEN` not set | Add it in Vercel settings |
-| 401 / 403 | Token wrong or revoked | Regenerate, update Vercel |
-| 404 | Database not shared with the integration | Add the connection in Notion |
-| 429 | Notion rate limit | Waits and clears itself |
-
----
-
-## Data model
-
-The app reads, never writes. Notion remains the single place work is edited —
-this is a view onto it.
-
-- **Completion by area** is `Done ÷ total` per `Area` tag. It is *not* per
-  project: tasks carry Area tags, not project relations. Per-project completion
-  would need a `Project` relation added to the Tasks database first.
-- **Needs attention** = `Blocked` + `Pending Review` + anything owned by `User`.
-- **The comb** = one cell per row in the Projects Registry, ringed around a
-  central `HIVE` hub cell that summarises the pipeline.
+- **Open todos** drive the surface ring and (when Notion is absent) Pipeline detail.
+- **Needs attention** ≈ Blocked + review-like + User-owned open items.
+- **Completion by area** from todo `section` tags when using the disk fallback.
+- Agent standing rule: mark Done / add rows in `open-todos.json` as work finishes, push + redeploy Comb when the list changes.

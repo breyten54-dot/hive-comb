@@ -2,7 +2,7 @@
   "name": "hive-comb",
   "version": "1.0.0",
   "private": true,
-  "description": "HIVE — The Comb. Standalone command view of the HIVE workspace, reading live from Notion.",
+  "description": "HIVE — The Comb. Disk-first command view (open-todos + vault); optional Notion bridge.",
   "type": "module",
   "engines": {
     "node": ">=18"
