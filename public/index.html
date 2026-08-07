@@ -108,6 +108,10 @@ button{font:inherit}
 .comb-rail.left{border-right:1px solid rgba(244,196,48,.35)}
 .comb-rail.right{border-left:1px solid rgba(244,196,48,.35)}
 .comb-core{position:relative;width:100%;max-width:340px;justify-self:center}
+#homeBees{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+#homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
+#homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
+#homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
 svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
@@ -305,7 +309,7 @@ body.panel-open #deepHive{touch-action:none}
 /* L1 / deep hive: viewport locked — surface spine stays in DOM but must not create page scroll. */
 html.deep-on,body.deep-on{overflow:hidden !important;height:100%;height:100dvh;max-height:100dvh;
   overscroll-behavior:none;touch-action:none}
-body.deep-on .spine,body.deep-on .pipeline-detail,body.deep-on footer,body.deep-on #banner{
+body.deep-on #homeBees{display:none;visibility:hidden}
   display:none !important}
 body.deep-on .top{position:relative;z-index:16}
 #combToast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
@@ -511,6 +515,7 @@ body.diving #deepHive{opacity:0}
           </div>
         </div>
         <div class="comb-core">
+          <div id="homeBees" aria-hidden="true"></div>
           <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE projects"></svg>
           <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
             <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
@@ -544,7 +549,7 @@ body.diving #deepHive{opacity:0}
 
       <div class="card" id="north">
         <h2>Pipeline <span class="hint">every task</span></h2>
-        <div class="sub">Where all tracked work currently sits.</div>
+        <div class="sub" id="pipeSub">Where all tracked work currently sits.</div>
         <div id="pipeBody"><div class="sk" style="height:24px"></div></div>
       </div>
 
@@ -667,7 +672,7 @@ var PHASE={"PLAN":"var(--st-todo)","BUILD":"var(--st-prog)","MARK":"var(--st-rev
 /* Legacy "Kimi"/"Claude" + Cursor-sole hive-* names both count toward the same role bucket. */
 var BUILDER_OWNERS=["Kimi","hive-builder","hive-builder-long","hive-fast-build","hive-hard-build"];
 var REVIEWER_OWNERS=["Claude","hive-marker","hive-security"];
-var state={tasks:null,projects:null,lanes:null,todos:null,at:null,live:false};
+var state={tasks:null,projects:null,lanes:null,todos:null,at:null,live:false,notionTasks:false};
 
 /* ---------- theme ---------- */
 /* Dark is the brand, not a preference — black comb, gold cells. The OS setting
@@ -1066,9 +1071,12 @@ var deep={on:false, roots:null, trees:{}, decorReady:false, cards:null, cardsPro
   bgHexPoints:[], beeTimers:[], beeRaf:null, beeStates:[], beeLastTs:0, beeRunning:false,
   beeDrama:null, beeNextDrama:0, queen:null,
   sectionMeta:null, productLanes:null};
-var DEEP_BEE_COUNT=15;
+var HOME_BEE_COUNT=15;
+var DEEP_BEE_COUNT=20;
 var DEEP_BEE_MAX_DWELL=4000;
 var DEEP_SIZE=50;
+function beeHost(){ return deep.on ? $("deepBees") : $("homeBees"); }
+function activeBeeCount(){ return deep.on ? DEEP_BEE_COUNT : HOME_BEE_COUNT; }
 var BEE_LINES={
   greet:[
     ["Hey!", "Oh — hi!"],
@@ -1189,12 +1197,13 @@ function stopBeeWander(){
   deep.beeRunning=false;
   deep.beeDrama=null;
   deep.queen=null;
-  var host=$("deepBees");
-  if(host){
+  ["deepBees","homeBees"].forEach(function(id){
+    var host=$(id);
+    if(!host) return;
     var q=host.querySelector(".is-queen");
     if(q) q.remove();
     [].slice.call(host.querySelectorAll(".bee-say")).forEach(function(n){ n.remove(); });
-  }
+  });
 }
 
 function pickLine(pool){
@@ -1203,7 +1212,7 @@ function pickLine(pool){
 
 function ensureBeeSay(st){
   if(st.sayEl && st.sayEl.parentNode) return st.sayEl;
-  var host=$("deepBees");
+  var host=beeHost();
   if(!host) return null;
   var el=document.createElement("div");
   el.className="bee-say"+(st.isQueen?" queen":"");
@@ -1250,7 +1259,7 @@ function tickBeeSays(now){
 }
 
 function beeStageBounds(){
-  var host=$("deepBees");
+  var host=beeHost();
   if(!host) return {w:800,h:500,pad:40};
   var r=host.getBoundingClientRect();
   return {w:Math.max(120,r.width), h:Math.max(120,r.height), pad:36};
@@ -1419,7 +1428,8 @@ function beginChat(a, b, now){
 }
 
 function ensureQueen(){
-  var host=$("deepBees");
+  if(!deep.on) return null;
+  var host=beeHost();
   if(!host) return null;
   var el=host.querySelector(".is-queen");
   if(!el){
@@ -1474,7 +1484,8 @@ function scheduleBeeDrama(now){
   if(now<deep.beeNextDrama) return;
   var roll=Math.random();
   var free=pickFreeBees(2);
-  if(roll<0.10 && free.length>=2){
+  /* Queen intervenes only inside the hive — home swarm stays lighter. */
+  if(deep.on && roll<0.10 && free.length>=2){
     beginFight(free[0], free[1], now);
     return;
   }
@@ -1744,7 +1755,7 @@ function tickBeeWander(ts){
 
 function startBeeWander(){
   stopBeeWander();
-  var bees=$("deepBees");
+  var bees=beeHost();
   if(!bees) return;
   var els=[].slice.call(bees.querySelectorAll(".deep-drift-bee:not(.is-queen)"));
   if(!els.length) return;
@@ -1778,6 +1789,31 @@ function startBeeWander(){
   });
 }
 
+function ensureBeeSwarm(){
+  var bees=beeHost();
+  if(!bees) return false;
+  var count=activeBeeCount();
+  var workers=bees.querySelectorAll(".deep-drift-bee:not(.is-queen)");
+  if(workers.length===count) return false;
+  var html=[];
+  for(var bi=0;bi<count;bi++){
+    html.push(beeWithDocSvg("bee-"+String.fromCharCode(97+(bi%26))));
+  }
+  var sayKeep=bees.querySelectorAll(".bee-say");
+  var queen=bees.querySelector(".is-queen");
+  bees.innerHTML=html.join("");
+  if(queen && deep.on) bees.appendChild(queen);
+  [].forEach.call(sayKeep, function(n){ bees.appendChild(n); });
+  return true;
+}
+
+function startHomeBees(){
+  if(deep.on) return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var rebuilt=ensureBeeSwarm();
+  if(rebuilt || !deep.beeRunning) startBeeWander();
+}
+
 function seedDeepDecor(){
   if(!deep.decorReady || deep.tunnelBuilt!==1){
     deep.decorReady=true;
@@ -1799,20 +1835,8 @@ function seedDeepDecor(){
   }
   var beesRebuilt=false;
   var bees=$("deepBees");
-  if(bees){
-    var workers=bees.querySelectorAll(".deep-drift-bee:not(.is-queen)");
-    if(workers.length!==DEEP_BEE_COUNT){
-      var html=[];
-      for(var bi=0;bi<DEEP_BEE_COUNT;bi++){
-        html.push(beeWithDocSvg("bee-"+String.fromCharCode(97+(bi%26))));
-      }
-      var sayKeep=bees.querySelectorAll(".bee-say");
-      var queen=bees.querySelector(".is-queen");
-      bees.innerHTML=html.join("");
-      if(queen) bees.appendChild(queen);
-      [].forEach.call(sayKeep, function(n){ bees.appendChild(n); });
-      beesRebuilt=true;
-    }
+  if(bees && deep.on){
+    beesRebuilt=ensureBeeSwarm();
   }
   if(deep.on && (beesRebuilt || !deep.beeRunning)) startBeeWander();
 }
@@ -1986,6 +2010,9 @@ function navTo(hash){ if(location.hash===hash) route(); else location.hash=hash;
 
 function deepTopOffset(){ var t=document.querySelector(".top"); return t?t.offsetHeight:0; }
 function showDeep(){
+  stopBeeWander();
+  var home=$("homeBees");
+  if(home) home.innerHTML="";
   var d=$("deepHive");
   d.style.top=deepTopOffset()+"px";
   d.hidden=false;
@@ -2002,6 +2029,7 @@ function hideDeep(){
   document.body.classList.remove("deep-on");
   deep.on=false;
   if(selEl){ selEl.classList.remove("sel"); selEl=null; }
+  startHomeBees();
 }
 function enterDeep(){
   if(deep.on) return;
@@ -2603,8 +2631,38 @@ $("comb").addEventListener("keydown",function(e){
   if(e.key!=="Enter"&&e.key!==" ")return;
   var g=e.target.closest(".cell"); if(g){e.preventDefault();select(g);}});
 
+function todosAsPipelineTasks(todos){
+  return (todos||[]).map(function(t){
+    var st=String(t.status||"Open");
+    var mapped = st==="Done" ? "Done"
+      : st==="Blocked" ? "Blocked"
+      : st==="Open" ? "Todo"
+      : "In Progress";
+    return {
+      Task: t.name || "(untitled)",
+      Status: mapped,
+      Priority: t.priority==="P0" ? "P0 Critical" : (t.priority==="P1" ? "P1 High" : "P2 Medium"),
+      Owner: t.owner || "User",
+      Area: [t.section || "Comb"],
+      Project: [],
+      url: t.url || null,
+      Ref: null,
+      Phase: null
+    };
+  });
+}
+function maybeRenderPipelineFromTodos(){
+  if(state.notionTasks && state.tasks && state.tasks.length) return;
+  if(!state.todos || !state.todos.length) return;
+  renderTasks(todosAsPipelineTasks(state.todos));
+  var pipeSub=$("pipeSub");
+  if(pipeSub) pipeSub.textContent="From Comb open-todos (Notion empty or not connected).";
+}
+
 function renderTasks(tasks){
   state.tasks=tasks;
+  var pipeSub=$("pipeSub");
+  if(pipeSub) pipeSub.textContent="Where all tracked work currently sits.";
   var by={}; ORDER.forEach(function(s){by[s]=0;});
   tasks.forEach(function(t){if(by[t.Status]!==undefined)by[t.Status]++;});
   var total=tasks.length,done=by["Done"],pct=total?Math.round(done/total*100):0,open=total-done;
@@ -2617,7 +2675,9 @@ function renderTasks(tasks){
   ORDER.forEach(function(s){var n=by[s]; if(!n)return;
     segs+='<div title="'+esc(s)+': '+n+'" style="flex-grow:'+n+';background:'+STATUS[s]+'"></div>';
     leg+='<span><i style="background:'+STATUS[s]+'"></i>'+esc(s)+' <b>'+n+'</b></span>';});
-  $("pipeBody").innerHTML='<div class="seg">'+segs+'</div><div class="seglegend">'+leg+'</div>';
+  $("pipeBody").innerHTML=segs
+    ? '<div class="seg">'+segs+'</div><div class="seglegend">'+leg+'</div>'
+    : '<div class="empty">No pipeline tasks yet.</div>';
 
   var useProjects = !!(state.projects && tasks.some(function(t){
     return Array.isArray(t.Project) && t.Project.length; }));
@@ -2726,12 +2786,20 @@ function load(){
     state.at = d.fetchedAt ? new Date(d.fetchedAt).getTime() : Date.now();
     state.live=true; clearBanner();
     if(Array.isArray(d.projects)&&d.projects.length){state.projects=d.projects;}
-    if(Array.isArray(d.tasks)) renderTasks(d.tasks);
+    if(Array.isArray(d.tasks) && d.tasks.length){
+      state.notionTasks=true;
+      renderTasks(d.tasks);
+    } else {
+      state.notionTasks=false;
+      maybeRenderPipelineFromTodos();
+    }
     if(d.partial&&d.partial.tasks) setErr(PANELS,"server",d.partial.tasks);
     freshness();
   }).catch(function(e){
     var kind = e && e.kind ? e.kind : "net";
     showBanner(kind, e&&e.detail);
+    state.notionTasks=false;
+    maybeRenderPipelineFromTodos();
     if(!state.tasks){
       PANELS.forEach(function(i){var el=$(i);if(el)el.innerHTML='<div class="empty">—</div>';});
       ["nw","ne","sw","se"].forEach(function(i){
@@ -2830,6 +2898,7 @@ function loadOpenTodos(){
       state.todos = d && d.todos;
       renderOpenTodos(state.todos);
       renderCombFromTodos(state.todos);
+      maybeRenderPipelineFromTodos();
     }).catch(function(){ renderOpenTodos(null); renderCombFromTodos(null); });
   fetch("/portfolio-gates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){ renderPortfolioGates(d && d.gates); })
@@ -3088,6 +3157,7 @@ if("serviceWorker" in navigator){
 renderCombFromTodos([]);             /* hub + todo ring rendered before any network call */
 load();
 loadOpenTodos();
+startHomeBees();
 setInterval(function(){ if(!document.hidden) load(); },POLL);
 setInterval(function(){ if(!document.hidden) refreshPanels(); },PANEL_POLL);
 route();                             /* honor a #/hive… deep link on load */

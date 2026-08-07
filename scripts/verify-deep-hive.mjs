@@ -154,12 +154,14 @@ const run = (async () => {
   // 10. SW cache name was bumped.
   const sw = await get('/sw.js');
   check('GET /sw.js → 200', sw.status === 200, 'status ' + sw.status);
-  check('sw.js cache bumped to v41', sw.text.includes('comb-shell-v41'), sw.text.slice(0, 120));
+  check('sw.js cache bumped to v43', sw.text.includes('comb-shell-v43'), sw.text.slice(0, 120));
   check('shell locks scroll when deep-on', shell.text.includes('html.deep-on,body.deep-on') || shell.text.includes('html.deep-on'), '');
   check('fluid bee wander (rAF)', shell.text.includes('tickBeeWander') && shell.text.includes('DEEP_BEE_COUNT'), '');
-  check('fifteen drift bees', shell.text.includes('DEEP_BEE_COUNT=15') || shell.text.includes('DEEP_BEE_COUNT = 15'), '');
+  check('home bees fifteen', shell.text.includes('HOME_BEE_COUNT=15') || shell.text.includes('HOME_BEE_COUNT = 15'), '');
+  check('twenty drift bees inside hive', shell.text.includes('DEEP_BEE_COUNT=20') || shell.text.includes('DEEP_BEE_COUNT = 20'), '');
   check('bee drama + queen', shell.text.includes('beginFight') && shell.text.includes('is-queen') && shell.text.includes('beginCoffee'), '');
   check('bees fly over hexes', shell.text.includes('id="deepBees"') && /deepStage[\s\S]*deepBees/.test(shell.text), '');
+  check('home bee stage', shell.text.includes('id="homeBees"') && shell.text.includes('startHomeBees'), '');
   check('bee max dwell 4s', shell.text.includes('DEEP_BEE_MAX_DWELL=4000') || shell.text.includes('DEEP_BEE_MAX_DWELL = 4000'), '');
   check('bee dialogue bubbles', shell.text.includes('showBeeSay') && shell.text.includes('beginChat') && shell.text.includes('BEE_LINES'), '');
   check('queen yell locked once', shell.text.includes('yellShown') && shell.text.includes('QUEEN_LINES'), '');
