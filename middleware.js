@@ -33,6 +33,18 @@ function safeEqual(a, b) {
 }
 
 export default function middleware(request) {
+  const path = new URL(request.url).pathname;
+  // PWA install assets must be public — Chromium/iOS fetch manifest + icons + SW
+  // without the page's Authorization header. App HTML + /api/* stay gated.
+  if (
+    path === "/manifest.webmanifest" ||
+    path === "/sw.js" ||
+    path === "/apple-touch-icon.png" ||
+    /^\/icon-\d+(?:-maskable)?\.png$/.test(path)
+  ) {
+    return;
+  }
+
   const expectedUser = process.env.COMB_USER;
   const expectedPass = process.env.COMB_PASSWORD;
 
