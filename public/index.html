@@ -96,6 +96,7 @@ button{font:inherit}
   grid-template-columns:minmax(0,1fr) minmax(280px,340px) minmax(0,1fr);
   grid-template-areas:"assign core meet" "legend legend legend";
   gap:10px;align-items:start;min-height:0;overflow-x:hidden}
+.rail-pair{display:contents}
 .comb-rail{min-width:0;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
   border:1px solid rgba(212,167,44,.28);
@@ -111,8 +112,8 @@ button{font:inherit}
 .comb-rail .rail-scroll::-webkit-scrollbar{height:5px}
 .comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
 .comb-rail svg.rail-svg{display:block;height:auto;opacity:1;max-width:none}
-.comb-rail.left{grid-area:assign;border-right:1px solid rgba(244,196,48,.35)}
-.comb-rail.right{grid-area:meet;border-left:1px solid rgba(244,196,48,.35)}
+.comb-rail.left{grid-area:assign}
+.comb-rail.right{grid-area:meet}
 .comb-core{grid-area:core;position:relative;width:100%;max-width:340px;justify-self:center}
 #homeBees{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
@@ -162,21 +163,30 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
 .comblegend{grid-area:legend;display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:2px;font-size:.66rem;color:var(--ink-3)}
-/* Phones / narrow: comb → legend → assignment + meeting rails (stacked like other content). */
+/* Phones / narrow: comb → legend → Assignments|Meetings in one bordered pair. */
 @media(max-width:700px){
   .combwrap{
     grid-template-columns:1fr;
     grid-template-areas:
       "core"
       "legend"
-      "assign"
-      "meet";
+      "rails";
     gap:12px;
     overflow-x:visible;
   }
   .comb-core{max-width:min(340px,100%);justify-self:center;width:100%}
-  .comb-rail{display:flex;border-right:none;border-left:none}
-  .comb-rail .rail-scroll{overflow-x:auto}
+  .rail-pair{
+    grid-area:rails;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    padding:8px;border:1px solid rgba(212,167,44,.28);border-radius:10px;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(212,167,44,.1), transparent 55%),
+      linear-gradient(180deg, rgba(30,22,10,.4), rgba(10,8,6,.7));
+  }
+  .comb-rail.left,.comb-rail.right{grid-area:auto;border:none;background:transparent;border-radius:6px}
+  .comb-rail.left{border-right:1px solid rgba(212,167,44,.22);padding-right:4px}
+  .comb-rail .rail-label{padding-top:4px;font-size:.52rem}
+  .comb-rail .rail-sub{font-size:.5rem;padding-bottom:4px}
+  .comb-rail .rail-scroll{overflow-x:auto;padding-bottom:4px}
 }
 .comblegend span{display:flex;align-items:center;gap:5px}
 .comblegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -521,11 +531,20 @@ body.diving #deepHive{opacity:0}
     <div id="combcard">
       <div class="combhd"><h2>The comb</h2><span class="hint">direct access</span></div>
       <div class="combwrap">
-        <div class="comb-rail left" id="assignRail">
-          <div class="rail-label">Assignments</div>
-          <div class="rail-sub">by date · scroll →</div>
-          <div class="rail-scroll">
-            <svg class="rail-svg" id="assignRailSvg" viewBox="0 0 210 420" role="group" aria-label="ETA assignments by date"></svg>
+        <div class="rail-pair">
+          <div class="comb-rail left" id="assignRail">
+            <div class="rail-label">Assignments</div>
+            <div class="rail-sub">by date · scroll →</div>
+            <div class="rail-scroll">
+              <svg class="rail-svg" id="assignRailSvg" viewBox="0 0 210 420" role="group" aria-label="ETA assignments by date"></svg>
+            </div>
+          </div>
+          <div class="comb-rail right" id="meetRail">
+            <div class="rail-label">Meetings</div>
+            <div class="rail-sub">Work · Personal · scroll →</div>
+            <div class="rail-scroll">
+              <svg class="rail-svg" id="meetRailSvg" viewBox="0 0 210 420" role="group" aria-label="Meetings by time"></svg>
+            </div>
           </div>
         </div>
         <div class="comb-core">
@@ -539,16 +558,17 @@ body.diving #deepHive{opacity:0}
             <path class="wing" d="M26 15Q34 6 28 4q-2 6-2 11Z" fill="#f5e6c8" opacity=".9"/>
           </svg>
         </div>
-        <div class="comb-rail right" id="meetRail">
-          <div class="rail-label">Meetings</div>
-          <div class="rail-sub">Work · Personal · scroll →</div>
-          <div class="rail-scroll">
-            <svg class="rail-svg" id="meetRailSvg" viewBox="0 0 210 420" role="group" aria-label="Meetings by time"></svg>
-          </div>
-        </div>
         <div class="comblegend" id="combLegend"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="spine-eta" id="etaTestsWrap">
+  <div class="card" id="etaTestsCard">
+    <h2>ETA tests <span class="hint">Study guides</span></h2>
+    <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
+    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
   </div>
 </div>
 
@@ -596,14 +616,6 @@ body.diving #deepHive{opacity:0}
       </div>
     </div>
   </details>
-</div>
-
-<div class="spine-eta" id="etaTestsWrap">
-  <div class="card" id="etaTestsCard">
-    <h2>ETA tests <span class="hint">Study guides</span></h2>
-    <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
-    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
-  </div>
 </div>
 
 <footer id="foot">The comb is your folder structure; the ring reads live from Notion when connected.</footer>
@@ -2988,29 +3000,32 @@ function renderRail(svgId, items, kind){
   items=items||[];
   var rail=svg.closest(".comb-rail");
   var pxW=Math.max(120, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 200);
-  /* Size from width only so 6 rows do not shrink the hexes. Pitch matches center comb. */
+  var narrow=window.matchMedia("(max-width:700px)").matches;
+  var rows=narrow?4:RAIL_ROWS;
+  var minSlots=narrow?Math.max(12, items.length):RAIL_MIN_SLOTS;
+  /* Size from width only so rows do not shrink the hexes. Pitch matches center comb. */
   var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
-  var MAX_RAIL_SIZE=48;
-  var size=Math.max(28, Math.min(MAX_RAIL_SIZE, sizeFromW));
+  var MAX_RAIL_SIZE=narrow?34:48;
+  var size=Math.max(narrow?22:28, Math.min(MAX_RAIL_SIZE, sizeFromW));
   var pitchX=size * 2;
   var pitchY=size * Math.sqrt(3);
   var padX=size;
   var padY=size * 0.95;
   var font=Math.max(7, size * 0.24);
   var maxChars=Math.max(7, Math.floor((size * 1.55) / (font * 0.55)));
-  var slotCount=Math.max(RAIL_MIN_SLOTS, items.length);
-  var cols=Math.max(RAIL_VISIBLE_COLS, Math.ceil(slotCount / RAIL_ROWS));
+  var slotCount=Math.max(minSlots, items.length);
+  var cols=Math.max(RAIL_VISIBLE_COLS, Math.ceil(slotCount / rows));
   var slots=[], i=0;
   /* Column-major: fill down each column, then move right (horizontal scroll). */
   for(var col=0; col<cols; col++){
-    for(var row=0; row<RAIL_ROWS; row++){
+    for(var row=0; row<rows; row++){
       if(i>=slotCount) break;
       slots.push({x: padX + col * pitchX, y: padY + row * pitchY});
       i++;
     }
   }
   var contentW=padX + (cols - 1) * pitchX + size;
-  var visibleH=padY + (RAIL_ROWS - 1) * pitchY + size * Math.sqrt(3) / 2;
+  var visibleH=padY + (rows - 1) * pitchY + size * Math.sqrt(3) / 2;
   var height=visibleH + 2;
   var scroll=svg.closest(".rail-scroll");
   if(scroll){
