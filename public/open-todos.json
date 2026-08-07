@@ -1,17 +1,17 @@
 {
-  "updatedAt": "2026-08-07T11:20:00.000Z",
+  "updatedAt": "2026-08-07T11:30:00.000Z",
   "todos": [
     {
       "name": "OUTLOOK_* env for live send-brief",
       "section": "TechCo",
-      "owner": "User",
+      "owner": "Agent",
       "priority": "P0",
-      "status": "Blocked",
+      "status": "Done",
       "url": "https://praeto-group-tech-co.vercel.app",
-      "blockedOn": "Microsoft 535 SmtpClientAuthentication disabled on praetotech@outlook.com — consumer Outlook has no Authenticated SMTP toggle; migrate send-brief to Resend or Graph OAuth",
-      "notes": "2026-08-07: Signed in as praetotech; created app password; set OUTLOOK_APP_PASSWORD on Vercel prod; enabled+saved POP+IMAP; tried smtp.office365.com and smtp-mail.outlook.com. Smoke still 500/535. Rotate account password (pasted in chat). Next: Agent migrates send-brief off SMTP when you approve Resend key or Graph path.",
+      "blockedOn": "",
+      "notes": "2026-08-07: Migrated send-brief to Resend (Outlook SMTP AUTH dead). RESEND_API_KEY + RESEND_FROM=onboarding@resend.dev + BRIEF_TO=breyten54@gmail.com on prod. Live smoke 200. Follow-up: verify praeto.co.za DNS in Resend (status Not Started) then set RESEND_FROM=noreply@praeto.co.za and BRIEF_TO=praetotech@outlook.com.",
       "hivePath": "Project Tech\\",
-      "howTo": "Paste a RESEND_API_KEY (or approve Graph OAuth) and ask Agent to rewire send-brief + redeploy + smoke. Free Outlook.com cannot flip Authenticated SMTP in admin center.",
+      "howTo": "Verify praeto.co.za in Resend Domains, then Agent updates RESEND_FROM + BRIEF_TO to praetotech and re-smokes.",
       "estimateMinutes": 25
     },
     {
