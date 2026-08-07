@@ -45,10 +45,10 @@
       "section": "The Comb",
       "owner": "User",
       "priority": "P0",
-      "status": "Open",
+      "status": "Done",
       "url": "https://hive-comb-iota.vercel.app",
-      "blockedOn": "vercel login on this machine",
-      "notes": "Local master ahead of live; deploy blocked without auth.",
+      "blockedOn": null,
+      "notes": "vercel --prod 2026-08-07 \u2192 aliased https://hive-comb-iota.vercel.app (dpl_74ttZpWxC4vyaUmHzKqune2kNqLf)",
       "hivePath": "Comb\\",
       "howTo": "Run vercel login in the Cursor terminal, select the HIVE Comb project, deploy the current branch, and verify the live URL shows the updated shell.",
       "estimateMinutes": 15
