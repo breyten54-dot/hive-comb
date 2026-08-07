@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-07T10:22:07.000Z",
+  "updatedAt": "2026-08-07T10:43:06.000Z",
   "todos": [
     {
       "name": "OUTLOOK_* env for live send-brief",
@@ -8,8 +8,8 @@
       "priority": "P0",
       "status": "Blocked",
       "url": "https://praeto-group-tech-co.vercel.app",
-      "blockedOn": "User pastes OUTLOOK_APP_PASSWORD (and confirms OUTLOOK_EMAIL=praetotech@outlook.com)",
-      "notes": "Live still 503 mail-not-configured (probed 2026-08-07). Code ready. Agent will vercel env add + --prod on paste.",
+      "blockedOn": "Enable SMTP AUTH on praetotech@outlook.com (535 SmtpClientAuthentication disabled); then use Outlook app password",
+      "notes": "OUTLOOK_EMAIL + OUTLOOK_APP_PASSWORD set on Praeto-Group-TechCo prod; redeployed. Smoke: no longer 503; SMTP 535 SmtpClientAuthentication disabled for mailbox. Enable SMTP AUTH (aka.ms/smtp_auth_disabled), create app password, paste new password \u2014 Agent will replace OUTLOOK_APP_PASSWORD + redeploy + re-smoke.",
       "hivePath": "Project Tech\\",
       "howTo": "Create an Outlook SMTP app password, add OUTLOOK_EMAIL and OUTLOOK_APP_PASSWORD to the Vercel project environment, redeploy, and send a test brief through the live form.",
       "estimateMinutes": 25
