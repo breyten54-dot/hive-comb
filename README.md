@@ -51,15 +51,11 @@ npm run serve          # http://127.0.0.1:8765
 npm run verify:deep    # deep-hive + bee count checks
 ```
 
-### Vercel (gate only)
+### Vercel
 
-| Name | Purpose |
-|---|---|
-| `COMB_USER` / `COMB_PASSWORD` | HTTP Basic gate (`middleware.js`) — fail closed if unset |
+No app password. Deploy with `npx vercel --prod`. Optional / legacy: `NOTION_TOKEN` for `/api/hive`.
 
-Redeploy after changing gate credentials.
-
-Optional / legacy: `NOTION_TOKEN` for `/api/hive`. Not required for open-todos pipeline.
+Redeploy after changing env.
 
 ---
 
