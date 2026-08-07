@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-07T10:43:06.000Z",
+  "updatedAt": "2026-08-07T11:20:00.000Z",
   "todos": [
     {
       "name": "OUTLOOK_* env for live send-brief",
@@ -8,10 +8,10 @@
       "priority": "P0",
       "status": "Blocked",
       "url": "https://praeto-group-tech-co.vercel.app",
-      "blockedOn": "Enable SMTP AUTH on praetotech@outlook.com (535 SmtpClientAuthentication disabled); then use Outlook app password",
-      "notes": "OUTLOOK_EMAIL + OUTLOOK_APP_PASSWORD set on Praeto-Group-TechCo prod; redeployed. Smoke: no longer 503; SMTP 535 SmtpClientAuthentication disabled for mailbox. Enable SMTP AUTH (aka.ms/smtp_auth_disabled), create app password, paste new password \u2014 Agent will replace OUTLOOK_APP_PASSWORD + redeploy + re-smoke.",
+      "blockedOn": "Microsoft 535 SmtpClientAuthentication disabled on praetotech@outlook.com — consumer Outlook has no Authenticated SMTP toggle; migrate send-brief to Resend or Graph OAuth",
+      "notes": "2026-08-07: Signed in as praetotech; created app password; set OUTLOOK_APP_PASSWORD on Vercel prod; enabled+saved POP+IMAP; tried smtp.office365.com and smtp-mail.outlook.com. Smoke still 500/535. Rotate account password (pasted in chat). Next: Agent migrates send-brief off SMTP when you approve Resend key or Graph path.",
       "hivePath": "Project Tech\\",
-      "howTo": "Create an Outlook SMTP app password, add OUTLOOK_EMAIL and OUTLOOK_APP_PASSWORD to the Vercel project environment, redeploy, and send a test brief through the live form.",
+      "howTo": "Paste a RESEND_API_KEY (or approve Graph OAuth) and ask Agent to rewire send-brief + redeploy + smoke. Free Outlook.com cannot flip Authenticated SMTP in admin center.",
       "estimateMinutes": 25
     },
     {
