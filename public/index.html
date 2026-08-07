@@ -638,7 +638,7 @@ body.diving #deepHive{opacity:0}
 <script>
 (function(){
 "use strict";
-var API="/api/hive", POLL=60000;
+var API="/api/hive", POLL=60000, PANEL_POLL=15000;
 var $=function(i){return document.getElementById(i);};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
@@ -2741,10 +2741,23 @@ function load(){
     $("ltxt").textContent = kind==="net" ? "offline" : "not connected";
   });
 }
+function refreshPanels(){
+  loadOpenTodos();
+  loadEta();
+  loadMeetings();
+  loadInboxStatus();
+  loadStateBlurb();
+}
+function refreshAll(){
+  $("ltxt").textContent="refreshing…";
+  return Promise.resolve(load()).then(function(){ refreshPanels(); });
+}
 $("refresh").addEventListener("click",function(){
-  $("ltxt").textContent="refreshing…"; load();
+  refreshAll();
 });
-document.addEventListener("visibilitychange",function(){ if(!document.hidden) load(); });
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden) refreshAll();
+});
 
 function loadInboxStatus(){
   fetch("/inbox-status.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
@@ -3076,6 +3089,7 @@ renderCombFromTodos([]);             /* hub + todo ring rendered before any netw
 load();
 loadOpenTodos();
 setInterval(function(){ if(!document.hidden) load(); },POLL);
+setInterval(function(){ if(!document.hidden) refreshPanels(); },PANEL_POLL);
 route();                             /* honor a #/hive… deep link on load */
 })();
 </script>

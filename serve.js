@@ -366,6 +366,11 @@ function serveFile(res, filePath) {
   const type = MIME[ext] || 'application/octet-stream';
   const headers = { 'Content-Type': type };
 
+  // Live JSON panels change on disk / deploy — never let browsers keep a stale copy.
+  if (ext === '.json') {
+    headers['Cache-Control'] = 'no-store';
+  }
+
   // PDFs should display in the browser tab, not download.
   if (ext === '.pdf') {
     headers['Content-Disposition'] = 'inline';
