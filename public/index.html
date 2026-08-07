@@ -63,6 +63,8 @@ button{font:inherit}
 .spine-col.left{display:flex;flex-direction:column;gap:14px}
 .spine-col.center{display:flex;justify-content:center}
 @media(max-width:1500px){.spine{grid-template-columns:1fr}.spine-col.center{order:-1}}
+.spine-eta{max-width:1520px;margin:14px auto 0;padding:0 20px}
+.spine-eta .card{width:100%}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
 .card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px}
@@ -92,6 +94,7 @@ button{font:inherit}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
   grid-template-columns:minmax(0,1fr) minmax(280px,340px) minmax(0,1fr);
+  grid-template-areas:"assign core meet" "legend legend legend";
   gap:10px;align-items:start;min-height:0;overflow-x:hidden}
 .comb-rail{min-width:0;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
@@ -108,9 +111,9 @@ button{font:inherit}
 .comb-rail .rail-scroll::-webkit-scrollbar{height:5px}
 .comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
 .comb-rail svg.rail-svg{display:block;height:auto;opacity:1;max-width:none}
-.comb-rail.left{border-right:1px solid rgba(244,196,48,.35)}
-.comb-rail.right{border-left:1px solid rgba(244,196,48,.35)}
-.comb-core{position:relative;width:100%;max-width:340px;justify-self:center}
+.comb-rail.left{grid-area:assign;border-right:1px solid rgba(244,196,48,.35)}
+.comb-rail.right{grid-area:meet;border-left:1px solid rgba(244,196,48,.35)}
+.comb-core{grid-area:core;position:relative;width:100%;max-width:340px;justify-self:center}
 #homeBees{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
@@ -158,12 +161,23 @@ svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
 #bee .wing{transform-origin:20px 12px;animation:flap .18s ease-in-out infinite alternate}
 @keyframes flap{from{transform:rotate(0deg)}to{transform:rotate(-14deg)}}
 @media(prefers-reduced-motion:reduce){#bee .wing{animation:none}}
-@media(max-width:420px){
-  .comb-rail{display:none}
-  .comb-core{max-width:340px}
-  .combwrap{grid-template-columns:1fr;min-height:0;overflow-x:visible}
+.comblegend{grid-area:legend;display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:2px;font-size:.66rem;color:var(--ink-3)}
+/* Phones / narrow: comb → legend → assignment + meeting rails (stacked like other content). */
+@media(max-width:700px){
+  .combwrap{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "core"
+      "legend"
+      "assign"
+      "meet";
+    gap:12px;
+    overflow-x:visible;
+  }
+  .comb-core{max-width:min(340px,100%);justify-self:center;width:100%}
+  .comb-rail{display:flex;border-right:none;border-left:none}
+  .comb-rail .rail-scroll{overflow-x:auto}
 }
-.comblegend{display:flex;gap:13px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:.66rem;color:var(--ink-3)}
 .comblegend span{display:flex;align-items:center;gap:5px}
 .comblegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .comblegend b{color:var(--ink-2);font-variant-numeric:tabular-nums}
@@ -502,11 +516,6 @@ body.diving #deepHive{opacity:0}
       <div id="openTodosBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
       <div id="openTodosGates" class="user-gates" hidden></div>
     </div>
-    <div class="card" id="etaTestsCard">
-      <h2>ETA tests <span class="hint">Study guides</span></h2>
-      <div class="sub">Tests only — study PDF. Assignments live on the left hex calendar.</div>
-      <div id="etaBody"><div class="sk" style="height:24px"></div></div>
-    </div>
   </div>
   <div class="spine-col center">
     <div id="combcard">
@@ -537,8 +546,8 @@ body.diving #deepHive{opacity:0}
             <svg class="rail-svg" id="meetRailSvg" viewBox="0 0 210 420" role="group" aria-label="Meetings by time"></svg>
           </div>
         </div>
+        <div class="comblegend" id="combLegend"></div>
       </div>
-      <div class="comblegend" id="combLegend"></div>
     </div>
   </div>
 </div>
@@ -587,6 +596,14 @@ body.diving #deepHive{opacity:0}
       </div>
     </div>
   </details>
+</div>
+
+<div class="spine-eta" id="etaTestsWrap">
+  <div class="card" id="etaTestsCard">
+    <h2>ETA tests <span class="hint">Study guides</span></h2>
+    <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
+    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
+  </div>
 </div>
 
 <footer id="foot">The comb is your folder structure; the ring reads live from Notion when connected.</footer>
