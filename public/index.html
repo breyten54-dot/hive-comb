@@ -56,14 +56,15 @@ button{font:inherit}
 .iconbtn:hover{color:var(--gold-br);border-color:var(--gold-deep)}
 
 /* ---------- spine: open todos + tests | comb ---------- */
-.spine{max-width:1520px;margin:14px auto 0;padding:0 20px;display:grid;
-  grid-template-columns:minmax(260px,0.8fr) minmax(520px,1.91fr);
+.spine{max-width:1760px;margin:14px auto 0;padding:0 20px;display:grid;
+  grid-template-columns:minmax(240px,0.55fr) minmax(640px,2.45fr);
   gap:14px;align-items:start}
 .spine-col{min-width:0}
 .spine-col.left{display:flex;flex-direction:column;gap:14px}
-.spine-col.center{display:flex;justify-content:center}
-@media(max-width:1500px){.spine{grid-template-columns:1fr}.spine-col.center{order:-1}}
-.spine-eta{max-width:1520px;margin:14px auto 0;padding:0 20px}
+.spine-col.center{display:flex;justify-content:stretch}
+@media(max-width:1500px){.spine{grid-template-columns:1fr;max-width:1520px}.spine-col.center{order:-1}}
+.spine-eta{max-width:1760px;margin:14px auto 0;padding:0 20px}
+@media(max-width:1500px){.spine-eta{max-width:1520px}}
 .spine-eta .card{width:100%}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
@@ -93,9 +94,9 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  grid-template-columns:minmax(160px,240px) minmax(320px,1fr) minmax(160px,240px);
+  grid-template-columns:minmax(140px,200px) minmax(280px,1fr) minmax(140px,200px);
   grid-template-areas:"assign core meet" "legend legend legend";
-  gap:10px;align-items:start;min-height:0;overflow-x:hidden}
+  gap:8px;align-items:start;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
 .comb-rail{min-width:0;border-radius:10px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;
@@ -119,7 +120,7 @@ button{font:inherit}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
 #homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
-svg.comb{width:100%;max-width:min(520px,100%);height:auto;overflow:visible;display:block;margin:0 auto}
+svg.comb{width:100%;max-width:none;height:auto;overflow:visible;display:block;margin:0 auto}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
   transition:fill .2s,stroke .2s,filter .2s}
