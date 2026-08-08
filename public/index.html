@@ -93,7 +93,7 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(280px,340px) minmax(0,1fr);
+  grid-template-columns:minmax(160px,240px) minmax(320px,1fr) minmax(160px,240px);
   grid-template-areas:"assign core meet" "legend legend legend";
   gap:10px;align-items:start;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
@@ -114,12 +114,12 @@ button{font:inherit}
 .comb-rail svg.rail-svg{display:block;height:auto;opacity:1;max-width:none}
 .comb-rail.left{grid-area:assign}
 .comb-rail.right{grid-area:meet}
-.comb-core{grid-area:core;position:relative;width:100%;max-width:340px;justify-self:center}
+.comb-core{grid-area:core;position:relative;width:100%;max-width:none;justify-self:stretch}
 #homeBees{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
 #homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
-svg.comb{width:100%;max-width:340px;height:auto;overflow:visible;display:block}
+svg.comb{width:100%;max-width:min(520px,100%);height:auto;overflow:visible;display:block;margin:0 auto}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
   transition:fill .2s,stroke .2s,filter .2s}
