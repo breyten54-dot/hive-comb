@@ -43,7 +43,8 @@ h1,h2{font-family:Georgia,"Iowan Old Style",serif;margin:0;text-wrap:balance}
 :focus-visible{outline:2px solid var(--gold-br);outline-offset:2px;border-radius:4px}
 button{font:inherit}
 
-.top{max-width:1380px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.top{max-width:1760px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+@media(max-width:1500px){.top{max-width:1520px}}
 .top .mark{width:28px;height:28px;flex:none}
 .top h1{font-size:1.28rem;color:var(--gold-br)}
 .top .tag{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
@@ -57,15 +58,20 @@ button{font:inherit}
 
 /* ---------- spine: open todos + tests | comb ---------- */
 .spine{max-width:1760px;margin:14px auto 0;padding:0 20px;display:grid;
-  grid-template-columns:minmax(240px,0.55fr) minmax(640px,2.45fr);
-  gap:14px;align-items:start}
+  grid-template-columns:minmax(260px,0.72fr) minmax(640px,2.28fr);
+  gap:14px;align-items:stretch}
+.spine.spine-solo{grid-template-columns:1fr}
 .spine-col{min-width:0}
-.spine-col.left{display:flex;flex-direction:column;gap:14px}
-.spine-col.center{display:flex;justify-content:stretch}
-@media(max-width:1500px){.spine{grid-template-columns:1fr;max-width:1520px}.spine-col.center{order:-1}}
-.spine-eta{max-width:1760px;margin:14px auto 0;padding:0 20px}
-@media(max-width:1500px){.spine-eta{max-width:1520px}}
-.spine-eta .card{width:100%}
+.spine-col.left{display:flex;flex-direction:column;gap:14px;min-height:0}
+.spine-col.left .card{flex:0 0 auto}
+.spine-col.left #etaTestsCard{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.spine-col.left #etaTestsCard #etaBody{flex:1 1 auto;min-height:0}
+.spine-col.center{display:flex;justify-content:stretch;align-items:stretch}
+@media(max-width:1500px){
+  .spine{grid-template-columns:1fr;max-width:1520px;align-items:start}
+  .spine-col.center{order:-1}
+  .spine-col.left #etaTestsCard{flex:0 0 auto}
+}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
 .card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px}
@@ -73,7 +79,7 @@ button{font:inherit}
   letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400;white-space:nowrap}
 .card .sub{font-size:.7rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
 
-.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}
+.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:min(42vh,420px);overflow-y:auto}
 .todo-list .item{border-left:2px solid var(--line);padding:6px 0 6px 9px}
 .todo-list .item.b{border-left-color:var(--st-block)}
 .todo-list .item.u{border-left-color:var(--st-prog)}
@@ -84,7 +90,8 @@ button{font:inherit}
 #combcard{width:100%;max-width:none;display:flex;flex-direction:column;align-items:stretch;
   background:linear-gradient(180deg,var(--surface),var(--surface-2));
   border:1px solid var(--line);border-radius:var(--r);padding:12px 14px 14px;
-  position:relative;overflow:hidden}
+  position:relative;overflow:hidden;flex:1 1 auto;min-height:0}
+#combcard .combwrap{flex:1 1 auto}
 #combcard::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
   background:
     radial-gradient(ellipse 55% 70% at 50% 45%, rgba(212,167,44,.12), transparent 70%),
@@ -96,26 +103,42 @@ button{font:inherit}
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
   grid-template-columns:minmax(140px,200px) minmax(280px,1fr) minmax(140px,200px);
   grid-template-areas:"assign core meet" "legend legend legend";
-  gap:8px;align-items:start;min-height:0;overflow-x:hidden}
+  gap:8px;align-items:stretch;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
 .comb-rail{min-width:0;border-radius:10px;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;align-self:stretch;min-height:100%;
   border:1px solid rgba(212,167,44,.28);
   background:
     radial-gradient(circle at 30% 40%, rgba(212,167,44,.14), transparent 55%),
     radial-gradient(circle at 70% 65%, rgba(244,196,48,.09), transparent 50%),
+    repeating-linear-gradient(60deg, transparent 0 11px, rgba(212,167,44,.04) 11px 12px),
+    repeating-linear-gradient(-60deg, transparent 0 11px, rgba(212,167,44,.03) 11px 12px),
     linear-gradient(180deg, rgba(30,22,10,.45), rgba(10,8,6,.75))}
 .comb-rail .rail-label{position:relative;z-index:2;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
   color:var(--gold);padding:8px 8px 0;text-align:center;font-weight:600;flex-shrink:0}
 .comb-rail .rail-sub{position:relative;z-index:2;font-size:.55rem;color:var(--ink-3);text-align:center;padding:2px 6px 6px;flex-shrink:0}
-.comb-rail .rail-scroll{flex:0 0 auto;min-width:0;overflow-x:auto;overflow-y:hidden;padding:0 2px 8px;
+.comb-rail .rail-scroll{flex:1 1 auto;min-width:0;min-height:140px;overflow-x:auto;overflow-y:hidden;padding:0 2px 8px;
   scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
 .comb-rail .rail-scroll::-webkit-scrollbar{height:5px}
 .comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
 .comb-rail svg.rail-svg{display:block;height:auto;opacity:1;max-width:none}
+.comb-rail .rail-foot{position:relative;z-index:2;flex:0 0 auto;margin-top:auto;
+  border-top:1px solid rgba(212,167,44,.22);padding:8px 9px 10px;
+  background:linear-gradient(180deg, rgba(18,14,8,.2), rgba(8,6,4,.55))}
+.comb-rail .rail-foot .rf-k{font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.comb-rail .rail-foot .rf-t{font-size:.68rem;color:var(--ink);line-height:1.3}
+.comb-rail .rail-foot .rf-m{font-size:.58rem;color:var(--ink-3);margin-top:2px}
+.comb-rail .rail-foot a{color:var(--gold-br);text-decoration:none}
+.comb-rail .rail-foot a:hover{text-decoration:underline}
+.comb-rail .rail-foot.empty-foot .rf-t{color:var(--ink-3);font-style:italic;font-size:.62rem}
 .comb-rail.left{grid-area:assign}
 .comb-rail.right{grid-area:meet}
-.comb-core{grid-area:core;position:relative;width:100%;max-width:none;justify-self:stretch}
+.comb-core{grid-area:core;position:relative;width:100%;max-width:none;justify-self:stretch;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(212,167,44,.1), transparent 62%),
+    repeating-linear-gradient(60deg, transparent 0 14px, rgba(212,167,44,.035) 14px 15px),
+    repeating-linear-gradient(-60deg, transparent 0 14px, rgba(212,167,44,.025) 14px 15px);
+  border-radius:10px}
 #homeBees{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
@@ -187,7 +210,9 @@ svg.comb{width:100%;max-width:none;height:auto;overflow:visible;display:block;ma
   .comb-rail.left{border-right:1px solid rgba(212,167,44,.22);padding-right:4px}
   .comb-rail .rail-label{padding-top:4px;font-size:.52rem}
   .comb-rail .rail-sub{font-size:.5rem;padding-bottom:4px}
-  .comb-rail .rail-scroll{overflow-x:auto;padding-bottom:4px}
+  .comb-rail .rail-scroll{flex:0 0 auto;overflow-x:auto;padding-bottom:4px;min-height:0}
+  .comb-rail .rail-foot{padding:6px 6px 8px}
+  .comb-rail{min-height:0;align-self:auto}
 }
 .comblegend span{display:flex;align-items:center;gap:5px}
 .comblegend i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -236,7 +261,8 @@ button.chip:hover{border-color:var(--gold-br);background:var(--bg)}
 .meetings{display:none}
 
 /* ---------- pipeline detail (demoted old orbit) ---------- */
-.pipeline-detail{max-width:1380px;margin:14px auto 0;padding:0 20px}
+.pipeline-detail{max-width:1760px;margin:14px auto 0;padding:0 20px}
+@media(max-width:1500px){.pipeline-detail{max-width:1520px}}
 .pipeline-detail details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
 .pipeline-detail summary{cursor:pointer;color:var(--ink-2);font-size:.78rem;list-style:none;display:flex;align-items:center;gap:8px}
 .pipeline-detail summary::-webkit-details-marker{display:none}
@@ -519,13 +545,18 @@ body.diving #deepHive{opacity:0}
 
 <div id="banner" hidden></div>
 
-<div class="spine">
-  <div class="spine-col left">
-    <div class="card" id="openTodosCard" hidden>
+<div class="spine" id="spine">
+  <div class="spine-col left" id="spineLeft">
+    <div class="card" id="openTodosCard">
       <h2>Open todos <span class="hint">Projects</span></h2>
       <div class="sub">App/website backlog + user gates. Same-tab links only.</div>
       <div id="openTodosBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
       <div id="openTodosGates" class="user-gates" hidden></div>
+    </div>
+    <div class="card" id="etaTestsCard">
+      <h2>ETA tests <span class="hint">Study guides</span></h2>
+      <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
+      <div id="etaBody"><div class="sk" style="height:24px"></div></div>
     </div>
   </div>
   <div class="spine-col center">
@@ -539,6 +570,7 @@ body.diving #deepHive{opacity:0}
             <div class="rail-scroll">
               <svg class="rail-svg" id="assignRailSvg" viewBox="0 0 210 420" role="group" aria-label="ETA assignments by date"></svg>
             </div>
+            <div class="rail-foot" id="assignRailFoot" aria-live="polite"></div>
           </div>
           <div class="comb-rail right" id="meetRail">
             <div class="rail-label">Meetings</div>
@@ -546,6 +578,7 @@ body.diving #deepHive{opacity:0}
             <div class="rail-scroll">
               <svg class="rail-svg" id="meetRailSvg" viewBox="0 0 210 420" role="group" aria-label="Meetings by time"></svg>
             </div>
+            <div class="rail-foot" id="meetRailFoot" aria-live="polite"></div>
           </div>
         </div>
         <div class="comb-core">
@@ -562,14 +595,6 @@ body.diving #deepHive{opacity:0}
         <div class="comblegend" id="combLegend"></div>
       </div>
     </div>
-  </div>
-</div>
-
-<div class="spine-eta" id="etaTestsWrap">
-  <div class="card" id="etaTestsCard">
-    <h2>ETA tests <span class="hint">Study guides</span></h2>
-    <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
-    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
   </div>
 </div>
 
@@ -875,7 +900,11 @@ function renderCombFromTodos(todos){
   var open=todos.filter(function(t){return t.status==="Open"||t.status==="In Progress"||t.status==="Building";}).length;
   var blocked=todos.filter(function(t){return t.status==="Blocked";}).length;
   $("combLegend").innerHTML='<span style="font-style:italic">'+todos.length+' todos · '+open+' open · '+blocked+' blocked</span>';
-  requestAnimationFrame(function(){ if(!selEl) parkBee(); });
+  requestAnimationFrame(function(){
+    if(!selEl) parkBee();
+    /* Rails size their lattice to the finished comb height — no leftover voids. */
+    rerenderRails();
+  });
   markAttnCells();
 }
 
@@ -2995,15 +3024,39 @@ function wrapRailLabel(n,maxLines,maxChars){
 function clearRailSelection(){
   if(selRailEl){ selRailEl.classList.remove("sel"); selRailEl=null; }
 }
+function railFootNext(kind, items){
+  var foot=$(kind==="assign"?"assignRailFoot":"meetRailFoot");
+  if(!foot) return;
+  items=items||[];
+  if(!items.length){
+    foot.className="rail-foot empty-foot";
+    foot.innerHTML='<div class="rf-k">Next</div><div class="rf-t">'+(kind==="assign"?"No assignments queued":"No meetings queued")+'</div>';
+    return;
+  }
+  var it=items[0];
+  foot.className="rail-foot";
+  if(kind==="assign"){
+    var due=it.date?esc(String(it.date)):"date TBD";
+    var title=esc(it.name||"Assignment");
+    var link=it.submissionUrl?'<a href="'+esc(it.submissionUrl)+'">'+title+"</a>":title;
+    foot.innerHTML='<div class="rf-k">Next due</div><div class="rf-t">'+link+'</div><div class="rf-m mono">'+due+"</div>";
+  } else {
+    var when="";
+    try{
+      var d=new Date(it.start);
+      if(!isNaN(d.getTime())) when=d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+    }catch(e){}
+    foot.innerHTML='<div class="rf-k">Up next</div><div class="rf-t">'+esc(it.title||"Meeting")+'</div><div class="rf-m">'+(when?esc(when):esc(it.source||""))+"</div>";
+  }
+}
 function renderRail(svgId, items, kind){
   var svg=$(svgId); if(!svg) return;
   var NS="http://www.w3.org/2000/svg";
   items=items||[];
   var rail=svg.closest(".comb-rail");
+  var core=document.querySelector(".comb-core");
   var pxW=Math.max(120, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 200);
   var narrow=window.matchMedia("(max-width:700px)").matches;
-  var rows=narrow?4:RAIL_ROWS;
-  var minSlots=narrow?Math.max(12, items.length):RAIL_MIN_SLOTS;
   /* Size from width only so rows do not shrink the hexes. Pitch matches center comb. */
   var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
   var MAX_RAIL_SIZE=narrow?34:48;
@@ -3014,6 +3067,21 @@ function renderRail(svgId, items, kind){
   var padY=size * 0.95;
   var font=Math.max(7, size * 0.24);
   var maxChars=Math.max(7, Math.floor((size * 1.55) / (font * 0.55)));
+  /* Grow rows to fill the comb height so rail columns are never dead voids. */
+  var rows=narrow?4:RAIL_ROWS;
+  if(!narrow && rail && core){
+    var coreH=core.getBoundingClientRect().height;
+    if(coreH>120){
+      rail.style.minHeight=Math.round(coreH)+"px";
+      var labelEl=rail.querySelector(".rail-label");
+      var subEl=rail.querySelector(".rail-sub");
+      var footEl=rail.querySelector(".rail-foot");
+      var chrome=(labelEl?labelEl.offsetHeight:0)+(subEl?subEl.offsetHeight:0)+(footEl?Math.max(footEl.offsetHeight,52):52)+16;
+      var avail=Math.max(160, coreH - chrome);
+      rows=Math.max(RAIL_ROWS, Math.floor((avail - padY) / pitchY));
+    }
+  }
+  var minSlots=narrow?Math.max(12, items.length):Math.max(RAIL_MIN_SLOTS, rows*RAIL_VISIBLE_COLS, items.length);
   var slotCount=Math.max(minSlots, items.length);
   var cols=Math.max(RAIL_VISIBLE_COLS, Math.ceil(slotCount / rows));
   var slots=[], i=0;
@@ -3030,8 +3098,13 @@ function renderRail(svgId, items, kind){
   var height=visibleH + 2;
   var scroll=svg.closest(".rail-scroll");
   if(scroll){
-    scroll.style.height=Math.round(visibleH)+"px";
-    scroll.style.flex="0 0 auto";
+    if(narrow){
+      scroll.style.height=Math.round(visibleH)+"px";
+      scroll.style.flex="0 0 auto";
+    } else {
+      scroll.style.height="";
+      scroll.style.flex="1 1 auto";
+    }
   }
   svg.innerHTML="";
   svg.setAttribute("viewBox","0 0 "+contentW+" "+height);
@@ -3088,6 +3161,7 @@ function renderRail(svgId, items, kind){
     }
     svg.appendChild(g);
   });
+  railFootNext(kind, items);
 }
 function rerenderRails(){
   if(state._assigns) renderAssignmentRail(state._assigns);
