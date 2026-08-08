@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-05T20:58:00.000Z",
+  "updatedAt": "2026-08-08T22:29:00.000Z",
   "items": [
     {
       "name": "Learning Activity 1: Role-Play Scenarios",
@@ -16,14 +16,26 @@
     {
       "name": "Key Functions - The Interview",
       "type": "Assignment",
-      "date": "2026-08-06",
+      "date": "2026-08-10",
       "pdf": null,
       "word": "/files/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx",
-      "notes": "BMSR 120 Organisational behaviour DBN 26 — Submit by 2026-08-06 (real due 2026-08-10). Consent form handout on disk. Pack drafted but IN-PROGRESS: the real interview, recording and link are still outstanding.",
+      "notes": "BMSR 120 Organisational behaviour DBN 26 — due Mon 10 Aug 2026 10:30. Interviewee confirmed: Berkeley Pretorius (founder/owner, Praeto). Record interview, attach shareable link, write analysis on key components. Consent form on disk. Draft pack IN-PROGRESS until real answers + link exist.",
       "draftPdf": "/files/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.pdf",
       "draftDocx": "/files/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.docx",
       "draftStatus": "in-progress",
       "submissionUrl": "https://etaconnect.etacollege.com/mod/assign/view.php?id=499140"
+    },
+    {
+      "name": "BMSR 116 Integrated Task",
+      "type": "Assignment",
+      "date": "2026-08-14",
+      "pdf": null,
+      "word": null,
+      "notes": "BMSR 116 Theories and principles of business and management — replaces the BMSR 116 test (per Joyce). Official due 11 Aug 2026; lecturer extension to 14 Aug 2026. Brief not yet unlocked on etaConnect (DBN 25 Integrated Task locked to Duly Performed group; missing on DBN 26). Capture brief when Joyce opens access, then draft.",
+      "draftPdf": null,
+      "draftDocx": null,
+      "draftStatus": "blocked-awaiting-brief",
+      "submissionUrl": null
     },
     {
       "name": "BMSR 114 Written Test",

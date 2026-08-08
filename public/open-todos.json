@@ -1,6 +1,32 @@
 {
-  "updatedAt": "2026-08-07T12:10:00.000Z",
+  "updatedAt": "2026-08-08T22:29:00.000Z",
   "todos": [
+    {
+      "name": "BMSR 120 Key Functions interview — Berkeley + link + analysis",
+      "section": "ETA",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Open",
+      "url": "https://etaconnect.etacollege.com/mod/assign/view.php?id=499140",
+      "blockedOn": "User interviews Berkeley Pretorius (Praeto founder), records, uploads shareable link",
+      "notes": "Due Mon 10 Aug 2026 10:30. Comb Assignments hex updated. Draft pack + consent + question script ready; analysis waits on real answers.",
+      "hivePath": "ETA Work\\assessments\\bmsr120-key-functions-the-interview\\",
+      "howTo": "Interview Berkeley with consent form; upload recording; paste link on etaConnect; send notes/transcript to Agent for analysis draft. You submit.",
+      "estimateMinutes": 90
+    },
+    {
+      "name": "BMSR 116 Integrated Task — Joyce extension to 14 Aug",
+      "section": "ETA",
+      "owner": "User",
+      "priority": "P0",
+      "status": "Blocked",
+      "url": "https://etaconnect.etacollege.com/course/view.php?id=13361",
+      "blockedOn": "Joyce unlocks Integrated Task brief (Duly Performed / DBN 26) or forwards brief",
+      "notes": "Replaces BMSR 116 test. Official due 11 Aug; extension to 14 Aug (Joyce). Comb Assignments hex shows 14 Aug. Brief not capturable yet.",
+      "hivePath": "ETA Work\\",
+      "howTo": "Ask Joyce to open Integrated Task access, or paste/upload the brief. Agent then captures, drafts, and you submit before 14 Aug.",
+      "estimateMinutes": 120
+    },
     {
       "name": "Verify praeto.co.za in Resend + retarget TechCo briefs",
       "section": "TechCo",
