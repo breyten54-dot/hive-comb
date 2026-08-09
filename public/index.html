@@ -1396,14 +1396,23 @@ function setBeeScareFromCell(g){
   deep.beeScare={x:p.x, y:p.y, r:Math.max(52, hexR*1.65), session:was&&was.session?was.session:++deep.beeScareSession};
 }
 function clearBeeScare(){ deep.beeScare=null; }
+function noteBeeScarePush(st, sc){
+  if(!st || !sc) return;
+  if(st.scareLastSession===sc.session) return;
+  st.scareLastSession=sc.session;
+  st.scarePushes=(st.scarePushes||0)+1;
+}
 function maybeUpsetFromScare(st, now){
   if(!st || st.isQueen || deep.on) return;
   if(st.act==="tattle"||st.act==="fight"||st.act==="chat"||st.act==="transfer") return;
+  /* Quiet shoves until this bee has been pushed more than 3 times. */
+  if((st.scarePushes||0)<=3) return;
   if(st.scareCooldown && now<st.scareCooldown) return;
   st.scareCooldown=now+2800+Math.random()*1800;
+  st.scarePushes=0; /* patience resets after they blow up */
   /* One snitch runs to the queen; others just grumble. */
   var canTattle=!deep.beeDrama && now>=(deep.beeTattleReadyAt||0);
-  if(canTattle && Math.random()<0.72){
+  if(canTattle){
     beginTattle(st, now);
     return;
   }
@@ -1428,6 +1437,7 @@ function applyBeeScare(st, dt){
   if(st.act==="coffee"||st.act==="wave"||st.act==="happy"){
     clearBeeMood(st);
   }
+  noteBeeScarePush(st, sc);
   maybeUpsetFromScare(st, performance.now());
   /* Strong outward shove — units match integrateBee (px/s). */
   st.vx+=nx*(720+480*push)*dt;
