@@ -541,7 +541,7 @@ body.diving #deepHive{opacity:0}
 <div class="spine" id="spine">
   <div class="spine-col center">
     <div id="combcard">
-      <div class="combhd"><h2>The comb</h2><span class="hint">todos on the hexes · click a cell</span></div>
+      <div class="combhd"><h2>The comb</h2><span class="hint">by importance · done drop off on refresh</span></div>
       <div class="combwrap">
         <div class="rail-pair">
           <div class="comb-rail left" id="assignRail">
@@ -837,20 +837,34 @@ function renderComb(projects,isLive){
   markAttnCells();
 }
 
-/* Surface comb driven by open todos: hub dives into deep hive, ring cells are
-   P0-first todos with a hard cap so the comb stays readable. */
+/* Surface comb driven by open todos: hub dives into deep hive; ring cells are
+   importance-ranked active work (inner = highest). Done items drop off on refresh. */
+var TODO_PRIO_RANK={"P0 Critical":0,"P0":0,"P1 High":1,"P1":1,"P2 Medium":2,"P2":2,"P3 Low":3,"P3":3};
+var TODO_ACTIVE={"Open":1,"In Progress":1,"Building":1,"Blocked":1};
+
+function activeTodos(todos){
+  return (todos||[]).filter(function(t){ return !!(TODO_ACTIVE[t.status]); });
+}
+
+function rankTodo(a,b){
+  var ra=TODO_PRIO_RANK[a.priority]==null?9:TODO_PRIO_RANK[a.priority];
+  var rb=TODO_PRIO_RANK[b.priority]==null?9:TODO_PRIO_RANK[b.priority];
+  if(ra!==rb) return ra-rb;
+  var aa=a.status==="Blocked"?1:0;
+  var ba=b.status==="Blocked"?1:0;
+  if(aa!==ba) return aa-ba;
+  var ao=a.owner==="User"?0:(a.owner==="Agent"?1:2);
+  var bo=b.owner==="User"?0:(b.owner==="Agent"?1:2);
+  if(ao!==bo) return ao-bo;
+  return String(a.name||"").localeCompare(String(b.name||""));
+}
+
 function renderCombFromTodos(todos){
   var svg=$("comb"); if(!svg) return; svg.innerHTML="";
   todos=todos||[];
   var NS="http://www.w3.org/2000/svg";
   var cells=[{hub:true,q:0,r:0}];
-  var rank={"P0 Critical":0,"P0":0,"P1 High":1,"P1":1,"P2 Medium":2,"P2":2,"P3 Low":3,"P3":3};
-  var sorted=todos.slice().sort(function(a,b){
-    var ra=rank[a.priority]==null?9:rank[a.priority];
-    var rb=rank[b.priority]==null?9:rank[b.priority];
-    if(ra!==rb) return ra-rb;
-    return String(a.name||"").localeCompare(String(b.name||""));
-  });
+  var sorted=activeTodos(todos).slice().sort(rankTodo);
   var cap=Math.min(sorted.length, 18), i=0, rad=1;
   while(i<cap && rad<=4){
     var rg=ring(rad);
@@ -865,7 +879,7 @@ function renderCombFromTodos(todos){
     var cls="cell"+(c.hub?" hub":"");
     if(!c.hub && c.todo){
       if(c.todo.priority==="P0" || c.todo.priority==="P0 Critical" || c.todo.status==="Blocked") cls+=" attn-blocked";
-      else if(c.todo.status==="Open" || c.todo.status==="In Progress") cls+=" attn-review";
+      else if(c.todo.status==="Open" || c.todo.status==="In Progress" || c.todo.status==="Building") cls+=" attn-review";
     }
     g.setAttribute("class",cls);
     g.setAttribute("tabindex","0"); g.setAttribute("role","button");
@@ -885,9 +899,12 @@ function renderCombFromTodos(todos){
   svg.setAttribute("viewBox",(Math.min.apply(null,xs)-pad)+" "+(Math.min.apply(null,ys)-pad)+" "+
     (Math.max.apply(null,xs)-Math.min.apply(null,xs)+pad*2)+" "+
     (Math.max.apply(null,ys)-Math.min.apply(null,ys)+pad*2));
-  var open=todos.filter(function(t){return t.status==="Open"||t.status==="In Progress"||t.status==="Building";}).length;
-  var blocked=todos.filter(function(t){return t.status==="Blocked";}).length;
-  $("combLegend").innerHTML='<span style="font-style:italic">'+todos.length+' todos · '+open+' open · '+blocked+' blocked</span>';
+  var active=sorted.length;
+  var open=sorted.filter(function(t){return t.status!=="Blocked";}).length;
+  var blocked=sorted.filter(function(t){return t.status==="Blocked";}).length;
+  var shown=Math.min(active,18);
+  $("combLegend").innerHTML='<span style="font-style:italic">by importance · '+shown+(active>18?'/'+active:'')+
+    ' on ring · '+open+' actionable · '+blocked+' blocked · done drop off on refresh</span>';
   requestAnimationFrame(function(){
     if(!selEl) parkBee();
     /* Rails size their lattice to the finished comb height — no leftover voids. */
