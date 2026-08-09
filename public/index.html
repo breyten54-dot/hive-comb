@@ -56,22 +56,15 @@ button{font:inherit}
   width:26px;height:26px;cursor:pointer;line-height:1;display:grid;place-items:center;font-size:.8rem}
 .iconbtn:hover{color:var(--gold-br);border-color:var(--gold-deep)}
 
-/* ---------- spine: open todos + tests | comb ---------- */
+/* ---------- spine: comb is the todo surface (hex ring); no left todo list ---------- */
 .spine{max-width:1760px;margin:14px auto 0;padding:0 20px;display:grid;
-  grid-template-columns:minmax(260px,0.72fr) minmax(640px,2.28fr);
-  gap:14px;align-items:stretch}
-.spine.spine-solo{grid-template-columns:1fr}
+  grid-template-columns:1fr;gap:14px;align-items:stretch}
 .spine-col{min-width:0}
-.spine-col.left{display:flex;flex-direction:column;gap:14px;min-height:0}
-.spine-col.left .card{flex:0 0 auto}
-.spine-col.left #etaTestsCard{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-.spine-col.left #etaTestsCard #etaBody{flex:1 1 auto;min-height:0}
 .spine-col.center{display:flex;justify-content:stretch;align-items:stretch}
-@media(max-width:1500px){
-  .spine{grid-template-columns:1fr;max-width:1520px;align-items:start}
-  .spine-col.center{order:-1}
-  .spine-col.left #etaTestsCard{flex:0 0 auto}
-}
+@media(max-width:1500px){.spine{max-width:1520px;align-items:start}}
+.spine-eta{max-width:1760px;margin:14px auto 0;padding:0 20px}
+@media(max-width:1500px){.spine-eta{max-width:1520px}}
+.spine-eta .card{width:100%}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
 .card h2{font-size:.9rem;color:var(--ink);display:flex;align-items:baseline;gap:8px}
@@ -79,7 +72,7 @@ button{font:inherit}
   letter-spacing:.06em;text-transform:uppercase;margin-left:auto;font-weight:400;white-space:nowrap}
 .card .sub{font-size:.7rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
 
-.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:min(42vh,420px);overflow-y:auto}
+.todo-list{margin-top:9px;display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto}
 .todo-list .item{border-left:2px solid var(--line);padding:6px 0 6px 9px}
 .todo-list .item.b{border-left-color:var(--st-block)}
 .todo-list .item.u{border-left-color:var(--st-prog)}
@@ -546,22 +539,9 @@ body.diving #deepHive{opacity:0}
 <div id="banner" hidden></div>
 
 <div class="spine" id="spine">
-  <div class="spine-col left" id="spineLeft">
-    <div class="card" id="openTodosCard">
-      <h2>Open todos <span class="hint">Projects</span></h2>
-      <div class="sub">App/website backlog + user gates. Same-tab links only.</div>
-      <div id="openTodosBody"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
-      <div id="openTodosGates" class="user-gates" hidden></div>
-    </div>
-    <div class="card" id="etaTestsCard">
-      <h2>ETA tests <span class="hint">Study guides</span></h2>
-      <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
-      <div id="etaBody"><div class="sk" style="height:24px"></div></div>
-    </div>
-  </div>
   <div class="spine-col center">
     <div id="combcard">
-      <div class="combhd"><h2>The comb</h2><span class="hint">direct access</span></div>
+      <div class="combhd"><h2>The comb</h2><span class="hint">todos on the hexes · click a cell</span></div>
       <div class="combwrap">
         <div class="rail-pair">
           <div class="comb-rail left" id="assignRail">
@@ -583,7 +563,7 @@ body.diving #deepHive{opacity:0}
         </div>
         <div class="comb-core">
           <div id="homeBees" aria-hidden="true"></div>
-          <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE projects"></svg>
+          <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE open todos"></svg>
           <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
             <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
             <path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/>
@@ -595,6 +575,14 @@ body.diving #deepHive{opacity:0}
         <div class="comblegend" id="combLegend"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="spine-eta" id="etaTestsWrap">
+  <div class="card" id="etaTestsCard">
+    <h2>ETA tests <span class="hint">Study guides</span></h2>
+    <div class="sub">Tests only — study PDF. Assignments live on the assignments hex calendar.</div>
+    <div id="etaBody"><div class="sk" style="height:24px"></div></div>
   </div>
 </div>
 
@@ -2924,53 +2912,27 @@ function loadProductLanes(){
 }
 loadProductLanes();
 
-function renderOpenTodos(todos){
-  var el=$("openTodosBody"); if(!el) return;
-  if(!todos || !todos.length){
-    el.innerHTML='<div class="empty">No open todos.</div>';
-    return;
-  }
-  var html='<div class="todo-list">';
-  todos.forEach(function(t){
-    var c=t.status==="Blocked"?"b":"u";
-    var pc=t.priority==="P0"?"p0":(t.priority==="P1"?"p1":"");
-    var linkStart=t.url?'<a class="itemlink" href="'+esc(t.url)+'">':'<div>';
-    var linkEnd=t.url?'</a>':'</div>';
-    html+=linkStart+'<div class="item '+c+'"><div class="t">'+esc(t.name)+'</div>'+
-      '<div class="m">'+
-      (t.priority?'<span class="chip '+pc+'">'+esc(t.priority)+'</span>':'')+
-      '<span>'+esc(t.section)+'</span>'+
-      '<span>'+esc(t.owner)+'</span>'+
-      '<span class="chip">'+esc(t.status)+'</span>'+
-      '</div>'+
-      (t.blockedOn?'<div class="notes">Blocked on: '+esc(t.blockedOn)+'</div>':'')+
-      (t.notes?'<div class="notes">'+esc(t.notes)+'</div>':'')+
-      '</div>'+linkEnd;
-  });
-  html+='</div>';
-  el.innerHTML=html;
-}
-
-function renderPortfolioGates(gates){
-  var el=$("openTodosGates"); if(!el) return;
-  if(!gates || !gates.length){ el.hidden=true; el.innerHTML=""; return; }
-  el.innerHTML='<h3>User gates</h3><div class="todo-list">'+gates.map(function(g){
-    return '<div class="item"><div class="t">'+esc(g.id)+' — '+esc(g.title)+'</div>'+
-      '<div class="m"><span class="chip">P0</span><span>'+esc(g.product)+'</span><span>'+esc(g.owner)+'</span></div></div>';
-  }).join("")+'</div>';
-  el.hidden=false;
-}
-
+/* Open todos + user gates live on the CENTER HEX RING (renderCombFromTodos),
+   not a side list — do not reintroduce a left todo/gates column. */
 function loadOpenTodos(){
   fetch("/open-todos.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){
       state.todos = d && d.todos;
-      renderOpenTodos(state.todos);
       renderCombFromTodos(state.todos);
       maybeRenderPipelineFromTodos();
-    }).catch(function(){ renderOpenTodos(null); renderCombFromTodos(null); });
+    }).catch(function(){ renderCombFromTodos(null); });
+  /* Gates still feed pipeline "Needs attention" under details — not a surface list. */
   fetch("/portfolio-gates.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
-    .then(function(d){ renderPortfolioGates(d && d.gates); })
+    .then(function(d){
+      var el=$("attnGates"); if(!el) return;
+      var gates=d && d.gates;
+      if(!gates || !gates.length){ el.hidden=true; el.innerHTML=""; return; }
+      el.innerHTML='<h3>User gates</h3><div class="todo-list">'+gates.map(function(g){
+        return '<div class="item"><div class="t">'+esc(g.id)+' — '+esc(g.title)+'</div>'+
+          '<div class="m"><span class="chip">P0</span><span>'+esc(g.product)+'</span><span>'+esc(g.owner)+'</span></div></div>';
+      }).join("")+'</div>';
+      el.hidden=false;
+    })
     .catch(function(){});
 }
 
