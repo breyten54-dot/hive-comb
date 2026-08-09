@@ -139,8 +139,51 @@ button{font:inherit}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
 #homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
 #homeBees .deep-drift-bee.is-queen{width:44px;height:44px;margin-left:-22px;margin-top:-22px;opacity:1;z-index:4}
-svg.comb{width:100%;max-width:min(520px,100%);max-height:min(68vh,560px);height:auto;
+svg.comb{width:100%;max-width:min(520px,100%);max-height:min(58vh,480px);height:auto;
   overflow:visible;display:block;margin:0 auto}
+
+/* Large screens: entire surface fits one viewport — no page scroll. */
+.pageShell{display:contents}
+@media(min-width:1100px) and (min-height:760px){
+  html{height:100%;overflow:hidden}
+  body{
+    height:100dvh;max-height:100dvh;min-height:0;overflow:hidden;
+    padding-bottom:6px;display:block;
+  }
+  .pageShell{
+    display:grid;height:100%;max-height:100dvh;min-height:0;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:
+      "top top"
+      "banner banner"
+      "spine spine"
+      "eta pipe"
+      "foot foot";
+    max-width:1760px;margin:0 auto;padding:0 16px;box-sizing:border-box;gap:0 10px;
+  }
+  .top{grid-area:top;max-width:none;width:100%;margin:0;padding:10px 0 2px}
+  .top h1{font-size:1.12rem}
+  #banner{grid-area:banner;max-width:none;margin:4px 0 0;padding:8px 12px}
+  .spine{grid-area:spine;max-width:none;width:100%;margin:6px 0 0;padding:0;min-height:0;align-self:stretch}
+  .spine-col.center,#combcard{height:100%;min-height:0;max-height:100%}
+  #combcard{padding:8px 10px;display:flex;flex-direction:column}
+  #combcard .combwrap{flex:1 1 auto;min-height:0}
+  .combwrap{height:100%;min-height:0}
+  .comb-core{max-width:min(460px,100%);max-height:100%;min-height:0}
+  svg.comb{max-width:min(460px,100%);max-height:min(100%,calc(100dvh - 200px))}
+  .combhd{margin-bottom:0}
+  .comblegend{margin-top:0;font-size:.6rem;gap:10px}
+  .spine-eta{grid-area:eta;max-width:none;margin:6px 0 0;padding:0;min-width:0}
+  .spine-eta .card{padding:8px 12px;height:100%;box-sizing:border-box}
+  .spine-eta .sub{display:none}
+  .eta-table{margin-top:4px;font-size:.7rem}
+  .eta-table th,.eta-table td{padding:4px 6px}
+  .pipeline-detail{grid-area:pipe;max-width:none;margin:6px 0 0;padding:0;min-width:0}
+  .pipeline-detail details{padding:8px 12px;height:100%;box-sizing:border-box}
+  .pipeline-detail details[open]{max-height:min(42vh,360px);overflow:auto}
+  footer{grid-area:foot;max-width:none;margin:4px 0 0;padding:0;font-size:.58rem;line-height:1.35}
+}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
   transition:fill .2s,stroke .2s,filter .2s}
@@ -361,7 +404,7 @@ body.panel-open #deepHive{touch-action:none}
 html.deep-on,body.deep-on{overflow:hidden !important;height:100%;height:100dvh;max-height:100dvh;
   overscroll-behavior:none;touch-action:none}
 body.deep-on #homeBees{display:none;visibility:hidden}
-  display:none !important}
+body.deep-on .pageShell{display:none !important}
 body.deep-on .top{position:relative;z-index:16}
 #combToast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--ink);
@@ -523,6 +566,7 @@ body.diving #deepHive{opacity:0}
 </head>
 <body>
 
+<div class="pageShell" id="pageShell">
 <div class="top">
   <svg class="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M12 2 20 6.5V17.5L12 22 4 17.5V6.5L12 2Z" stroke="var(--gold)" stroke-width="1.4"/>
@@ -636,7 +680,8 @@ body.diving #deepHive{opacity:0}
   </details>
 </div>
 
-<footer id="foot">The comb is your folder structure; the ring reads live from Notion when connected.</footer>
+<footer id="foot">The comb is your folder structure; the ring reads live from disk / open-todos.</footer>
+</div><!-- /pageShell -->
 
 <div class="back" id="back"></div>
 <div class="panel" id="panel" role="dialog" aria-modal="true">
