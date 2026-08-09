@@ -94,8 +94,8 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  /* Rails capped so hex lattice stays compact; center hex stays readable. */
-  grid-template-columns:minmax(160px,min(260px,1fr)) minmax(280px,min(520px,42vw)) minmax(160px,min(260px,1fr));
+  /* Hard rail caps (do not use 1fr in max — browsers let it blow past min()). */
+  grid-template-columns:minmax(160px,240px) minmax(280px,1fr) minmax(160px,240px);
   grid-template-areas:"assign core meet" "legend legend legend";
   gap:8px;align-items:stretch;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
