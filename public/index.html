@@ -94,7 +94,8 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  grid-template-columns:minmax(140px,200px) minmax(280px,1fr) minmax(140px,200px);
+  /* Surplus width → rails; center hex stays readable (not billboard-sized). */
+  grid-template-columns:minmax(160px,1fr) minmax(280px,min(520px,42vw)) minmax(160px,1fr);
   grid-template-areas:"assign core meet" "legend legend legend";
   gap:8px;align-items:stretch;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
@@ -126,7 +127,8 @@ button{font:inherit}
 .comb-rail .rail-foot.empty-foot .rf-t{color:var(--ink-3);font-style:italic;font-size:.62rem}
 .comb-rail.left{grid-area:assign}
 .comb-rail.right{grid-area:meet}
-.comb-core{grid-area:core;position:relative;width:100%;max-width:none;justify-self:stretch;
+.comb-core{grid-area:core;position:relative;width:100%;max-width:min(520px,100%);justify-self:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:
     radial-gradient(circle at 50% 48%, rgba(212,167,44,.1), transparent 62%),
     repeating-linear-gradient(60deg, transparent 0 14px, rgba(212,167,44,.035) 14px 15px),
@@ -137,7 +139,8 @@ button{font:inherit}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
 #homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
 #homeBees .deep-drift-bee.is-queen{width:44px;height:44px;margin-left:-22px;margin-top:-22px;opacity:1;z-index:4}
-svg.comb{width:100%;max-width:none;height:auto;overflow:visible;display:block;margin:0 auto}
+svg.comb{width:100%;max-width:min(520px,100%);max-height:min(68vh,560px);height:auto;
+  overflow:visible;display:block;margin:0 auto}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
   transition:fill .2s,stroke .2s,filter .2s}
