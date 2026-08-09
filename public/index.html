@@ -136,6 +136,7 @@ button{font:inherit}
 #homeBees .deep-drift-bee{width:22px;height:22px;margin-left:-11px;margin-top:-11px;opacity:.82}
 #homeBees .deep-drift-bee:nth-child(3n){width:20px;height:20px;margin-left:-10px;margin-top:-10px;opacity:.74}
 #homeBees .deep-drift-bee:nth-child(5n){width:24px;height:24px;margin-left:-12px;margin-top:-12px;opacity:.88}
+#homeBees .deep-drift-bee.is-queen{width:44px;height:44px;margin-left:-22px;margin-top:-22px;opacity:1;z-index:4}
 svg.comb{width:100%;max-width:none;height:auto;overflow:visible;display:block;margin:0 auto}
 .rail-cell{cursor:pointer}
 .rail-cell polygon{fill:rgba(24,20,12,.92);stroke:rgba(212,167,44,.55);stroke-width:1.35;
@@ -1139,6 +1140,7 @@ function orderByRecents(projects){
 var deep={on:false, roots:null, trees:{}, decorReady:false, cards:null, cardsPromise:null,
   bgHexPoints:[], beeTimers:[], beeRaf:null, beeStates:[], beeLastTs:0, beeRunning:false,
   beeDrama:null, beeNextDrama:0, queen:null, beeScare:null,
+  beeTattleReadyAt:0, beeScareSession:0,
   sectionMeta:null, productLanes:null};
 var HOME_BEE_COUNT=15;
 var DEEP_BEE_COUNT=20;
@@ -1170,7 +1172,45 @@ var BEE_LINES={
   wave:["Hi human!","Watching?","👋"],
   happy:["Woo!","Yes!","Nailed it."],
   angry:["Ugh.","Not today.","Buzz off."],
-  afterQueen:["Sorry…","Yes ma'am.","Back to it."]
+  afterQueen:["Sorry…","Yes ma'am.","Back to it."],
+  scareUpset:[
+    "Hey! I was WORKING!",
+    "Rude!",
+    "Watch the wings!",
+    "Personal space?!",
+    "That was MY hex!",
+    "Excuse YOU!",
+    "Cursor! Boundaries!",
+    "I had dibs!"
+  ],
+  tattle:[
+    "I'm telling the QUEEN!",
+    "QUEEN!! Cursor bullying!",
+    "Writing you up!",
+    "HR. Right now.",
+    "She'll hear about this!",
+    "Snitch mode: ON.",
+    "Mom— I mean QUEEN!",
+    "This goes in the wax log!"
+  ],
+  queenTattle:[
+    "Again?!",
+    "Deal with it.",
+    "Not my department.",
+    "…noted. Back to wax.",
+    "The cursor pays rent.",
+    "I saw nothing.",
+    "File a Form-Bee.",
+    "Unless they broke a cell, buzz off."
+  ],
+  afterTattle:[
+    "…fine.",
+    "Whatever.",
+    "This hive is chaos.",
+    "Told you.",
+    "Unbelievable.",
+    "I need a coffee."
+  ]
 };
 var QUEEN_LINES=["ENOUGH!","BACK TO WORK!","I SAID ENOUGH!","Settle down!"];
 
@@ -1352,12 +1392,33 @@ function setBeeScareFromCell(g){
   var svg=$("comb"), r=svg.getBoundingClientRect(), vb=svg.viewBox.baseVal;
   var scale=r.width/Math.max(1, vb.width);
   var hexR=(typeof SIZE!=="undefined"?SIZE:40)*scale;
-  deep.beeScare={x:p.x, y:p.y, r:Math.max(52, hexR*1.65)};
+  var was=deep.beeScare;
+  deep.beeScare={x:p.x, y:p.y, r:Math.max(52, hexR*1.65), session:was&&was.session?was.session:++deep.beeScareSession};
 }
 function clearBeeScare(){ deep.beeScare=null; }
+function maybeUpsetFromScare(st, now){
+  if(!st || st.isQueen || deep.on) return;
+  if(st.act==="tattle"||st.act==="fight"||st.act==="chat"||st.act==="transfer") return;
+  if(st.scareCooldown && now<st.scareCooldown) return;
+  st.scareCooldown=now+2800+Math.random()*1800;
+  /* One snitch runs to the queen; others just grumble. */
+  var canTattle=!deep.beeDrama && now>=(deep.beeTattleReadyAt||0);
+  if(canTattle && Math.random()<0.72){
+    beginTattle(st, now);
+    return;
+  }
+  if(st.act==="coffee"||st.act==="wave"||st.act==="happy") clearBeeMood(st);
+  setBeeMood(st, "angry");
+  st.act="angry";
+  st.actUntil=now+900+Math.random()*700;
+  st.cruise=120+Math.random()*40;
+  showBeeSay(st, pickLine(BEE_LINES.scareUpset), 1100);
+}
 function applyBeeScare(st, dt){
   var sc=deep.beeScare;
   if(!sc || !st || st.isQueen || deep.on) return;
+  /* Snitch bee is allowed through the scare zone — they're on a mission. */
+  if(st.act==="tattle") return;
   var dx=st.x-sc.x, dy=st.y-sc.y;
   var d=Math.hypot(dx, dy);
   if(d>=sc.r) return;
@@ -1367,6 +1428,7 @@ function applyBeeScare(st, dt){
   if(st.act==="coffee"||st.act==="wave"||st.act==="happy"){
     clearBeeMood(st);
   }
+  maybeUpsetFromScare(st, performance.now());
   /* Strong outward shove — units match integrateBee (px/s). */
   st.vx+=nx*(720+480*push)*dt;
   st.vy+=ny*(720+480*push)*dt;
@@ -1376,14 +1438,17 @@ function applyBeeScare(st, dt){
     st.arrivedAt=0; st.stillSince=0;
   }
   var td=Math.hypot(st.tx-sc.x, st.ty-sc.y);
-  if(td<sc.r*1.05){
+  if(td<sc.r*1.05 && st.act!=="tattle"){
     var b=beeStageBounds();
     st.tx=Math.max(12, Math.min(b.w-12, sc.x+nx*sc.r*1.45));
     st.ty=Math.max(12, Math.min(b.h-12, sc.y+ny*sc.r*1.45));
     st.cruise=Math.max(st.cruise||60, 110);
     st.arrivedAt=0; st.stillSince=0;
   }
-  if(st.sayEl && st.sayEl.classList.contains("on")) hideBeeSay(st);
+  /* Keep grumble / snitch lines visible; clear idle chatter only. */
+  if(st.sayEl && st.sayEl.classList.contains("on") && st.act!=="angry" && st.act!=="tattle"){
+    if(st.mood!=="angry") hideBeeSay(st);
+  }
 }
 
 function randomStagePoint(padExtra){
@@ -1549,7 +1614,6 @@ function beginChat(a, b, now){
 }
 
 function ensureQueen(){
-  if(!deep.on) return null;
   var host=beeHost();
   if(!host) return null;
   var el=host.querySelector(".is-queen");
@@ -1571,6 +1635,100 @@ function ensureQueen(){
   }
   el.style.display="block";
   return deep.queen;
+}
+
+function beginTattle(st, now){
+  if(!st || deep.beeDrama || deep.on) return;
+  var q=ensureQueen();
+  if(!q) return;
+  var b=beeStageBounds();
+  var meetX=b.w*(0.32+Math.random()*0.36);
+  var meetY=Math.max(56, b.h*0.22);
+  deep.beeDrama={
+    kind:"tattle", bee:st, phase:"fume", t0:now,
+    meet:{x:meetX, y:meetY},
+    upsetLine:pickLine(BEE_LINES.scareUpset),
+    tattleLine:pickLine(BEE_LINES.tattle),
+    queenLine:pickLine(BEE_LINES.queenTattle),
+    afterLine:pickLine(BEE_LINES.afterTattle),
+    saidUpset:false, saidTattle:false, saidQueen:false
+  };
+  deep.beeTattleReadyAt=now+11000+Math.random()*7000;
+  deep.beeNextDrama=now+14000+Math.random()*8000;
+  st.act="tattle";
+  st.actUntil=now+9000;
+  st.partner=null;
+  st.cruise=150+Math.random()*40;
+  st.stiff=2.2;
+  setBeeMood(st, "angry");
+  st.tx=st.x+((Math.random()<0.5)?-1:1)*(40+Math.random()*30);
+  st.ty=Math.max(20, st.y-20);
+  q.x=meetX; q.y=-70; q.tx=meetX; q.ty=meetY;
+  q.vx=0; q.vy=0; q.act="enter"; q.cruise=160;
+  hideBeeSay(q);
+  setBeeMood(q, "angry");
+}
+
+function tickTattleDrama(now, dt){
+  var d=deep.beeDrama;
+  if(!d || d.kind!=="tattle") return;
+  var st=d.bee, q=deep.queen;
+  if(!st || !st.el){ deep.beeDrama=null; return; }
+  var elapsed=now-d.t0;
+  if(d.phase==="fume"){
+    st.act="tattle";
+    setBeeMood(st, "angry");
+    if(!d.saidUpset){
+      d.saidUpset=true;
+      showBeeSay(st, d.upsetLine, 1200);
+    }
+    if(elapsed>700 && !d.saidTattle){
+      d.saidTattle=true;
+      showBeeSay(st, d.tattleLine, 1600);
+      st.tx=d.meet.x+(Math.random()*24-12);
+      st.ty=d.meet.y+28;
+      st.cruise=170;
+    }
+    if(q){ q.tx=d.meet.x; q.ty=d.meet.y; }
+    if(elapsed>1600) d.phase="report";
+  } else if(d.phase==="report"){
+    st.tx=d.meet.x+(st.x<d.meet.x?-22:22);
+    st.ty=d.meet.y+26;
+    st.cruise=150;
+    if(q){ q.tx=d.meet.x; q.ty=d.meet.y; }
+    var nearQ=q && Math.hypot(st.x-q.x, st.y-q.y)<70;
+    if((nearQ || elapsed>3200) && !d.saidQueen){
+      d.saidQueen=true;
+      hideBeeSay(st);
+      if(q){
+        setBeeMood(q, "angry");
+        showBeeSay(q, d.queenLine, 2000);
+      }
+    }
+    if(elapsed>4800) d.phase="sulk";
+  } else if(d.phase==="sulk"){
+    hideBeeSay(q);
+    assignBeeTarget(st, true);
+    st.cruise=90;
+    clearBeeMood(st);
+    setBeeMood(st, "angry");
+    st.act="angry";
+    st.actUntil=now+1400;
+    showBeeSay(st, d.afterLine, 1400);
+    if(q){
+      var bounds=beeStageBounds();
+      q.tx=bounds.w*0.5; q.ty=-90; q.act="exit";
+    }
+    d.phase="exit";
+  } else if(d.phase==="exit"){
+    if(elapsed>6400 || (q && q.y<-50)){
+      if(q && q.el) q.el.style.display="none";
+      hideBeeSay(q);
+      if(st.act==="tattle"){ clearBeeMood(st); assignBeeTarget(st, false); }
+      deep.beeDrama=null;
+      if(!deep.on) deep.queen=null;
+    }
+  }
 }
 
 function beginFight(a, b, now){
@@ -1760,6 +1918,7 @@ function forceBeeMoveIfStuck(st, now){
       assignBeeTarget(st.partner, false);
     }
     if(st.act==="fight") return; /* fight director owns them */
+    if(st.act==="tattle") return; /* snitch run owns them */
     if(st.act==="chat") return;
     if(st.act==="transfer" && deep.beeDrama && deep.beeDrama.kind==="transferTalk") return;
     clearBeeMood(st);
@@ -1863,6 +2022,7 @@ function tickBeeWander(ts){
   scheduleBeeDrama(now);
   if(deep.beeDrama){
     if(deep.beeDrama.kind==="fight") tickFightDrama(now, dt);
+    else if(deep.beeDrama.kind==="tattle") tickTattleDrama(now, dt);
     else if(deep.beeDrama.kind==="chat") tickChatDrama(now);
     else if(deep.beeDrama.kind==="transferTalk") tickTransferTalk(now);
   }
@@ -1925,7 +2085,7 @@ function ensureBeeSwarm(){
   var sayKeep=bees.querySelectorAll(".bee-say");
   var queen=bees.querySelector(".is-queen");
   bees.innerHTML=html.join("");
-  if(queen && deep.on) bees.appendChild(queen);
+  if(queen) bees.appendChild(queen);
   [].forEach.call(sayKeep, function(n){ bees.appendChild(n); });
   return true;
 }
