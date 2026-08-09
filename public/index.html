@@ -779,7 +779,7 @@ body.diving #deepHive{opacity:0}
 <script>
 (function(){
 "use strict";
-var API="/api/hive", POLL=60000, PANEL_POLL=15000;
+var API="/api/hive", POLL=60000, PANEL_POLL=5000;
 var $=function(i){return document.getElementById(i);};
 var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
@@ -3255,10 +3255,17 @@ loadProductLanes();
 
 /* Open todos + user gates live on the CENTER HEX RING (renderCombFromTodos),
    not a side list — do not reintroduce a left todo/gates column. */
+function panelHash(val){
+  try{ return JSON.stringify(val); }catch(e){ return String(Math.random()); }
+}
 function loadOpenTodos(){
   fetch("/open-todos.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){
-      state.todos = d && d.todos;
+      var todos=d && d.todos;
+      var h=panelHash({u:d&&d.updatedAt, t:todos});
+      if(h===state._todosHash) return;
+      state._todosHash=h;
+      state.todos = todos;
       renderCombFromTodos(state.todos);
       maybeRenderPipelineFromTodos();
     }).catch(function(){ renderCombFromTodos(null); });
@@ -3267,6 +3274,9 @@ function loadOpenTodos(){
     .then(function(d){
       var el=$("attnGates"); if(!el) return;
       var gates=d && d.gates;
+      var h=panelHash(gates);
+      if(h===state._gatesHash) return;
+      state._gatesHash=h;
       if(!gates || !gates.length){ el.hidden=true; el.innerHTML=""; return; }
       el.innerHTML='<h3>User gates</h3><div class="todo-list">'+gates.map(function(g){
         return '<div class="item"><div class="t">'+esc(g.id)+' — '+esc(g.title)+'</div>'+
@@ -3275,6 +3285,36 @@ function loadOpenTodos(){
       el.hidden=false;
     })
     .catch(function(){});
+}
+
+/* Local serve.js pushes SSE when public/*.json changes; live Vercel falls back to PANEL_POLL. */
+function startPanelLive(){
+  if(typeof EventSource==="undefined") return;
+  var host=location.hostname;
+  if(host!=="127.0.0.1" && host!=="localhost") return;
+  var es=null, backoff=1000, timer=null;
+  function connect(){
+    if(es){ try{ es.close(); }catch(e){} es=null; }
+    try{ es=new EventSource("/api/live"); }catch(e){ schedule(); return; }
+    es.onopen=function(){ backoff=1000; };
+    es.onmessage=function(ev){
+      var msg=null;
+      try{ msg=JSON.parse(ev.data); }catch(e){ return; }
+      if(!msg || msg.type==="hello") return;
+      if(msg.type==="panel") refreshPanels();
+    };
+    es.onerror=function(){
+      try{ es.close(); }catch(e){}
+      es=null;
+      schedule();
+    };
+  }
+  function schedule(){
+    clearTimeout(timer);
+    timer=setTimeout(connect, backoff);
+    backoff=Math.min(15000, Math.floor(backoff*1.6));
+  }
+  connect();
 }
 
 function renderTestsTable(tests){
@@ -3630,6 +3670,7 @@ renderCombFromTodos([]);             /* hub + todo ring rendered before any netw
 load();
 loadOpenTodos();
 startHomeBees();
+startPanelLive();
 setInterval(function(){ if(!document.hidden) load(); },POLL);
 setInterval(function(){ if(!document.hidden) refreshPanels(); },PANEL_POLL);
 route();                             /* honor a #/hive… deep link on load */

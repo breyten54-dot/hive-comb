@@ -31,9 +31,14 @@ public/index.html        SPA (no build step)
 public/open-todos.json   P0/P1 backlog the Comb + Agent keep current
 public/eta.json          ETA rails
 public/sw.js             App-shell cache only — never caches *.json
-serve.js                 Local static + /api/tree vault scan; /api/hive stubs empty
+serve.js                 Local static + /api/tree vault scan; /api/live SSE; /api/hive stubs empty
 api/hive.js              Optional Vercel Notion bridge (legacy)
 ```
+
+**Auto-update (no manual refresh):**
+- **Local (`8765`)** — `serve.js` watches `public/*.json` and pushes SSE on `/api/live`; the SPA refreshes panels within ~1s.
+- **Everywhere** — panels also poll every **5s** (`cache: no-store`). JSON is never SW-cached.
+- **Live (Vercel)** — still serves the last deploy. After editing Comb JSON: push `hive-comb` and `npx vercel --prod` so open tabs pick up the new board on the next poll.
 
 **The comb always renders** from a skeleton + `open-todos.json` before any Notion call.
 
@@ -86,4 +91,4 @@ Remote: <https://github.com/breyten54-dot/hive-comb>
 - **Open todos** drive the surface ring and (when Notion is absent) Pipeline detail.
 - **Needs attention** ≈ Blocked + review-like + User-owned open items.
 - **Completion by area** from todo `section` tags when using the disk fallback.
-- Agent standing rule: mark Done / add rows in `open-todos.json` as work finishes, push + redeploy Comb when the list changes.
+- Agent standing rule: mark Done / add rows in `open-todos.json` as work finishes, bump `updatedAt`, push `hive-comb`, and `npx vercel --prod` when the list changes (local Comb updates via SSE without deploy; live Comb needs the deploy).

@@ -391,6 +391,51 @@ function safePath(root, rel) {
   return target;
 }
 
+/* ---------- live panel SSE: push when public/*.json changes on disk ---------- */
+const LIVE_JSON = new Set([
+  'open-todos.json', 'eta.json', 'meetings.json', 'portfolio-gates.json',
+  'state-blurb.json', 'inbox-status.json', 'product-lanes.json',
+]);
+const liveClients = new Set();
+let liveDebounce = null;
+let lastLivePayload = '';
+
+function broadcastLive(files) {
+  const payload = JSON.stringify({
+    type: 'panel',
+    files: files || [],
+    at: new Date().toISOString(),
+  });
+  if (payload === lastLivePayload) return;
+  lastLivePayload = payload;
+  for (const res of liveClients) {
+    try {
+      res.write('data: ' + payload + '\n\n');
+    } catch {
+      liveClients.delete(res);
+    }
+  }
+}
+
+function scheduleLiveBroadcast(fileName) {
+  if (!LIVE_JSON.has(fileName)) return;
+  clearTimeout(liveDebounce);
+  liveDebounce = setTimeout(() => {
+    broadcastLive([fileName]);
+  }, 80);
+}
+
+try {
+  fs.watch(PUBLIC, { persistent: true }, (eventType, filename) => {
+    if (!filename) return;
+    const base = path.basename(String(filename));
+    if (base.endsWith('.json')) scheduleLiveBroadcast(base);
+  });
+  console.log('Watching public/*.json for live Comb panel updates');
+} catch (err) {
+  console.warn('Could not watch public/ for live updates:', err && err.message ? err.message : err);
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   let pathname;
@@ -398,6 +443,22 @@ const server = http.createServer((req, res) => {
     pathname = decodeURIComponent(url.pathname);
   } catch {
     return notFound(res, 'Bad path');
+  }
+
+  if (pathname === '/api/live') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+    res.write(': comb-live\n\n');
+    res.write('data: ' + JSON.stringify({ type: 'hello', at: new Date().toISOString() }) + '\n\n');
+    liveClients.add(res);
+    req.on('close', () => {
+      liveClients.delete(res);
+    });
+    return;
   }
 
   if (pathname === '/api/hive') {
