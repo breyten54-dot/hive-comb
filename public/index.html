@@ -94,13 +94,13 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  /* Surplus width → rails; center hex stays readable (not billboard-sized). */
-  grid-template-columns:minmax(160px,1fr) minmax(280px,min(520px,42vw)) minmax(160px,1fr);
+  /* Rails capped so hex lattice stays compact; center hex stays readable. */
+  grid-template-columns:minmax(160px,min(260px,1fr)) minmax(280px,min(520px,42vw)) minmax(160px,min(260px,1fr));
   grid-template-areas:"assign core meet" "legend legend legend";
   gap:8px;align-items:stretch;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
 .comb-rail{min-width:0;border-radius:10px;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;align-self:stretch;min-height:100%;
+  display:flex;flex-direction:column;align-self:stretch;min-height:0;height:100%;
   border:1px solid rgba(212,167,44,.28);
   background:
     radial-gradient(circle at 30% 40%, rgba(212,167,44,.14), transparent 55%),
@@ -109,9 +109,10 @@ button{font:inherit}
     repeating-linear-gradient(-60deg, transparent 0 11px, rgba(212,167,44,.03) 11px 12px),
     linear-gradient(180deg, rgba(30,22,10,.45), rgba(10,8,6,.75))}
 .comb-rail .rail-label{position:relative;z-index:2;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--gold);padding:8px 8px 0;text-align:center;font-weight:600;flex-shrink:0}
-.comb-rail .rail-sub{position:relative;z-index:2;font-size:.55rem;color:var(--ink-3);text-align:center;padding:2px 6px 6px;flex-shrink:0}
-.comb-rail .rail-scroll{flex:1 1 auto;min-width:0;min-height:140px;overflow-x:auto;overflow-y:hidden;padding:0 2px 8px;
+  color:var(--gold);padding:8px 8px 0;text-align:center;font-weight:600;flex:0 0 auto}
+.comb-rail .rail-sub{position:relative;z-index:2;font-size:.55rem;color:var(--ink-3);text-align:center;padding:2px 6px 6px;flex:0 0 auto}
+/* min-height:0 is required or flex clips the foot and blocks vertical room for the lattice. */
+.comb-rail .rail-scroll{flex:1 1 auto;min-width:0;min-height:0;overflow-x:auto;overflow-y:hidden;padding:0 2px 6px;
   scrollbar-width:thin;scrollbar-color:var(--gold-deep) transparent}
 .comb-rail .rail-scroll::-webkit-scrollbar{height:5px}
 .comb-rail .rail-scroll::-webkit-scrollbar-thumb{background:var(--gold-deep);border-radius:4px}
@@ -3314,38 +3315,57 @@ function railFootNext(kind, items){
     foot.innerHTML='<div class="rf-k">Up next</div><div class="rf-t">'+esc(it.title||"Meeting")+'</div><div class="rf-m">'+(when?esc(when):esc(it.source||""))+"</div>";
   }
 }
+function railLatticeHeight(size, rows){
+  var pitchY=size*Math.sqrt(3);
+  var padY=size*0.95;
+  return padY+(rows-1)*pitchY+size*Math.sqrt(3)/2+2;
+}
 function renderRail(svgId, items, kind){
   var svg=$(svgId); if(!svg) return;
   var NS="http://www.w3.org/2000/svg";
   items=items||[];
   var rail=svg.closest(".comb-rail");
   var core=document.querySelector(".comb-core");
+  var scroll=svg.closest(".rail-scroll");
+  if(rail) rail.style.minHeight="";
   var pxW=Math.max(120, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 200);
   var narrow=window.matchMedia("(max-width:700px)").matches;
-  /* Size from width only so rows do not shrink the hexes. Pitch matches center comb. */
+  var rows=narrow?4:RAIL_ROWS;
+  var labelEl=rail&&rail.querySelector(".rail-label");
+  var subEl=rail&&rail.querySelector(".rail-sub");
+  var footEl=rail&&rail.querySelector(".rail-foot");
+  var chrome=(labelEl?labelEl.offsetHeight:0)+(subEl?subEl.offsetHeight:0)+(footEl?Math.max(footEl.offsetHeight,48):48)+12;
+  var hostH=0;
+  if(scroll && scroll.clientHeight>60) hostH=scroll.clientHeight;
+  else if(rail && rail.clientHeight>120) hostH=Math.max(0, rail.clientHeight-chrome);
+  else if(core) hostH=Math.max(0, core.getBoundingClientRect().height-chrome);
+  var avail=Math.max(110, hostH||160);
+  /* Hex size must fit BOTH 3 visible columns AND N rows — never taller than the scroll box. */
+  var MAX_RAIL_SIZE=narrow?26:28;
+  var MIN_RAIL_SIZE=narrow?16:18;
   var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
-  var MAX_RAIL_SIZE=narrow?34:48;
-  var size=Math.max(narrow?22:28, Math.min(MAX_RAIL_SIZE, sizeFromW));
+  var sizeFromH=(avail-2)/(0.95+(rows-0.5)*Math.sqrt(3));
+  var size=Math.max(MIN_RAIL_SIZE, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
+  /* Extra short rows only when leftover height remains at this compact size. */
+  if(!narrow){
+    var pitchProbe=size*Math.sqrt(3);
+    var tip=size*Math.sqrt(3)/2;
+    var padProbe=size*0.95;
+    rows=Math.max(RAIL_ROWS, Math.min(10, Math.floor((avail-padProbe-tip-2)/pitchProbe)+1));
+    while(railLatticeHeight(size, rows)>avail+0.5 && size>MIN_RAIL_SIZE){
+      size-=0.5;
+      pitchProbe=size*Math.sqrt(3);
+      tip=size*Math.sqrt(3)/2;
+      padProbe=size*0.95;
+      rows=Math.max(RAIL_ROWS, Math.min(10, Math.floor((avail-padProbe-tip-2)/pitchProbe)+1));
+    }
+  }
   var pitchX=size * 2;
   var pitchY=size * Math.sqrt(3);
   var padX=size;
   var padY=size * 0.95;
   var font=Math.max(7, size * 0.24);
   var maxChars=Math.max(7, Math.floor((size * 1.55) / (font * 0.55)));
-  /* Grow rows to fill the comb height so rail columns are never dead voids. */
-  var rows=narrow?4:RAIL_ROWS;
-  if(!narrow && rail && core){
-    var coreH=core.getBoundingClientRect().height;
-    if(coreH>120){
-      rail.style.minHeight=Math.round(coreH)+"px";
-      var labelEl=rail.querySelector(".rail-label");
-      var subEl=rail.querySelector(".rail-sub");
-      var footEl=rail.querySelector(".rail-foot");
-      var chrome=(labelEl?labelEl.offsetHeight:0)+(subEl?subEl.offsetHeight:0)+(footEl?Math.max(footEl.offsetHeight,52):52)+16;
-      var avail=Math.max(160, coreH - chrome);
-      rows=Math.max(RAIL_ROWS, Math.floor((avail - padY) / pitchY));
-    }
-  }
   var minSlots=narrow?Math.max(12, items.length):Math.max(RAIL_MIN_SLOTS, rows*RAIL_VISIBLE_COLS, items.length);
   var slotCount=Math.max(minSlots, items.length);
   var cols=Math.max(RAIL_VISIBLE_COLS, Math.ceil(slotCount / rows));
@@ -3359,12 +3379,27 @@ function renderRail(svgId, items, kind){
     }
   }
   var contentW=padX + (cols - 1) * pitchX + size;
-  var visibleH=padY + (rows - 1) * pitchY + size * Math.sqrt(3) / 2;
-  var height=visibleH + 2;
-  var scroll=svg.closest(".rail-scroll");
+  var height=railLatticeHeight(size, rows);
+  /* Hard clamp — never paint taller than the scroll box (that's the crop bug). */
+  if(height>avail+1){
+    size=Math.max(MIN_RAIL_SIZE, size*(avail/height));
+    pitchX=size*2; pitchY=size*Math.sqrt(3); padX=size; padY=size*0.95;
+    font=Math.max(7, size*0.24);
+    maxChars=Math.max(7, Math.floor((size*1.55)/(font*0.55)));
+    slots=[]; i=0;
+    for(col=0; col<cols; col++){
+      for(row=0; row<rows; row++){
+        if(i>=slotCount) break;
+        slots.push({x: padX + col * pitchX, y: padY + row * pitchY});
+        i++;
+      }
+    }
+    contentW=padX+(cols-1)*pitchX+size;
+    height=railLatticeHeight(size, rows);
+  }
   if(scroll){
     if(narrow){
-      scroll.style.height=Math.round(visibleH)+"px";
+      scroll.style.height=Math.round(height)+"px";
       scroll.style.flex="0 0 auto";
     } else {
       scroll.style.height="";
