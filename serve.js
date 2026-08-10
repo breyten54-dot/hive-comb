@@ -160,6 +160,8 @@ const FOOTBALL_STEM_LABELS = {
 function footballStemLabel(rel) {
   const stem = path.basename(rel, path.extname(rel));
   if (FOOTBALL_STEM_LABELS[stem]) return FOOTBALL_STEM_LABELS[stem];
+  const hit = Object.keys(FOOTBALL_STEM_LABELS).find((k) => k.toLowerCase() === stem.toLowerCase());
+  if (hit) return FOOTBALL_STEM_LABELS[hit];
   return stem
     .replace(/\+/g, ' ')
     .replace(/[-_]+/g, ' ')
