@@ -1630,7 +1630,7 @@ function paintBeeEl(st){
   var scale=st.scale||1;
   if(st.mood==="happy") scale*=1+0.06*Math.sin(st.phase*3);
   if(st.mood==="angry"||st.mood==="fight"){ bobX+=Math.sin(st.phase*5)*2.2; bobY+=Math.cos(st.phase*4.2)*1.6; }
-  el.style.transform="translate3d("+(st.x+bobX).toFixed(2)+"px,"+(st.y+bobY).toFixed(2)+"px,0) rotate("+st.rot.toFixed(2)+"deg) scale("+scale.toFixed(3)+")";
+  el.style.transform="translate3d("+(st.x+bobX).toFixed(2)+"px,"+(st.y+bobY).toFixed(2)+"px,0) scale("+scale.toFixed(3)+")";
   el.style.left="0";
   el.style.top="0";
 }
@@ -1655,7 +1655,7 @@ function beginCoffee(st, now){
   st.actUntil=now+1400+Math.random()*1800;
   st.tx=st.x; st.ty=st.y;
   st.vx*=0.2; st.vy*=0.2;
-  st.restRot=-20+Math.random()*40;
+  st.restRot=0;
   setBeeMood(st, "coffee");
   st.stillSince=now;
   showBeeSay(st, pickLine(BEE_LINES.coffee), 1400);
@@ -1666,7 +1666,7 @@ function beginWave(st, now){
   st.actUntil=now+1200+Math.random()*1400;
   var b=beeStageBounds();
   st.tx=st.x; st.ty=Math.min(st.y+10, b.h-50);
-  st.restRot=90;
+  st.restRot=0;
   setBeeMood(st, "wave");
   st.stillSince=now;
   showBeeSay(st, pickLine(BEE_LINES.wave), 1400);
@@ -1739,7 +1739,7 @@ function ensureQueen(){
     var b=beeStageBounds();
     deep.queen={
       el:el, isQueen:true, x:b.w*0.5, y:-60, tx:b.w*0.5, ty:b.h*0.28,
-      vx:0, vy:0, rot:90, restRot:90, cruise:140, stiff:2, damp:3.2,
+      vx:0, vy:0, rot:0, restRot:0, cruise:140, stiff:2, damp:3.2,
       phase:0, phase0:0, wobble:1.5, wobbleFreq:0.8, scale:1,
       mood:"wander", act:"queen", actUntil:0, hasPaper:false,
       sayEl:null, sayUntil:0, sayText:""
@@ -2065,7 +2065,7 @@ function integrateBee(st, now, dt){
   if(st.act==="coffee" || st.act==="wave"){
     st.vx*=Math.pow(0.05, dt);
     st.vy*=Math.pow(0.05, dt);
-    st.rot=lerpAngleDeg(st.rot, st.restRot, 1-Math.exp(-2.2*dt));
+    st.rot=0;
     if(!st.stillSince) st.stillSince=now;
   } else if(st.act==="chat" && deep.beeDrama && deep.beeDrama.phase==="talk"){
     st.vx*=Math.pow(0.05, dt);
@@ -2119,10 +2119,8 @@ function integrateBee(st, now, dt){
     st.y=Math.max(12, Math.min(b.h-12, st.y));
   }
 
-  var spd=Math.hypot(st.vx, st.vy);
-  if(spd>8 && st.act!=="wave" && st.act!=="coffee"){
-    st.rot=lerpAngleDeg(st.rot, Math.atan2(st.vy, st.vx)*180/Math.PI, 1-Math.exp(-2.6*dt));
-  }
+  /* Always upright — never bank to velocity (atan2 flipped bees when heading left/down). */
+  st.rot=0;
   forceBeeMoveIfStuck(st, now);
   st.phase+=dt*st.wobbleFreq*(st.mood==="angry"||st.mood==="fight"?1.8:1);
   paintBeeEl(st);
@@ -2166,7 +2164,7 @@ function startBeeWander(){
       var st={
         el:el, isQueen:false, x:pos.x, y:pos.y, tx:pos.x, ty:pos.y,
         vx:(Math.random()-0.5)*20, vy:(Math.random()-0.5)*20,
-        rot:Math.random()*360, restRot:0, cruise:60, stiff:1.5, damp:3.5,
+        rot:0, restRot:0, cruise:60, stiff:1.5, damp:3.5,
         phase:Math.random()*Math.PI*2, phase0:Math.random()*Math.PI*2,
         wobble:2.4+Math.random()*3.8, wobbleFreq:0.6+Math.random()*0.7,
         scale:1, mood:"wander", act:null, actUntil:0, partner:null,
