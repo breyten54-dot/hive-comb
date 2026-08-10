@@ -1,10 +1,30 @@
 {
+  "football:contracts": {
+    "description": "Named 2026 season agreements — U19 / U21 / Over-21 player forms, coaching contracts, registration commitment. Local vault only.",
+    "links": [
+      { "label": "MYSAFA", "url": "https://www.mysafa.net/" }
+    ]
+  },
   "football:player-profiles": {
-    "description": "Player profile form for trials — PDF, Word, and HTML. Fill digitally or print.",
+    "description": "Player profile form for trials — open the Word (or PDF) pack to fill digitally or print.",
     "links": [
       { "label": "MYSAFA", "url": "https://www.mysafa.net/" },
       { "label": "Inqaku", "url": "https://inqaku.com/" }
     ]
+  },
+  "football:registration": {
+    "description": "Federation registration packs (MYSAFA form) kept on disk next to club papers.",
+    "links": [
+      { "label": "MYSAFA", "url": "https://www.mysafa.net/" }
+    ]
+  },
+  "football:trials": {
+    "description": "Trials poster and companion HTML for Ethekwini City FC (15 Aug 2026).",
+    "links": []
+  },
+  "football:equipment": {
+    "description": "Training kit / equipment quotes for the club.",
+    "links": []
   },
   "football:ethekwini-city": {
     "description": "Ethekwini City FC papers — clearances, badges, club files.",
@@ -19,10 +39,14 @@
     ]
   },
   "football:safa": {
-    "description": "SAFA letters and builds — name-change and federation paperwork.",
+    "description": "SAFA letters — name-change and league placement paperwork.",
     "links": [
       { "label": "SAFA", "url": "https://www.safa.net/" }
     ]
+  },
+  "football:assets": {
+    "description": "Club badges and visual assets used on contracts and posters.",
+    "links": []
   },
   "eta-work:study-guide": {
     "description": "ETA study guide PDFs for the current modules.",
@@ -71,7 +95,7 @@
     ]
   },
   "hermes-bridge:about": {
-    "description": "Hermes is the phone courier (Notion + ntfy). Say “check hermes” to wake it. Bridge code is not listed here.",
+    "description": "Hermes is the phone courier (ntfy + optional Notion bridge). Say “check hermes” to wake it. Bridge code is not listed here.",
     "links": []
   }
 }

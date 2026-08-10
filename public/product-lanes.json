@@ -53,8 +53,12 @@
       ]
     },
     "Football": {
-      "hivePath": null,
-      "websites": []
+      "hivePath": "Football\\",
+      "websites": [
+        { "label": "MYSAFA", "url": "https://www.mysafa.net/" },
+        { "label": "Inqaku", "url": "https://inqaku.com/" },
+        { "label": "SAFA", "url": "https://www.safa.net/" }
+      ]
     },
     "Personal": {
       "hivePath": null,

@@ -2414,15 +2414,17 @@ var WORK_PANEL={
   football:{
     eyebrow:"Football",
     title:"Football",
-    type:"Papers",
-    notes:"Open a labeled door (Contracts, Player profiles, clearances…). Full file shelves also sit under System.",
+    type:"Club OS — local vault",
+    notes:"Disk-backed club lane (Ethekwini City FC · Manning Rangers). Each paper is labeled — not Notion. Open a named contract, form, or site below.",
     apps:[],
     websites:[
       {label:"MYSAFA",url:"https://www.mysafa.net/"},
-      {label:"Inqaku",url:"https://inqaku.com/"}
+      {label:"Inqaku",url:"https://inqaku.com/"},
+      {label:"SAFA",url:"https://www.safa.net/"}
     ],
     roots:["football"],
-    showDoors:true
+    showDoors:true,
+    labeledPapers:true
   },
   "eta-work":{
     eyebrow:"ETA",
@@ -2812,6 +2814,26 @@ function loadProductLanes(){
   });
 }
 
+/** Prefer Word → PDF → HTML → image when several formats share one Football paper stem. */
+function preferVaultFormat(files){
+  var rank={".docx":0,".pdf":1,".html":2,".htm":3,".png":4,".jpg":5,".jpeg":6,".webp":7};
+  var byStem={};
+  (files||[]).forEach(function(f){
+    var stem=f.stem||String(f.rel||f.label||"").replace(/\.[^.]+$/,"");
+    var key=stem.toLowerCase();
+    var prev=byStem[key];
+    if(!prev){ byStem[key]=f; return; }
+    var ra=rank[String(f.ext||"").toLowerCase()]; if(ra==null) ra=50;
+    var rb=rank[String(prev.ext||"").toLowerCase()]; if(rb==null) rb=50;
+    if(ra<rb) byStem[key]=f;
+  });
+  return Object.keys(byStem).map(function(k){ return byStem[k]; });
+}
+
+function paperChipLabel(f){
+  return f.stemLabel||f.label||f.rel||"File";
+}
+
 /** Assignment-style panel — Apps as SUBMISSION-style underlined links; Websites as chips. */
 function openWorkPanel(workId,opts){
   opts=opts||{};
@@ -2841,9 +2863,37 @@ function openWorkPanel(workId,opts){
     });
     if(webChips.length) h+=row("Websites",'<div class="chips">'+webChips.join("")+'</div>');
 
-    /* Labeled doors = section names (Contracts, Study guide…) — not raw filenames. */
+    /* Football (and similar): labeled papers per shelf — not a generic “Contracts” folder door. */
+    var paperBind=[];
     var doorBind=[];
-    if(cfg.showDoors){
+    if(cfg.showDoors && cfg.labeledPapers){
+      var anyFiles=false;
+      (trees||[]).forEach(function(tree){
+        (tree.sections||[]).forEach(function(sec){
+          var papers=preferVaultFormat(sec.files||[]).filter(function(f){
+            if(!f||!f.rel) return false;
+            if(/\/build\//i.test(f.rel)||/^build\//i.test(f.rel)) return false;
+            if(/\/_/.test(f.rel)) return false;
+            if(/\bpage\s*\d+\b/i.test(f.stem||f.label||"")) return false;
+            if(/^r\d*$/i.test(String(f.stem||"").trim())) return false;
+            if(/\(\d+\)(\s*\(\d+\)){2,}/.test(f.stem||f.label||"")) return false;
+            return true;
+          });
+          if(!papers.length) return;
+          anyFiles=true;
+          h+='<div class="row"><span class="k">'+esc(sec.label)+'</span><div class="chips">';
+          papers.forEach(function(f){
+            var idx=paperBind.length;
+            paperBind.push({root:tree.root,file:f,sec:sec});
+            h+='<button type="button" class="chip" data-work-paper="'+idx+'">'+esc(paperChipLabel(f))+'</button>';
+          });
+          h+='</div></div>';
+        });
+      });
+      if(!anyFiles){
+        h+=row("Vault",'<span style="color:var(--ink-3)">No local Football files reachable. Run Comb on this machine (<code>serve.js</code>) against the HIVE disk vault — this lane is not Notion.</span>');
+      }
+    } else if(cfg.showDoors){
       (trees||[]).forEach(function(tree){
         (tree.sections||[]).forEach(function(sec){
           if(!(sec.files||[]).length) return;
@@ -2869,6 +2919,12 @@ function openWorkPanel(workId,opts){
         if(item) openSectionPanel(item.root,item.sec);
       });
     });
+    $("panel").querySelectorAll("[data-work-paper]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var item=paperBind[+btn.getAttribute("data-work-paper")];
+        if(item) openVaultFile(item.root,item.file);
+      });
+    });
   }).catch(function(err){
     openPanel('<div class="eb">'+esc(cfg.eyebrow)+'</div><h2>'+esc(cfg.title)+'</h2>'+errHtml("server",err.message));
   });
@@ -2881,15 +2937,16 @@ function openSectionPanel(root, sec, opts){
     var meta=(metaAll&&(metaAll[key]||metaAll[sec.id]))||{};
     var h='<div class="eb">'+esc(root.label)+'</div><h2>'+esc(sec.label)+'</h2>';
     h+='<p style="color:var(--ink-2);line-height:1.55;margin:0 0 12px">'+(meta.description?esc(meta.description):'Files for this folder.')+'</p>';
-    var files=sec.files||[];
+    var raw=sec.files||[];
+    var files=root.id==="football"?preferVaultFormat(raw):raw;
     if(files.length){
-      h+='<div class="row"><span class="k">Files</span><div class="chips">';
+      h+='<div class="row"><span class="k">Papers</span><div class="chips">';
       files.forEach(function(f,i){
-        h+='<button type="button" class="chip" data-file-idx="'+i+'">'+esc(f.label)+'</button>';
+        h+='<button type="button" class="chip" data-file-idx="'+i+'">'+esc(paperChipLabel(f))+'</button>';
       });
       h+='</div></div>';
     } else {
-      h+=row("Files",'<span style="color:var(--ink-3)">No matching files yet</span>');
+      h+=row("Papers",'<span style="color:var(--ink-3)">No matching files yet</span>');
     }
     var links=meta.links||[];
     if(links.length){

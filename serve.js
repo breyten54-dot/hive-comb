@@ -130,9 +130,53 @@ const FOOTBALL_SECTIONS = [
   { id: 'manning-rangers', label: 'Manning Rangers', match: /^Manning Rangers\/.+/i },
   { id: 'assets',          label: 'Assets',          match: /^assets\/[^/]+$/i },
   { id: 'player-profiles', label: 'Player profiles', match: /^Player-Profiles\//i },
-  { id: 'trials',          label: 'Trials',          match: /^ethekwini-city-fc-player-trials-15-aug-2026\.png$/i },
+  { id: 'trials',          label: 'Trials',          match: /^ethekwini-city-fc-player-trials-15-aug-2026\.(png|html)$/i },
+  { id: 'registration',    label: 'Registration forms', match: /^MYSAFA/i },
 ];
 
+/** Human labels for Football vault stems — sellable OS: never dump raw filenames in the hex. */
+const FOOTBALL_STEM_LABELS = {
+  'ECFC-MRS_Player_Agreement_Under19_2026-1': 'Player Agreement — Under-19 (2026)',
+  'ECFC-MRS_Player_Agreement_Under21_2026-2': 'Player Agreement — Under-21 (2026)',
+  'ECFC-MRS_Player_Agreement_Over21_2026': 'Player Agreement — Over-21 / Senior (2026)',
+  'Ethekwini-City-FC-Coaching-Agreement-Reece-Ogle-2026': 'Coaching Agreement — Reece Ogle (2026)',
+  'Ethekwini-City-FC-Coaching-Agreement-Sthe-2026': 'Coaching Agreement — Sthe (2026)',
+  'Ethekwini-City-FC-Player-Registration-Commitment-Agreement-2026': 'Player Registration & Commitment (2026)',
+  'Player-Profile-Form-2026': 'Player Profile Form (2026)',
+  'SAFA-Club-Name-Change-and-League-Placement-Request-2026': 'SAFA Club Name Change & League Placement (2026)',
+  'Ethekwini-City-FC-Training-Equipment-Quote-Charmers-2026': 'Training Equipment Quote — Charmers (2026)',
+  'ethekwini-city-fc-player-trials-15-aug-2026': 'Trials Poster — 15 Aug 2026',
+  'MYSAFA+Registration+Form+v2 (1)': 'MYSAFA Registration Form',
+  'ethekwini-city-fc-badge': 'Badge — Ethekwini City FC',
+  'manning-rangers-sporting-badge': 'Badge — Manning Rangers Sporting',
+  'Bryce Clearance and Travel Permission': 'Bryce — Clearance & Travel Permission',
+  'Permission to Travel Bryce Naude Ethekwini City FC': 'Bryce — Permission to Travel (ECFC)',
+  'Permission to Travel Bryce Naude Ethekwini City FC (SIGN HERE)': 'Bryce — Permission to Travel (ECFC, sign here)',
+  'Clearance Bryce Naude': 'Bryce — Clearance (MRS)',
+  'Permission to Travel Bryce Naude Manning Rangers': 'Bryce — Permission to Travel (MRS)',
+  'Permission to Travel Bryce Naude Manning Rangers (SIGN HERE)': 'Bryce — Permission to Travel (MRS, sign here)',
+};
+
+function footballStemLabel(rel) {
+  const stem = path.basename(rel, path.extname(rel));
+  if (FOOTBALL_STEM_LABELS[stem]) return FOOTBALL_STEM_LABELS[stem];
+  return stem
+    .replace(/\+/g, ' ')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase()) || stem;
+}
+
+/** Drop extract folders, page dumps, and OneDrive copy-soup from the Football OS surface. */
+function isFootballSurfaceNoise(rel) {
+  const base = path.basename(rel, path.extname(rel));
+  if (/\/_/.test(rel.replace(/\\/g, '/'))) return true;
+  if (/\bpage\s*\d+\b/i.test(base)) return true;
+  if (/^r\d*$/i.test(base.trim())) return true;
+  if (/\(\d+\)(\s*\(\d+\)){2,}/.test(base)) return true;
+  return false;
+}
 /* ETA Work — Study guide (tests) vs Assignments; keep monitor noise out of primary hexes. */
 const ETA_ARTEFACT_EXT = new Set(['.html', '.pdf', '.docx', '.md', '.png', '.jpg', '.jpeg', '.webp']);
 const ETA_SECTIONS = [
@@ -192,12 +236,18 @@ function buildCuratedSections(entries, sectionDefs, { filter, includeOther = fal
 }
 
 function fileEntry(rootId, f) {
-  const label = f.rel.split('/').pop();
+  const baseName = path.basename(f.rel);
+  const ext = path.extname(baseName).toLowerCase();
+  const stem = path.basename(baseName, ext);
+  const label =
+    rootId === 'football' ? footballStemLabel(f.rel) : baseName;
   const url = '/vault/' + rootId + '/' + f.rel.split('/').map(encodeURIComponent).join('/');
   return {
     id: slugify(f.rel),
     label,
-    ext: path.extname(label).toLowerCase(),
+    stem,
+    stemLabel: rootId === 'football' ? footballStemLabel(f.rel) : stem,
+    ext,
     rel: f.rel,
     url,
     bytes: f.bytes,
@@ -210,7 +260,9 @@ function buildRootTree(root) {
   const state = { count: 0, truncated: false, realRoot: root.dir };
   try { state.realRoot = fs.realpathSync(root.dir); } catch { /* keep literal dir */ }
   scanTree(root.dir, '', 1, files, state);
-  const entries = files.map((f) => fileEntry(root.id, f));
+  const entries = files
+    .map((f) => fileEntry(root.id, f))
+    .filter((fe) => !(root.id === 'football' && isFootballSurfaceNoise(fe.rel)));
   let sections;
   if (root.id === 'football') {
     sections = buildCuratedSections(entries, FOOTBALL_SECTIONS, { includeOther: true });
