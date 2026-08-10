@@ -466,7 +466,7 @@ footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color
 #deepHive[hidden]{display:none}
 body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 @keyframes deepEnter{from{opacity:0;filter:brightness(.4)}to{opacity:1;filter:none}}
-.deep-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 18px 8px;position:relative;z-index:7}
+.deep-top{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:8px 16px 4px;position:relative;z-index:7}
 .deep-surface{background:rgba(24,20,12,.82);border:1px solid var(--gold-deep);color:var(--gold-br);
   border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;font-weight:600;backdrop-filter:blur(6px)}
 .deep-surface:hover{border-color:var(--gold-br);background:rgba(18,14,8,.95)}
@@ -475,11 +475,11 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 .deep-crumbs a:hover{text-decoration:underline}
 .deep-crumbs .sep{color:var(--gold-deep)}
 .deep-crumbs .here{color:var(--ink);font-weight:600}
-#deepStageWrap{flex:1 1 auto;min-height:0;position:relative;perspective:900px;perspective-origin:50% 42%;
+#deepStageWrap{flex:1 1 auto;min-height:0;position:relative;perspective:900px;perspective-origin:50% 28%;
   overflow:hidden}
 #deepAtmosphere{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-  perspective:720px;perspective-origin:50% 42%}
-.deep-vanish{position:absolute;left:50%;top:42%;width:min(58vw,560px);height:min(58vw,560px);
+  perspective:720px;perspective-origin:50% 28%}
+.deep-vanish{position:absolute;left:50%;top:28%;width:min(58vw,560px);height:min(58vw,560px);
   transform:translate(-50%,-50%);border-radius:50%;z-index:1;
   background:radial-gradient(circle,rgba(255,220,110,.72) 0%,rgba(244,196,48,.35) 26%,rgba(138,100,20,.14) 48%,transparent 70%);
   filter:blur(2px);animation:deepPulse 5.5s ease-in-out infinite alternate}
@@ -487,10 +487,10 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 @keyframes deepPulse{from{opacity:.72;transform:translate(-50%,-50%) scale(1)}to{opacity:1;transform:translate(-50%,-50%) scale(1.06)}}
 .deep-vignette{position:absolute;inset:0;z-index:3;
   background:
-    radial-gradient(ellipse 70% 58% at 50% 42%, transparent 22%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.78) 100%),
-    linear-gradient(180deg,rgba(5,4,3,.4) 0%,transparent 14%,transparent 84%,rgba(5,4,3,.6) 100%)}
+    radial-gradient(ellipse 70% 58% at 50% 28%, transparent 22%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.78) 100%),
+    linear-gradient(180deg,rgba(5,4,3,.25) 0%,transparent 10%,transparent 84%,rgba(5,4,3,.6) 100%)}
 :root[data-theme="light"] .deep-vignette{background:
-    radial-gradient(ellipse 70% 58% at 50% 42%, transparent 30%, rgba(90,70,30,.16) 70%, rgba(60,45,20,.38) 100%)}
+    radial-gradient(ellipse 70% 58% at 50% 28%, transparent 30%, rgba(90,70,30,.16) 70%, rgba(60,45,20,.38) 100%)}
 .deep-lattice{display:none}
 .deep-motes{position:absolute;inset:0;z-index:4}
 .deep-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,196,48,.75);
@@ -507,11 +507,11 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
   transform:rotateY(-62deg) translateZ(-30px);
   mask-image:linear-gradient(270deg,transparent 0%,#000 12%,#000 78%,transparent 100%);
   -webkit-mask-image:linear-gradient(270deg,transparent 0%,#000 12%,#000 78%,transparent 100%)}
-.deep-tunnel-floor{left:6%;right:6%;top:40%;height:78%;transform-origin:50% 0%;
+.deep-tunnel-floor{left:6%;right:6%;top:22%;height:85%;transform-origin:50% 0%;
   transform:rotateX(72deg) translateZ(-12px);
   mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%);
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%)}
-.deep-tunnel-ceil{left:8%;right:8%;top:-8%;height:52%;transform-origin:50% 100%;
+.deep-tunnel-ceil{left:8%;right:8%;top:-18%;height:58%;transform-origin:50% 100%;
   transform:rotateX(-70deg) translateZ(-18px);
   mask-image:linear-gradient(0deg,#000 0%,#000 50%,transparent 100%);
   -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 50%,transparent 100%);
@@ -523,15 +523,20 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 /* Bees z:6 over hex stage (5); deep-top z:7 keeps Surface/crumbs clickable. */
 /* System/Avoid (.deep-doc): tuck bees under the stage dark veil (class, not :has — avoids sticky z). */
 #deepHive.doc-open #deepBees{z-index:4}
-#deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
-  /* Bias slightly toward the top so the comb sits in the upper-middle on tall Opera/Chrome windows. */
-  padding:clamp(8px,4vh,36px) 16px clamp(16px,6vh,48px);overflow:hidden;transform-style:flat;
-  align-content:center}
-#deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
-  display:block;margin:0 auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 1 auto}
+/* Pin comb to the top on every viewport — moderate size, no vertical centering dead band. */
+#deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:flex-start;justify-content:center;
+  padding:8px 12px 16px;overflow:hidden;transform-style:flat;align-content:flex-start}
+#deepStage .deep-comb-svg{width:min(94vw,680px);height:auto;max-width:100%;
+  max-height:min(72vh,calc(100% - 12px));
+  display:block;margin:0 auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 1 auto;
+  min-height:0;overflow:hidden}
+@media(min-width:700px){
+  #deepStage{padding:10px 16px 18px}
+  #deepStage .deep-comb-svg{width:min(90vw,740px);max-height:min(74vh,calc(100% - 14px))}
+}
 @media(min-width:1100px){
-  #deepStage{align-items:flex-start;justify-content:center;padding-top:clamp(12px,5vh,56px)}
-  #deepStage .deep-comb-svg{width:min(86vw,900px);height:min(78vh,760px);max-height:calc(100dvh - 120px)}
+  #deepStage{padding:12px 20px 20px}
+  #deepStage .deep-comb-svg{width:min(70vw,820px);max-height:min(78vh,calc(100% - 16px))}
 }
 .deep-cell{cursor:pointer}
 .deep-cell .wax-rim{fill:url(#deepWaxRim);stroke:rgba(244,196,48,.55);stroke-width:1.6;
@@ -2490,6 +2495,8 @@ function renderDeepComb(nodes, hubLabel, hubPick){
   svg.setAttribute("class","deep-comb-svg");
   svg.setAttribute("role","group");
   svg.setAttribute("aria-label",hubLabel||"Deep hive");
+  /* Stick hex cluster to the top of the SVG box if the stage letterboxes vertically. */
+  svg.setAttribute("preserveAspectRatio","xMidYMin meet");
   var cells=[{hub:true,q:0,r:0}], i=0, rad=1;
   while(i<nodes.length && rad<=4){
     var rg=ring(rad);
@@ -2528,7 +2535,7 @@ function renderDeepComb(nodes, hubLabel, hubPick){
     });
     svg.appendChild(g);
   });
-  var pad=size+18;
+  var pad=size+12;
   svg.setAttribute("viewBox",(Math.min.apply(null,xs)-pad)+" "+(Math.min.apply(null,ys)-pad)+" "+
     (Math.max.apply(null,xs)-Math.min.apply(null,xs)+pad*2)+" "+
     (Math.max.apply(null,ys)-Math.min.apply(null,ys)+pad*2));
