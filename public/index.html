@@ -41,6 +41,8 @@ body{background:radial-gradient(ellipse 80% 50% at 50% 42%, rgba(212,167,44,.09)
 h1,h2{font-family:Georgia,"Iowan Old Style",serif;margin:0;text-wrap:balance}
 .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
 :focus-visible{outline:2px solid var(--gold-br);outline-offset:2px;border-radius:4px}
+/* Empty-space clicks focus the SVG root — never draw a frame around the whole comb. */
+svg.comb:focus,svg.comb:focus-visible,.comb-core:focus,.comb-core:focus-visible{outline:none}
 button{font:inherit}
 
 .top{max-width:1760px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 20px 4px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
@@ -447,7 +449,8 @@ html.deep-on,body.deep-on{overflow:hidden !important;height:100%;height:100dvh;m
   overscroll-behavior:none;touch-action:none}
 body.deep-on #homeBees{display:none;visibility:hidden}
 body.deep-on .pageShell{display:none !important}
-body.deep-on .top{position:relative;z-index:16}
+/* Surface chrome lives inside #deepHive (.deep-top); do not reserve space for .top. */
+body.deep-on .top{display:none !important}
 #combToast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
   background:var(--surface-2);border:1px solid var(--gold-deep);color:var(--ink);
   padding:10px 16px;border-radius:8px;font-size:.78rem;z-index:40;opacity:0;pointer-events:none;
@@ -456,7 +459,8 @@ body.deep-on .top{position:relative;z-index:16}
 footer{max-width:1380px;margin:20px auto 0;padding:0 20px;font-size:.66rem;color:var(--ink-3);line-height:1.6;text-align:center}
 
 /* ---------- deep hive (dive view — honeycomb corridor) ---------- */
-#deepHive{position:fixed;left:0;right:0;bottom:0;top:64px;z-index:15;display:flex;flex-direction:column;
+/* Full viewport — Surface/crumbs are inside this panel, not above it. */
+#deepHive{position:fixed;inset:0;z-index:15;display:flex;flex-direction:column;
   background:#050403;overflow:hidden}
 :root[data-theme="light"] #deepHive{background:#ebe0c4}
 #deepHive[hidden]{display:none}
@@ -516,13 +520,19 @@ body.deep-on #deepHive{animation:deepEnter .55s cubic-bezier(.2,.75,.2,1) both}
 #deepBgHexes{display:none}
 .deep-walls{display:none}
 #deepBees{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}
-#deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
-  padding:12px 16px 28px;overflow:hidden;transform-style:flat}
 /* Bees z:6 over hex stage (5); deep-top z:7 keeps Surface/crumbs clickable. */
 /* System/Avoid (.deep-doc): tuck bees under the stage dark veil (class, not :has — avoids sticky z). */
 #deepHive.doc-open #deepBees{z-index:4}
+#deepStage{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  /* Bias slightly toward the top so the comb sits in the upper-middle on tall Opera/Chrome windows. */
+  padding:clamp(8px,4vh,36px) 16px clamp(16px,6vh,48px);overflow:hidden;transform-style:flat;
+  align-content:center}
 #deepStage .deep-comb-svg{width:min(92vw,720px);height:min(78vh,640px);max-width:100%;max-height:100%;
-  display:block;margin:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 0 auto}
+  display:block;margin:0 auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));flex:0 1 auto}
+@media(min-width:1100px){
+  #deepStage{align-items:flex-start;justify-content:center;padding-top:clamp(12px,5vh,56px)}
+  #deepStage .deep-comb-svg{width:min(86vw,900px);height:min(78vh,760px);max-height:calc(100dvh - 120px)}
+}
 .deep-cell{cursor:pointer}
 .deep-cell .wax-rim{fill:url(#deepWaxRim);stroke:rgba(244,196,48,.55);stroke-width:1.6;
   transition:stroke .2s,filter .2s}
@@ -653,7 +663,7 @@ body.diving #deepHive{opacity:0}
         </div>
         <div class="comb-core">
           <div id="homeBees" aria-hidden="true"></div>
-          <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE open todos"></svg>
+          <svg class="comb" id="comb" viewBox="0 0 600 600" role="group" aria-label="HIVE open todos" tabindex="-1" focusable="false"></svg>
           <svg id="bee" viewBox="0 0 40 40" aria-hidden="true">
             <ellipse cx="20" cy="22" rx="9" ry="7" fill="#f4c430"/>
             <path d="M12 19q8-3 16 0M12 24q8 3 16 0" stroke="#1a1206" stroke-width="2.4" fill="none"/>
@@ -2390,13 +2400,13 @@ function parseHash(){
 }
 function navTo(hash){ if(location.hash===hash) route(); else location.hash=hash; }
 
-function deepTopOffset(){ var t=document.querySelector(".top"); return t?t.offsetHeight:0; }
 function showDeep(){
   stopBeeWander();
   var home=$("homeBees");
   if(home) home.innerHTML="";
   var d=$("deepHive");
-  d.style.top=deepTopOffset()+"px";
+  /* Full-viewport panel — Surface chrome is .deep-top inside #deepHive (no gap for .top). */
+  d.style.top="";
   d.hidden=false;
   document.documentElement.classList.add("deep-on");
   document.body.classList.add("deep-on");
@@ -2436,7 +2446,6 @@ function route(){
 window.addEventListener("hashchange",route);
 window.addEventListener("resize",function(){
   if(deep.on){
-    $("deepHive").style.top=deepTopOffset()+"px";
     if(deep.beeRunning) startBeeWander();
   }
 });
@@ -3013,7 +3022,15 @@ function select(g){
   if(g.__c.todo){ flyTo(g,function(){openPanel(todoPanel(g.__c.todo));}); return; }
   flyTo(g,function(){openPanel(projPanel(g.__c.p));});
 }
-$("comb").addEventListener("click",function(e){var g=e.target.closest(".cell");if(g)select(g);});
+$("comb").addEventListener("mousedown",function(e){
+  /* Keep empty-space clicks from focusing the SVG (gold focus frame). Hex cells still focus normally. */
+  if(!e.target.closest || !e.target.closest(".cell")) e.preventDefault();
+});
+$("comb").addEventListener("click",function(e){
+  var g=e.target.closest(".cell");
+  if(g){ select(g); return; }
+  if(document.activeElement===$("comb")) $("comb").blur();
+});
 $("comb").addEventListener("keydown",function(e){
   if(e.key!=="Enter"&&e.key!==" ")return;
   var g=e.target.closest(".cell"); if(g){e.preventDefault();select(g);}});
