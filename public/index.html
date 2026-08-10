@@ -94,13 +94,13 @@ button{font:inherit}
 .combhd .hint{font-size:.61rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-left:auto}
 /* Compact left | comb | right — page must not slide; rails scroll sideways. */
 .combwrap{position:relative;z-index:1;width:100%;display:grid;
-  /* Mid: assign | comb | meet; pipeline full-width under legend. */
-  grid-template-columns:minmax(160px,240px) minmax(280px,1fr) minmax(160px,240px);
+  /* Mid: assign | comb | meet — tight rails so lattice can fill with no side gutter. */
+  grid-template-columns:minmax(110px,160px) minmax(280px,1fr) minmax(110px,160px);
   grid-template-areas:
     "assign core meet"
     "legend legend legend"
     "pipe pipe pipe";
-  gap:8px;align-items:stretch;min-height:0;overflow-x:hidden}
+  gap:6px;align-items:stretch;min-height:0;overflow-x:hidden}
 .rail-pair{display:contents}
 .combwrap > .pipeline-detail{grid-area:pipe;min-width:0;margin:0;padding:0;max-width:none}
 /* Nested oldComb .combwrap must not inherit the surface grid. */
@@ -179,10 +179,12 @@ svg.comb{width:100%;max-width:min(520px,100%);max-height:min(58vh,480px);height:
   #combcard .combwrap{flex:1 1 auto;min-height:0}
   .combwrap{
     height:100%;min-height:0;
-    grid-template-columns:minmax(140px,220px) minmax(140px,220px) minmax(280px,1fr) minmax(280px,360px);
+    /* Same tight rails as mid — gap fix must hold on full Opera/Chrome too. */
+    grid-template-columns:minmax(110px,160px) minmax(110px,160px) minmax(280px,1fr) minmax(260px,340px);
     grid-template-areas:
       "assign meet core pipe"
       "legend legend legend legend";
+    gap:6px;
   }
   .comb-core{max-width:min(460px,100%);max-height:100%;min-height:0}
   svg.comb{max-width:min(460px,100%);max-height:min(100%,calc(100dvh - 200px))}
@@ -279,19 +281,19 @@ svg.comb{width:100%;max-width:min(520px,100%);max-height:min(58vh,480px);height:
   }
   .comb-core{max-width:min(340px,100%);justify-self:center;width:100%}
   .rail-pair{
-    grid-area:rails;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    grid-area:rails;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;
     padding:8px;border:1px solid rgba(212,167,44,.28);border-radius:10px;
     background:
       radial-gradient(circle at 30% 40%, rgba(212,167,44,.1), transparent 55%),
       linear-gradient(180deg, rgba(30,22,10,.4), rgba(10,8,6,.7));
   }
-  .comb-rail.left,.comb-rail.right{grid-area:auto;border:none;background:transparent;border-radius:6px}
+  .comb-rail.left,.comb-rail.right{grid-area:auto;border:none;background:transparent;border-radius:6px;min-width:0}
   .comb-rail.left{border-right:1px solid rgba(212,167,44,.22);padding-right:4px}
   .comb-rail .rail-label{padding-top:4px;font-size:.52rem}
   .comb-rail .rail-sub{font-size:.5rem;padding-bottom:4px}
-  .comb-rail .rail-scroll{flex:0 0 auto;overflow-x:auto;padding-bottom:4px;min-height:0}
+  .comb-rail .rail-scroll{flex:0 0 auto;overflow-x:auto;padding-bottom:4px;min-height:0;min-width:0;width:100%}
   .comb-rail .rail-foot{padding:6px 6px 8px}
-  .comb-rail{min-height:0;align-self:auto}
+  .comb-rail{min-height:0;align-self:auto;width:100%}
   .combwrap > .pipeline-detail{grid-area:pipe;margin-top:0}
 }
 .comblegend span{display:flex;align-items:center;gap:5px}
@@ -3351,8 +3353,8 @@ function renderEta(items){
   renderAssignmentRail(assigns);
 }
 
-/* Side rails: 3 across × 6 down at fixed hex size; extra columns scroll →. */
-var RAIL_ROWS=6, RAIL_VISIBLE_COLS=3, RAIL_MIN_SLOTS=18, selRailEl=null;
+/* Side rails: ≤3 across × 4 down; columns follow content (no empty side lattice). */
+var RAIL_ROWS=4, RAIL_VISIBLE_COLS=3, selRailEl=null;
 function wrapRailLabel(n,maxLines,maxChars){
   maxChars=maxChars||10;
   var w=String(n||"").split(/[\s\/_\-]+/),L=[],c="";
@@ -3405,9 +3407,11 @@ function renderRail(svgId, items, kind){
   var core=document.querySelector(".comb-core");
   var scroll=svg.closest(".rail-scroll");
   if(rail) rail.style.minHeight="";
-  var pxW=Math.max(120, (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 200);
+  /* Same path on mobile + mid + large: content columns, size to scroll width. */
+  var pxW=Math.max(100, (scroll && scroll.clientWidth>40) ? (scroll.clientWidth - 4)
+    : (rail && rail.clientWidth) ? (rail.clientWidth - 10) : 160);
   var narrow=window.matchMedia("(max-width:700px)").matches;
-  var rows=narrow?4:RAIL_ROWS;
+  var rows=RAIL_ROWS;
   var labelEl=rail&&rail.querySelector(".rail-label");
   var subEl=rail&&rail.querySelector(".rail-sub");
   var footEl=rail&&rail.querySelector(".rail-foot");
@@ -3417,25 +3421,17 @@ function renderRail(svgId, items, kind){
   else if(rail && rail.clientHeight>120) hostH=Math.max(0, rail.clientHeight-chrome);
   else if(core) hostH=Math.max(0, core.getBoundingClientRect().height-chrome);
   var avail=Math.max(110, hostH||160);
-  /* Hex size must fit BOTH 3 visible columns AND N rows — never taller than the scroll box. */
-  var MAX_RAIL_SIZE=narrow?26:28;
+  /* Only as many columns as items need — no empty lattice beside the filled hexes. */
+  var cols=Math.max(1, Math.ceil(Math.max(items.length, 1) / rows));
+  var fitCols=Math.min(RAIL_VISIBLE_COLS, cols);
+  var slotCount=Math.max(items.length, cols * rows);
+  var MAX_RAIL_SIZE=narrow?28:32;
   var MIN_RAIL_SIZE=narrow?16:18;
-  var sizeFromW=pxW / (2 + (RAIL_VISIBLE_COLS - 1) * 2 + 0.2);
+  var sizeFromW=pxW / (2 + (fitCols - 1) * 2 + 0.2);
   var sizeFromH=(avail-2)/(0.95+(rows-0.5)*Math.sqrt(3));
   var size=Math.max(MIN_RAIL_SIZE, Math.min(MAX_RAIL_SIZE, sizeFromW, sizeFromH));
-  /* Extra short rows only when leftover height remains at this compact size. */
-  if(!narrow){
-    var pitchProbe=size*Math.sqrt(3);
-    var tip=size*Math.sqrt(3)/2;
-    var padProbe=size*0.95;
-    rows=Math.max(RAIL_ROWS, Math.min(10, Math.floor((avail-padProbe-tip-2)/pitchProbe)+1));
-    while(railLatticeHeight(size, rows)>avail+0.5 && size>MIN_RAIL_SIZE){
-      size-=0.5;
-      pitchProbe=size*Math.sqrt(3);
-      tip=size*Math.sqrt(3)/2;
-      padProbe=size*0.95;
-      rows=Math.max(RAIL_ROWS, Math.min(10, Math.floor((avail-padProbe-tip-2)/pitchProbe)+1));
-    }
+  while(railLatticeHeight(size, rows)>avail+0.5 && size>MIN_RAIL_SIZE){
+    size-=0.5;
   }
   var pitchX=size * 2;
   var pitchY=size * Math.sqrt(3);
@@ -3443,9 +3439,6 @@ function renderRail(svgId, items, kind){
   var padY=size * 0.95;
   var font=Math.max(7, size * 0.24);
   var maxChars=Math.max(7, Math.floor((size * 1.55) / (font * 0.55)));
-  var minSlots=narrow?Math.max(12, items.length):Math.max(RAIL_MIN_SLOTS, rows*RAIL_VISIBLE_COLS, items.length);
-  var slotCount=Math.max(minSlots, items.length);
-  var cols=Math.max(RAIL_VISIBLE_COLS, Math.ceil(slotCount / rows));
   var slots=[], i=0;
   /* Column-major: fill down each column, then move right (horizontal scroll). */
   for(var col=0; col<cols; col++){
@@ -3483,12 +3476,13 @@ function renderRail(svgId, items, kind){
       scroll.style.flex="1 1 auto";
     }
   }
+  var frameW=scroll&&scroll.clientWidth>40?scroll.clientWidth:Math.round(Math.max(contentW, pxW));
   svg.innerHTML="";
   svg.setAttribute("viewBox","0 0 "+contentW+" "+height);
-  svg.setAttribute("preserveAspectRatio","xMinYMin meet");
-  svg.setAttribute("width", Math.round(contentW));
+  svg.setAttribute("preserveAspectRatio","xMidYMin meet");
+  svg.setAttribute("width", Math.round(frameW));
   svg.setAttribute("height", Math.round(height));
-  svg.style.width=Math.round(contentW)+"px";
+  svg.style.width=Math.round(frameW)+"px";
   svg.style.height=Math.round(height)+"px";
   slots.forEach(function(slot, idx){
     var it=items[idx];
