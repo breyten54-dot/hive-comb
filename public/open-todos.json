@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-08T22:29:00.000Z",
+  "updatedAt": "2026-08-12T17:15:00.000Z",
   "todos": [
     {
       "name": "BMSR 120 Key Functions interview — Berkeley + link + analysis",
@@ -15,17 +15,17 @@
       "estimateMinutes": 90
     },
     {
-      "name": "BMSR 116 Integrated Task — Joyce extension to 14 Aug",
+      "name": "BMSR 116 Integrated Task — submitted",
       "section": "ETA",
       "owner": "User",
       "priority": "P0",
-      "status": "Blocked",
-      "url": "https://etaconnect.etacollege.com/course/view.php?id=13361",
-      "blockedOn": "Joyce unlocks Integrated Task brief (Duly Performed / DBN 26) or forwards brief",
-      "notes": "Replaces BMSR 116 test. Official due 11 Aug; extension to 14 Aug (Joyce). Comb Assignments hex shows 14 Aug. Brief not capturable yet.",
-      "hivePath": "ETA Work\\",
-      "howTo": "Ask Joyce to open Integrated Task access, or paste/upload the brief. Agent then captures, drafts, and you submit before 14 Aug.",
-      "estimateMinutes": 120
+      "status": "Done",
+      "url": "https://etacollege-my.sharepoint.com/:w:/p/joyce_rantsho/IQDtjXXQ7Qt8To-okgqPMRqIAb8FKyspu-RKC9Zrouj3bSw",
+      "blockedOn": "",
+      "notes": "2026-08-11 USER: submitted on etaConnect (confirmed in chat). Cover student number 30018549.",
+      "hivePath": "ETA Work\\assessments\\bmsr116-integrated-task-2026\\",
+      "howTo": "Submitted — no further action.",
+      "estimateMinutes": 60
     },
     {
       "name": "Verify praeto.co.za in Resend + retarget TechCo briefs",
@@ -74,10 +74,36 @@
       "status": "Open",
       "url": "http://127.0.0.1:8765",
       "blockedOn": "User confirms pitch + whether to build drop-folder UX next",
-      "notes": "Thought-product 2026-08-07: sell the system already in use — disk JSON/MD as ledger, Comb as live board, Agent/Ani as setup interviewer. Optional later: drop a brief/PDF into a folder → Ani asks clarifying Qs → writes open-todos / Brain / Hand-Over. Not blocking daily Comb use.",
+      "notes": "Phase 6 stretch (not v1). Disk ledger + public vault + Ani organizer tools shipped 2026-08-11. Optional later: drop a brief/PDF → Ani asks clarifying Qs → writes open-todos / Brain. Not blocking daily Comb use.",
       "hivePath": "Comb\\",
       "howTo": "Approve the sell story in chat, then either park or ask Agent to spec a Comb Inbox drop folder + Ani questionnaire flow.",
       "estimateMinutes": 45
+    },
+    {
+      "name": "Comb OS — full HIVE access (tunnel + auth + writes)",
+      "section": "The Comb",
+      "owner": "Agent",
+      "priority": "P0",
+      "status": "Done",
+      "url": "http://127.0.0.1:8765",
+      "blockedOn": "",
+      "notes": "2026-08-11: serve.js auth+bind, vault-write/upload, plane banner, Cloudflare quick tunnel → comb-os.json. iota = public plane only. Keep PC on + serve + tunnel for any-device OS link.",
+      "hivePath": "Comb\\",
+      "howTo": "npm run auth:ensure; npm run serve; npm run tunnel. Bookmark osUrl from public/comb-os.json. Password in Comb/.env.local.",
+      "estimateMinutes": 120
+    },
+    {
+      "name": "Comb disk SoT + public file plane",
+      "section": "The Comb",
+      "owner": "Agent",
+      "priority": "P0",
+      "status": "Done",
+      "url": "https://hive-comb-iota.vercel.app",
+      "blockedOn": "",
+      "notes": "2026-08-11: Notion Comb runtime retired (/api/hive stub). Football/public-surface → vault-public + public-tree.json. Live shows public papers only; contracts stay on local serve.js. Ani: ensure_comb, sync_comb_public_vault, organize_comb_todo.",
+      "hivePath": "Comb\\",
+      "howTo": "Superseded — shipped. Re-run npm run sync:public-vault before Comb deploys that need new public papers.",
+      "estimateMinutes": 90
     },
     {
       "name": "Move Anialah .env out of OneDrive",
@@ -260,6 +286,19 @@
       "hivePath": "Stella Project\\",
       "howTo": "Generate a VAPID key pair, add the public and private keys to the Stella web app and server, and complete Google Play identity verification for push notifications.",
       "estimateMinutes": 60
+    },
+    {
+      "name": "Sporting-code scroll + duration deselect visuals (Stella Indoor)",
+      "section": "stella indoor",
+      "owner": "Agent",
+      "priority": "P1",
+      "status": "Done",
+      "url": "https://stella-indoor.web.app",
+      "blockedOn": "",
+      "notes": "2026-08-12: BookingApp AnimatePresence now scrolls to top onExitComplete so each wizard step opens at the top. CourtSelection no longer falls back to 1 HR when duration is deselected — card shows 'R… / hour — pick 1, 1.5 or 2' and the green highlight clears on second tap. Client + admin hosting deployed; both 200.",
+      "hivePath": "Stella Project\\stella-indoor-source\\",
+      "howTo": "Shipped. If the PWA still shows the old build, hard-refresh or close/reopen to clear the cached service worker.",
+      "estimateMinutes": 30
     },
     {
       "name": "Retry Balance folder rename off ugly path",
