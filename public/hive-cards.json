@@ -57,10 +57,10 @@
     "title": "Football",
     "tagline": "Ethekwini City FC · Manning Rangers Sporting",
     "about": [
-      "Local club OS vault — contracts, forms, SAFA letters, equipment, clearances, badges, trials. Disk-backed; not Notion.",
-      "Open the Football hex for named papers (U19 / U21 / Over-21 agreements, coaching contracts, profile form) plus MYSAFA, Inqaku, and SAFA."
+      "Club OS vault — public papers (badges, trials, blank forms, SAFA letters) open on any Comb URL; contracts and clearances stay on local Comb (serve.js).",
+      "Open the Football hex for public chips + MYSAFA / Inqaku / SAFA. Full contract shelf requires local serve against the HIVE disk."
     ],
-    "focus": "Each contract and form is labeled by name inside the Football lane.",
+    "focus": "Public plane is safe to share; private contracts never deploy to Vercel.",
     "links": [
       { "label": "Open Football lane", "href": "#/hive/football" },
       { "label": "Browse vault shelves", "href": "#/hive/browse/football" }
@@ -240,7 +240,7 @@
   "comb": {
     "id": "comb",
     "title": "The Comb",
-    "tagline": "This OS — local dashboard on :8765",
+    "tagline": "This OS — Comb OS home vault (serve.js + tunnel)",
     "about": [
       "The Comb is the HIVE operating surface: surface rails, deep hive, ETA drafts, vault mounts.",
       "You are looking at it now."

@@ -1,0 +1,287 @@
+{
+  "updatedAt": "2026-08-13T06:32:43.513Z",
+  "source": "Football/public-surface + ETA assessment outputs → Comb/public/vault-public",
+  "privacy": "Public Comb URL plane only. Full ETA shelf and Football contracts stay on local serve.js.",
+  "roots": [
+    {
+      "root": {
+        "id": "football",
+        "label": "Football"
+      },
+      "sections": [
+        {
+          "id": "assets",
+          "label": "Club badges",
+          "files": [
+            {
+              "id": "assets-ethekwini-city-fc-badge-png",
+              "label": "Badge - Ethekwini City FC",
+              "stem": "ethekwini-city-fc-badge",
+              "stemLabel": "Badge - Ethekwini City FC",
+              "ext": ".png",
+              "rel": "assets/ethekwini-city-fc-badge.png",
+              "url": "/vault-public/football/assets/ethekwini-city-fc-badge.png",
+              "bytes": 61627,
+              "mtime": "2026-08-05T23:54:08.988Z"
+            },
+            {
+              "id": "assets-manning-rangers-sporting-badge-png",
+              "label": "Badge - Manning Rangers Sporting",
+              "stem": "manning-rangers-sporting-badge",
+              "stemLabel": "Badge - Manning Rangers Sporting",
+              "ext": ".png",
+              "rel": "assets/manning-rangers-sporting-badge.png",
+              "url": "/vault-public/football/assets/manning-rangers-sporting-badge.png",
+              "bytes": 46022,
+              "mtime": "2026-08-05T23:54:08.110Z"
+            }
+          ]
+        },
+        {
+          "id": "trials",
+          "label": "Trials",
+          "files": [
+            {
+              "id": "trials-ethekwini-city-fc-player-trials-15-aug-2026-html",
+              "label": "Trials Poster - 15 Aug 2026",
+              "stem": "ethekwini-city-fc-player-trials-15-aug-2026",
+              "stemLabel": "Trials Poster - 15 Aug 2026",
+              "ext": ".html",
+              "rel": "trials/ethekwini-city-fc-player-trials-15-aug-2026.html",
+              "url": "/vault-public/football/trials/ethekwini-city-fc-player-trials-15-aug-2026.html",
+              "bytes": 3644,
+              "mtime": "2026-08-10T11:33:42.719Z"
+            },
+            {
+              "id": "trials-ethekwini-city-fc-player-trials-15-aug-2026-png",
+              "label": "Trials Poster - 15 Aug 2026",
+              "stem": "ethekwini-city-fc-player-trials-15-aug-2026",
+              "stemLabel": "Trials Poster - 15 Aug 2026",
+              "ext": ".png",
+              "rel": "trials/ethekwini-city-fc-player-trials-15-aug-2026.png",
+              "url": "/vault-public/football/trials/ethekwini-city-fc-player-trials-15-aug-2026.png",
+              "bytes": 2385534,
+              "mtime": "2026-08-10T10:15:01.766Z"
+            }
+          ]
+        },
+        {
+          "id": "forms",
+          "label": "Blank forms",
+          "files": [
+            {
+              "id": "forms-mysafa-registration-form-pdf",
+              "label": "MYSAFA Registration Form (blank)",
+              "stem": "MYSAFA-Registration-Form",
+              "stemLabel": "MYSAFA Registration Form (blank)",
+              "ext": ".pdf",
+              "rel": "forms/MYSAFA-Registration-Form.pdf",
+              "url": "/vault-public/football/forms/MYSAFA-Registration-Form.pdf",
+              "bytes": 136789,
+              "mtime": "2026-08-06T12:18:27.610Z"
+            },
+            {
+              "id": "forms-player-profile-form-2026-html",
+              "label": "Player Profile Form (blank, 2026)",
+              "stem": "Player-Profile-Form-2026",
+              "stemLabel": "Player Profile Form (blank, 2026)",
+              "ext": ".html",
+              "rel": "forms/Player-Profile-Form-2026.html",
+              "url": "/vault-public/football/forms/Player-Profile-Form-2026.html",
+              "bytes": 151635,
+              "mtime": "2026-08-06T13:31:52.608Z"
+            }
+          ]
+        },
+        {
+          "id": "safa",
+          "label": "SAFA letters",
+          "files": [
+            {
+              "id": "safa-safa-club-name-change-and-league-placement-request-2026-html",
+              "label": "SAFA Club Name Change & League Placement (2026)",
+              "stem": "SAFA-Club-Name-Change-and-League-Placement-Request-2026",
+              "stemLabel": "SAFA Club Name Change & League Placement (2026)",
+              "ext": ".html",
+              "rel": "safa/SAFA-Club-Name-Change-and-League-Placement-Request-2026.html",
+              "url": "/vault-public/football/safa/SAFA-Club-Name-Change-and-League-Placement-Request-2026.html",
+              "bytes": 150487,
+              "mtime": "2026-08-06T00:13:53.390Z"
+            }
+          ]
+        }
+      ],
+      "fileCount": 7
+    },
+    {
+      "root": {
+        "id": "eta-work",
+        "label": "ETA Work"
+      },
+      "sections": [
+        {
+          "id": "assessments",
+          "label": "Assessment drafts",
+          "files": [
+            {
+              "id": "assessments-bmsr116-integrated-task-2026-bmsr116-integrated-task-draft-pdf",
+              "label": "BMSR 116 Integrated Task — Draft",
+              "stem": "BMSR116-Integrated-Task-DRAFT",
+              "stemLabel": "BMSR 116 Integrated Task — Draft",
+              "ext": ".pdf",
+              "rel": "assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.pdf",
+              "url": "/vault-public/eta-work/assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.pdf",
+              "bytes": 141120,
+              "mtime": "2026-08-11T19:15:28.949Z"
+            },
+            {
+              "id": "assessments-bmsr116-integrated-task-2026-bmsr116-integrated-task-draft-docx",
+              "label": "BMSR 116 Integrated Task — Draft",
+              "stem": "BMSR116-Integrated-Task-DRAFT",
+              "stemLabel": "BMSR 116 Integrated Task — Draft",
+              "ext": ".docx",
+              "rel": "assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.docx",
+              "url": "/vault-public/eta-work/assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.docx",
+              "bytes": 14747,
+              "mtime": "2026-08-11T19:15:32.067Z"
+            },
+            {
+              "id": "assessments-bmsr116-integrated-task-2026-bmsr116-integrated-task-draft-html",
+              "label": "BMSR 116 Integrated Task — Draft",
+              "stem": "BMSR116-Integrated-Task-DRAFT",
+              "stemLabel": "BMSR 116 Integrated Task — Draft",
+              "ext": ".html",
+              "rel": "assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.html",
+              "url": "/vault-public/eta-work/assessments/bmsr116-integrated-task-2026/BMSR116-Integrated-Task-DRAFT.html",
+              "bytes": 20646,
+              "mtime": "2026-08-11T19:15:19.499Z"
+            },
+            {
+              "id": "assessments-bmsr116-integrated-task-2026-sources-bmsr116-integrated-assessment-2",
+              "label": "BMSR 116 Integrated Task — Official brief",
+              "stem": "BMSR116_Integrated assessment_2026",
+              "stemLabel": "BMSR 116 Integrated Task — Official brief",
+              "ext": ".docx",
+              "rel": "assessments/bmsr116-integrated-task-2026/sources/BMSR116_Integrated assessment_2026.docx",
+              "url": "/vault-public/eta-work/assessments/bmsr116-integrated-task-2026/sources/BMSR116_Integrated%20assessment_2026.docx",
+              "bytes": 44415,
+              "mtime": "2026-08-11T15:48:23.405Z"
+            },
+            {
+              "id": "assessments-bmsr120-la1-role-play-scenarios-bmsr120-la1-role-play-scenarios-draf",
+              "label": "BMSR 120 Role-Play — Draft",
+              "stem": "BMSR120-LA1-Role-Play-Scenarios-DRAFT",
+              "stemLabel": "BMSR 120 Role-Play — Draft",
+              "ext": ".pdf",
+              "rel": "assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.pdf",
+              "url": "/vault-public/eta-work/assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.pdf",
+              "bytes": 147567,
+              "mtime": "2026-08-05T18:59:35.973Z"
+            },
+            {
+              "id": "assessments-bmsr120-la1-role-play-scenarios-bmsr120-la1-role-play-scenarios-draf",
+              "label": "BMSR 120 Role-Play — Draft",
+              "stem": "BMSR120-LA1-Role-Play-Scenarios-DRAFT",
+              "stemLabel": "BMSR 120 Role-Play — Draft",
+              "ext": ".docx",
+              "rel": "assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.docx",
+              "url": "/vault-public/eta-work/assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.docx",
+              "bytes": 24697,
+              "mtime": "2026-08-05T18:59:39.081Z"
+            },
+            {
+              "id": "assessments-bmsr120-la1-role-play-scenarios-bmsr120-la1-role-play-scenarios-draf",
+              "label": "BMSR 120 Role-Play — Draft",
+              "stem": "BMSR120-LA1-Role-Play-Scenarios-DRAFT",
+              "stemLabel": "BMSR 120 Role-Play — Draft",
+              "ext": ".html",
+              "rel": "assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.html",
+              "url": "/vault-public/eta-work/assessments/bmsr120-la1-role-play-scenarios/BMSR120-LA1-Role-Play-Scenarios-DRAFT.html",
+              "bytes": 47236,
+              "mtime": "2026-08-05T18:59:34.777Z"
+            },
+            {
+              "id": "assessments-bmsr120-key-functions-the-interview-bmsr120-key-functions-the-interv",
+              "label": "BMSR 120 Key Functions Interview — Draft",
+              "stem": "BMSR120-Key-Functions-The-Interview-DRAFT",
+              "stemLabel": "BMSR 120 Key Functions Interview — Draft",
+              "ext": ".pdf",
+              "rel": "assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.pdf",
+              "url": "/vault-public/eta-work/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.pdf",
+              "bytes": 138288,
+              "mtime": "2026-08-05T19:29:51.679Z"
+            },
+            {
+              "id": "assessments-bmsr120-key-functions-the-interview-bmsr120-key-functions-the-interv",
+              "label": "BMSR 120 Key Functions Interview — Draft",
+              "stem": "BMSR120-Key-Functions-The-Interview-DRAFT",
+              "stemLabel": "BMSR 120 Key Functions Interview — Draft",
+              "ext": ".docx",
+              "rel": "assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.docx",
+              "url": "/vault-public/eta-work/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.docx",
+              "bytes": 18043,
+              "mtime": "2026-08-05T19:29:54.803Z"
+            },
+            {
+              "id": "assessments-bmsr120-key-functions-the-interview-bmsr120-key-functions-the-interv",
+              "label": "BMSR 120 Key Functions Interview — Draft",
+              "stem": "BMSR120-Key-Functions-The-Interview-DRAFT",
+              "stemLabel": "BMSR 120 Key Functions Interview — Draft",
+              "ext": ".html",
+              "rel": "assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.html",
+              "url": "/vault-public/eta-work/assessments/bmsr120-key-functions-the-interview/BMSR120-Key-Functions-The-Interview-DRAFT.html",
+              "bytes": 31071,
+              "mtime": "2026-08-05T19:29:50.216Z"
+            }
+          ]
+        },
+        {
+          "id": "study-guide",
+          "label": "Study guides",
+          "files": [
+            {
+              "id": "study-guide-2026-08-18-bmsr114-written-test-study-guide-pdf",
+              "label": "BMSR 114 Written Test — Study Guide",
+              "stem": "BMSR114-Written-Test-STUDY-GUIDE",
+              "stemLabel": "BMSR 114 Written Test — Study Guide",
+              "ext": ".pdf",
+              "rel": "study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf",
+              "url": "/vault-public/eta-work/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.pdf",
+              "bytes": 519264,
+              "mtime": "2026-08-05T16:36:48.104Z"
+            },
+            {
+              "id": "study-guide-2026-08-18-bmsr114-written-test-study-guide-html",
+              "label": "BMSR 114 Written Test — Study Guide",
+              "stem": "BMSR114-Written-Test-STUDY-GUIDE",
+              "stemLabel": "BMSR 114 Written Test — Study Guide",
+              "ext": ".html",
+              "rel": "study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.html",
+              "url": "/vault-public/eta-work/study-guide/2026-08-18/BMSR114-Written-Test-STUDY-GUIDE.html",
+              "bytes": 215921,
+              "mtime": "2026-08-05T16:36:46.335Z"
+            }
+          ]
+        },
+        {
+          "id": "deadlines",
+          "label": "Handouts",
+          "files": [
+            {
+              "id": "deadlines-briefs-key-functions-the-interview-consent-form-bmsr-120-docx",
+              "label": "BMSR 120 Consent Form",
+              "stem": "Consent Form_BMSR 120",
+              "stemLabel": "BMSR 120 Consent Form",
+              "ext": ".docx",
+              "rel": "deadlines/briefs/Key-Functions-The-Interview/Consent Form_BMSR 120.docx",
+              "url": "/vault-public/eta-work/deadlines/briefs/Key-Functions-The-Interview/Consent%20Form_BMSR%20120.docx",
+              "bytes": 63978,
+              "mtime": "2026-08-13T06:00:53.191Z"
+            }
+          ]
+        }
+      ],
+      "fileCount": 13
+    }
+  ]
+}
